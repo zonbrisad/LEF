@@ -1,0 +1,129 @@
+
+
+  			Description of Arduino hardware
+========================================================
+
+
+  Arduino Duemilanove/UNO etc.
+-----------------------------------------------------
+
+
+LED is on PB5
+
+ Analog
+-----------------------------------
+ Analog in 0  -> PC0 PIN 23
+ Analog in 1  -> PC1 PIN 24
+ Analog in 2  -> PC2 PIN 25
+ Analog in 3  -> PC3 PIN 26
+ Analog in 4  -> PC4 PIN 27
+ Analog in 5  -> PC5 PIN 28
+
+ Digital/PWM
+-----------------------------------
+ D0 RX        -> PD0 PIN 2
+ D1 TX        -> PD1 PIN 3
+ D2 INT0      -> PD2 PIN 4
+ D3 INT1      -> PD3 PIN 5
+ D4 T0        -> PD4 PIN 6
+ D5 T1        -> PD5 PIN 11
+ D6 AIN0      -> PD6 PIN 12
+ D7 AIN1      -> PD7 PIN 13
+ D8           -> PB0 PIN 14
+ D9           -> PB1 PIN 15
+ D10 SS       -> PB2 PIN 16
+ D11 MOSI     -> PB3 PIN 17
+ D12 MISO     -> PB4 PIN 18
+ D13 SCK      -> PB5 PIN 19
+ 
+
+  Arduino MEGA
+-----------------------------------------------------
+
+LED is on PB7
+
+ Analog
+-----------------------------------
+ Analog in 0  -> PF0 PIN 97
+ Analog in 1  -> PF1 PIN 96
+ Analog in 2  -> PF2 PIN 95
+ Analog in 3  -> PF3 PIN 94
+ Analog in 4  -> PF4 PIN 93
+ Analog in 5  -> PF5 PIN 92
+ Analog in 6  -> PF6 PIN 91
+ Analog in 7  -> PF7 PIN 90
+ Analog in 8  -> PK0 PIN 89
+ Analog in 9  -> PK1 PIN 88
+ Analog in 10 -> PK2 PIN 87
+ Analog in 11 -> PK3 PIN 86
+ Analog in 12 -> PK4 PIN 85
+ Analog in 13 -> PK5 PIN 84
+ Analog in 14 -> PK6 PIN 83
+ Analog in 15 -> PK7 PIN 82
+
+ PWM
+-----------------------------------
+ PWM 0        -> PE0 PIN 2  (RX0)
+ PWM 1        -> PE1 PIN 3  (TX0)
+ PWM 2        -> PE4 PIN 6
+ PWM 3        -> PE5 PIN 7
+ PWM 4        -> PG5 PIN 1
+ PWM 5        -> PE3 PIN 5
+ PWM 6        -> PH3 PIN 15
+ PWM 7        -> PH4 PIN 16
+ PWM 8        -> PH5 PIN 17
+ PWM 9        -> PH6 PIN 18
+ PWM 10       -> PB4 PIN 23
+ PWM 11       -> PB5 PIN 24
+ PWM 12       -> PB6 PIN 25
+ PWM 13       -> PH7 PIN 26
+
+ Communication.
+-----------------------------------
+ RX0          -> PE0 PIN 2
+ TX0          -> PE1 PIN 3
+ RX1          -> PD2 PIN 45
+ TX1          -> PD3 PIN 46
+ RX2          -> PH0 PIN 12
+ TX2          -> PH1 PIN 13
+ RX3          -> PJ0 PIN 63
+ TX3          -> PJ1 PIN 64
+ SDA          -> PD1 PIN 44
+ SCL          -> PD0 PIN 43
+
+
+ Digital
+-----------------------------------
+ D22          -> PA0 PIN 78
+ D23          -> PA1 PIN 77
+ D24          -> PA2 PIN 76
+ D25          -> PA3 PIN 75
+ D26          -> PA4 PIN 74
+ D27          -> PA5 PIN 73
+ D28          -> PA6 PIN 72
+ D29          -> PA7 PIN 71
+ D30          -> PC7 PIN 60
+ D31          -> PC6 PIN 59
+ D32          -> PC5 PIN 58
+ D33          -> PC4 PIN 57
+ D34          -> PC3 PIN 56
+ D35          -> PC2 PIN 55
+ D36          -> PC1 PIN 54
+ D37          -> PC0 PIN 53
+ D38          -> PD7 PIN 50
+ D39          -> PG2 PIN 70
+ D40          -> PG1 PIN 52
+ D41          -> PG0 PIN 51
+ D42          -> PL7 PIN 42
+ D43          -> PL6 PIN 41
+ D44          -> PL5 PIN 40
+ D45          -> PL4 PIN 39
+ D46          -> PL3 PIN 38
+ D47          -> PL2 PIN 37
+ D48          -> PL1 PIN 36
+ D49          -> PL0 PIN 35
+ D50          -> PB3 PIN 22 (MISO)
+ D51          -> PB2 PIN 21 (MOSI)
+ D52          -> PB1 PIN 20 (SCK)
+ D53          -> PB0 PIN 19
+

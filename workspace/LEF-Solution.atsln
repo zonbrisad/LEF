@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Atmel Studio Solution File, Format Version 11.00
+Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "testapp1", "GccApplication1\testapp1.cproj", "{AA067E31-BBD9-4782-B28C-D42A310FBBF7}"
+EndProject
+Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "test2", "test2\test2.cproj", "{D176DE2E-0E44-4047-93DB-4B2C546AE9CC}"
+EndProject
+Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "leflib1", "leflib1\leflib1.cproj", "{5A92D251-7BB9-4A04-8358-8EAE6C051773}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|AVR = Debug|AVR
+		Release|AVR = Release|AVR
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AA067E31-BBD9-4782-B28C-D42A310FBBF7}.Debug|AVR.ActiveCfg = Debug|AVR
+		{AA067E31-BBD9-4782-B28C-D42A310FBBF7}.Debug|AVR.Build.0 = Debug|AVR
+		{AA067E31-BBD9-4782-B28C-D42A310FBBF7}.Release|AVR.ActiveCfg = Release|AVR
+		{AA067E31-BBD9-4782-B28C-D42A310FBBF7}.Release|AVR.Build.0 = Release|AVR
+		{D176DE2E-0E44-4047-93DB-4B2C546AE9CC}.Debug|AVR.ActiveCfg = Debug|AVR
+		{D176DE2E-0E44-4047-93DB-4B2C546AE9CC}.Debug|AVR.Build.0 = Debug|AVR
+		{D176DE2E-0E44-4047-93DB-4B2C546AE9CC}.Release|AVR.ActiveCfg = Release|AVR
+		{D176DE2E-0E44-4047-93DB-4B2C546AE9CC}.Release|AVR.Build.0 = Release|AVR
+		{5A92D251-7BB9-4A04-8358-8EAE6C051773}.Debug|AVR.ActiveCfg = Debug|AVR
+		{5A92D251-7BB9-4A04-8358-8EAE6C051773}.Debug|AVR.Build.0 = Debug|AVR
+		{5A92D251-7BB9-4A04-8358-8EAE6C051773}.Release|AVR.ActiveCfg = Release|AVR
+		{5A92D251-7BB9-4A04-8358-8EAE6C051773}.Release|AVR.Build.0 = Release|AVR
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,12 @@
+
+
+
+  Version 0.2 2012-08-03
+------------------------------------------
+- Added support for timer 
+
+  Version 0.1 2012-02-03
+-----------------------------------------
+- initial release
+- Queue support
+- simple button support

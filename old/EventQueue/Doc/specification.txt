@@ -1,0 +1,16 @@
+
+
+
+Standard LCD connected
+-----------------------
+
+MCU     LCD
+----------------
+PD2   - RS
+PD3   - RW
+PD4   - E
+
+PD7   - Data4
+PB1   - Data5
+PB2   - Data6
+PD6   - Data7
