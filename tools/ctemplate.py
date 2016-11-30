@@ -31,8 +31,10 @@ from datetime import datetime, date, time
 def addHeader(file, fileName, brief, date, author, licence):
     file.write( 
     "/**\n"
-    " * LEF - Lightweiht Event Framework\n\n"
-    " * This file is part of LEF distribution\n\n"
+    " * LEF - Lightweight Event Framework\n"
+    " *\n"
+    " * This file is part of LEF distribution\n"
+    " *\n"
     " *---------------------------------------------------------------------------\n"
     " * @brief   "+brief+"\n"
     " *\n"
@@ -41,11 +43,15 @@ def addHeader(file, fileName, brief, date, author, licence):
     " * @date    "+date+"\n"
     " * @licence "+licence+"\n"
     " *\n"
-    " *---------------------------------------------------------------------------\n\n"
+    " *---------------------------------------------------------------------------\n"
+    " *\n"
     " * LEF is distributed in the hope that it will be useful, but WITHOUT ANY\n"
     " * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS\n"
-    " * FOR A PARTICULAR PURPOSE.  Full license text is available on the following\n\n"             
-    " * https://github.com/zonbrisad/LEF\n\n"
+    " * FOR A PARTICULAR PURPOSE.  Full license text is available on the following\n"
+    " *\n"
+    " * Source repository:\n"
+    " * https://github.com/zonbrisad/LEF\n"
+    " *\n"
     " * 1 tab = 2 spaces\n"
     " */\n\n")
  

@@ -32,9 +32,11 @@ extern "C" {
 // Includes ---------------------------------------------------------------	
 #include <stdint.h>
 
-#include "LEF_config.h"
+#include "LEF_Config.h"
 	
-	
+#include "LEF_Timer.h"
+#include "LEF_Led.h"
+
 // Controlls --------------------------------------------------------------
 
 #ifndef LEF_QUEUE_LENGTH

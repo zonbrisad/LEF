@@ -22,8 +22,9 @@ LICENCE = GPLv2
 TARGET = avrtest
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = src/main.c \
-      src/avrsimul.c
+SRC = src/main.c     \
+      src/avrsimul.c \
+      src/LEF.c
 
 # List C++ source files here. (C dependencies are automatically generated.)
 CPPSRC = 
@@ -759,7 +760,7 @@ files: list-src ## List source files
 #============================================================================
 
 # Only for default settings. Change value in settings.mk
-AUTHOR=Your Name <your.name@yourdomain.org>
+AUTHOR=Peter Malmberg <peter.malmberg@gmail.com>
 EDITOR=jed
 US:=$$USER
 #PERSONAL=personal_$${USER}.mk
