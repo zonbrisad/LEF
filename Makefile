@@ -28,6 +28,7 @@ SRC = src/main.c     \
 			src/LEF_Led.c  \
 			src/LEF_Timer.c \
 
+
 # List C++ source files here. (C dependencies are automatically generated.)
 CPPSRC = 
 
@@ -54,7 +55,7 @@ OPT = s
 
 # Compiler flag to set the C Standard level.
 # [ gnu99 gnu11 c++98 c++03 c++11 c++14 ] 
-CSTANDARD = -std=gnu99
+CSTANDARD = gnu99
 
 # C Macro definitions
 CDEFS = ARDUINO 
@@ -77,56 +78,74 @@ DEBUG=0
 #============================================================================
 
 # Compiler Options C --------------------------------------------------------
-#  -g*:          generate debugging information
-#  -O*:          optimization level
-#  -f...:        tuning, see GCC manual
-#  -Wall...:     warning level
-#  -Wa,...:      tell GCC to pass this to the assembler.
-#    -adhlns...: create assembler listing
-CFLAGS = -g$(DEBUG)
-CFLAGS += $(patsubst %,-D%,$(CDEFS))
-CFLAGS += -O$(OPT)
+CFLAGS = -g$(DEBUG)                            # Debugging information
+CFLAGS += -O$(OPT)                             # Optimisation level
+CFLAGS += -std=$(CSTANDARD)                    # C standard
+CFLAGS += $(patsubst %,-I%,$(INCLUDE))         # Include directories 
+CFLAGS += $(patsubst %,-D%,$(CDEFS))           # Macro definitions
+CFLAGS += -Wa,-adhlns=$(<:%.c=$(OBJDIR)/%.lst) # Generate assembler listing
+
+# Compiler Tuning C ---------------------------------------------------------
 CFLAGS += -funsigned-char
-CFLAGS += -funsigned-bitfields
-CFLAGS += -fpack-struct
-CFLAGS += -fshort-enums
-CFLAGS += -Wall
-CFLAGS += -Wstrict-prototypes
-#CFLAGS += -mshort-calls
+#CFLAGS += -funsigned-bitfields
+#CFLAGS += -fpack-struct
+#CFLAGS += -fshort-enums
 #CFLAGS += -fno-unit-at-a-time
-#CFLAGS += -Wundef
-CFLAGS += -Wunreachable-code
+#CFLAGS += -mshort-calls
+
+# Compiler Warnings C -------------------------------------------------------
+CFLAGS += -Wall                  # Standard warnings
+CFLAGS += -Wextra                # Some extra warnings
+CFLAGS += -Wmissing-braces 
+CFLAGS += -Wmissing-declarations # Warn if global function is not declared
+CFLAGS += -Wmissing-prototypes   # if a function is missing its prototype
+CFLAGS += -Wstrict-prototypes    # non correct prototypes i.e. void fun() => void fun(void) 
+CFLAGS += -Wredundant-decls      # Warn if something is declared more than ones
+CFLAGS += -Wunreachable-code     # if code is not used
+CFLAGS += -Wshadow               # if local variable has same name as global
+CFLAGS += -Wformat=2             # check printf and scanf for problems
+#CFLAGS += -Wno-format-nonliteral # 
+CFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void pointer
 #CFLAGS += -Wsign-compare
-#CFLAGS += -Wa,-adhlns=$(<:%.c=$(OBJDIR)/%.lst)
-CFLAGS += $(patsubst %,-I%,$(INCLUDE))
-CFLAGS += $(CSTANDARD)
+#CFLAGS += -Wundef
+#CFLAGS += -Werror               # All warnings will be treated as errors
+
 
 
 # Compiler Options C++ ------------------------------------------------------
-#  -g*:          generate debugging information
-#  -O*:          optimization level
-#  -f...:        tuning, see GCC manual and avr-libc documentation
-#  -Wall...:     warning level
-#  -Wa,...:      tell GCC to pass this to the assembler.
-#    -adhlns...: create assembler listing
-CPPFLAGS = -g$(DEBUG)
-CPPFLAGS += $(patsubst %,-D%,$(CPPDEFS))
-CPPFLAGS += -O$(OPT)
+CPPFLAGS = -g$(DEBUG)                              # Debugging information
+CPPFLAGS += -O$(OPT)                               # Optimisation level
+CPPFLAGS += -std=$(CSTANDARD)                      # C standard
+CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))           # Include directories 
+CPPFLAGS += $(patsubst %,-D%,$(CPPDEFS))           # Macro definitions
+CPPFLAGS += -Wa,-adhlns=$(<:%.cpp=$(OBJDIR)/%.lst) # Generate assembler listing
+
+# Compiler Tuning C++ -------------------------------------------------------
 CPPFLAGS += -funsigned-char
 CPPFLAGS += -funsigned-bitfields
 CPPFLAGS += -fpack-struct
 CPPFLAGS += -fshort-enums
 CPPFLAGS += -fno-exceptions
-CPPFLAGS += -Wall
-CPPFLAGS += -Wundef
 #CPPFLAGS += -mshort-calls
 #CPPFLAGS += -fno-unit-at-a-time
-#CPPFLAGS += -Wstrict-prototypes
-#CPPFLAGS += -Wunreachable-code
+
+# Compiler Warnings C++ -----------------------------------------------------
+CPPFLAGS += -Wall                  # Standard warnings
+CPPFLAGS += -Wextra                # Some extra warnings
+CPPFLAGS += -Wmissing-braces 
+CPPFLAGS += -Wmissing-declarations # Warn if global function is not declared
+CPPFLAGS += -Wmissing-prototypes   # if a function is missing its prototype
+CPPFLAGS += -Wstrict-prototypes    # non correct prototypes i.e. void fun() => void fun(void) 
+CPPFLAGS += -Wredundant-decls      # Warn if something is declared more than ones
+CPPFLAGS += -Wunreachable-code     # if code is not used
+CPPFLAGS += -Wshadow               # if local variable has same name as global
+CPPFLAGS += -Wformat=2             # check printf and scanf for problems
+#CPPFLAGS += -Wno-format-nonliteral # 
+CPPFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void pointer
 #CPPFLAGS += -Wsign-compare
-CPPFLAGS += -Wa,-adhlns=$(<:%.cpp=$(OBJDIR)/%.lst)
-CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))
-#CPPFLAGS += $(CSTANDARD)
+#CPPFLAGS += -Wundef
+#CPPFLAGS += -Werror              # All warnings will be treated as errors
+
 
 
 # Assembler Options ---------------------------------------------------------
@@ -290,6 +309,7 @@ CTEMPLATE = python3 tools/ctemplate.py
 BIN2ARRAY = python3 tools/bin2array.py
 MPTOOL    = tools/mkptools
 CPPCHECK  = cppcheck
+INSTALL   = install
 
 TCHAIN = $(TCHAIN_BASE)/$(TCHAIN_PREFIX)
 
@@ -371,13 +391,16 @@ MSG_LINKER           = "${C_MSG}Linker Flags $(E_GREEN)-------------------------
 MSG_PROJECT          = "${C_MSG}Project info $(E_GREEN)-----------------------------------------------------${E_END}"
 MSG_INCLUDES         = "${C_MSG}Include directories $(E_GREEN)----------------------------------------------${E_END}"
 MSG_DEFS             = "${C_MSG}Macro definitions $(E_GREEN)------------------------------------------------${E_END}"
-
-
+MSG_INSTALL_INFO     = "${C_MSG}Install settings $(E_GREEN)-------------------------------------------------${E_END}"
+MSG_INSTALLING       = "${C_ACTION}Installing:   ${E_END}"
+MSG_BUILDING         = "$(C_ACTION)Building:     "
+	
 # Compiler output colorizer filter ------------------------------------------
 
 F_INF="s/In function/$$(printf "$(E_BR_GREEN)")&$$(printf "$(E_END)")/i"
 FF_INF="s/^.*In function/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
 F_ERROR="s/error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
+F_FATAL_ERROR="s/fatal error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
 F_WARNING="s/warning:/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_NOTE="s/note:/$$(printf "$(C_NOTE)")&$$(printf "$(E_END)")/i"
 FF_ERROR="s/^.*error:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
@@ -386,10 +409,17 @@ FF_NOTE="s/^.*note:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
 F_WARNING1="s/defined but not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_WARNING2="s/unused variable/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_WARNING3="s/may be used uninitialized in this function/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
-C_FILTER   = | sed -ru -e $(F_ERROR)  -e $(F_WARNING)  -e $(F_NOTE) \
-                       -e $(FF_ERROR) -e $(FF_WARNING) -e $(FF_NOTE) \
-                       -e $(F_WARNING1) -e $(F_WARNING2) -e $(F_WARNING3) \
-											 -e $(F_INF) -e $(FF_INF)
+F_WARNING4="s/implicit declaration of function/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
+F_WARNING5="s/value computed is not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
+F_BRACKET="s/\[-W.*\]/$$(printf "$(E_GREEN)")&$$(printf "$(E_END)")/g"
+#XX="s/\[[^][]*\]/$$(printf "$(E_BR_BLUE)")&$$(printf "$(E_END)")/i"
+#YY="s/\'[^][]*\'/$$(printf "$(E_BR_GREEN)")&$$(printf "$(E_END)")/i"
+C_FILTER   = | sed -ru -e $(F_FATAL_ERROR) -e $(F_ERROR) -e $(FF_ERROR)     \
+                       -e $(F_WARNING) -e $(FF_WARNING)                     \
+                       -e $(F_WARNING1) -e $(F_WARNING2) -e $(F_WARNING3)   \
+                       -e $(F_WARNING4) -e $(F_WARNING5)                    \
+                       -e $(F_NOTE) -e $(FF_NOTE)                           \
+                       -e $(F_INF) -e $(FF_INF) -e $(F_BRACKET)
 CPP_FILTER = $(C_FILTER)
 
 LD_ERROR1="s/undefined reference/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
@@ -441,8 +471,7 @@ eep: $(OUTDIR)/$(TARGET).eep
 # Eye candy.
 begin:
 	@echo -e $(MSG_BEGIN)
-	@echo -e "$(E_BR_MAGENTA)Building:     $(E_BR_GREEN)$(TARGET) $(E_END)"
-
+	@echo -e ${MSG_BUILDING}"$(E_BR_GREEN)$(TARGET) $(E_END)"
  
 end:
 	@echo
@@ -660,9 +689,29 @@ newfile:  ## Create a new C file
 	
 newproj:  ## Create a new project
 	@${PROJECT} newproj
-	
-install: ## Install program
-	@${COPY} output/${TARGET} /usr/local/bin
+
+# Install options -----------------------------------------------------------
+
+# Install directory
+INSTALL_DIR      = ~/bin
+
+# Owner of binary
+INSTALL_OWNER    = $${USER}
+
+# Group owner of binary
+# #INSTALL_GROUP    = $${USER}
+INSTALL_GROUP    = users
+
+# Install options
+INSTALL_OPTIONS =  --owner ${INSTALL_OWNER}
+INSTALL_OPTIONS += --group ${INSTALL_GROUP}
+INSTALL_OPTIONS += -D
+INSTALL_OPTIONS += --preserve-timestamps
+#INSTALL_OPTIONS += --verbose
+
+install: $(TRGFILE) ## Install program
+	@echo -e $(MSG_INSTALLING) "$(E_BR_GREEN)$(TARGET) $(E_END)"
+	@${INSTALL} ${INSTALL_OPTIONS} $(TRGFILE) ${INSTALL_DIR}
 
 #
 # Help information
@@ -716,20 +765,22 @@ check: ## Check if tools and libraries are present
 	@$(MPTOOL) ce $(MOC)
 	@$(MPTOOL) ce python3
 	@$(MPTOOL) ce $(CPPCHECK)
+	@$(MPTOOL) ce $(INSTALL)
 	@for f in $(LIB); do               \
 		${MPTOOL} cl ${CC} $${f};      \
 	done                               \
 	
 list-info: 
 	@echo -e $(MSG_PROJECT)
-	@echo "Target:   $(TARGET)"
-	@echo "Platform: $(TARGET_PLATFORM)"
-	@echo "Licence:  $(LICENCE)"
-	@echo "Outdir:   $(OUTDIR)"
-	@echo "MCU:      $(MCU)"
-	@echo "F_CPU:    $(F_CPU)"
-	
+	@echo "Target:     $(TARGET)"
+	@echo "Platform:   $(TARGET_PLATFORM)"
+	@echo "Licence:    $(LICENCE)"
+	@echo "Outdir:     $(OUTDIR)"
+	@echo "C standard: $(CSTANDARD)"
+	@echo "MCU:        $(MCU)"
+	@echo "F_CPU:      $(F_CPU)"
 
+	
 list-includes: 
 	@echo -e $(MSG_INCLUDES)
 	@export IFS=" "
@@ -753,7 +804,16 @@ list-defs:
 	done        
 
 
-info: list-info list-includes list-defs list-flags list-ldflags  ## Print information about project
+list-installinfo:
+	@echo -e $(MSG_INSTALL_INFO)
+	@echo "Install dir:   $(INSTALL_DIR)"
+	@echo "Install user:  $(INSTALL_USER)"
+	@echo "Install group: $(INSTALL_GROUP)"
+
+
+
+
+info: list-info list-includes list-defs list-flags list-ldflags list-installinfo ## Print information about project
 
 files: list-src ## List source files
 	
