@@ -115,6 +115,7 @@ def newModule(dir, author, licence):
 
     addSection(fileC, "Includes")
     
+    fileC.write("#include \"LEF.h\"\n\n");
     fileC.write("#include \""+fileNameH+"\"\n\n");
     
     addSection(fileC, "Macros")
@@ -129,7 +130,7 @@ def newModule(dir, author, licence):
     addSection(fileH, "Macros")
     addSection(fileH, "Typedefs")
     addSection(fileH, "Variables")
-    addSection(fileH, "Functions")
+    addSection(fileH, "Prototypes")
     addCppSentinelEnd(fileH)
     addSentinelEnd(fileH)
     fileC.close()
