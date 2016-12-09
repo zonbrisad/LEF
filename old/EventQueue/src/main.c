@@ -88,9 +88,9 @@ static FILE mystdio = FDEV_SETUP_STREAM(uart_putc, uart_getc, _FDEV_SETUP_RW);
 event_queue que;    // event queue
 button but;         // button
 uint8_t blink;      // LED blink state
-sev_timer eTimer1;  // software timer 1
-sev_timer eTimer2;  // software timer 2
-sev_timer eTimer3;  // software timer 3
+LEF_Timer eTimer1;  // software timer 1
+LEF_Timer eTimer2;  // software timer 2
+LEF_Timer eTimer3;  // software timer 3
 
 
 void test() {
@@ -175,11 +175,11 @@ void init_hw() {
   but.bit  = PB4;
   button_init(&but, &PORTB);
 
-  sev_timer_init(&eTimer1);
-  sev_timer_init(&eTimer2);
-  sev_timer_init(&eTimer3);
-  sev_timer_start_repeat(&eTimer1, 100);  // set as 100 ticks repeating timer
-  sev_timer_start_repeat(&eTimer2, 200);  // set as 100 ticks repeating timer
+  LEF_TimerInit(&eTimer1);
+  LEF_TimerInit(&eTimer2);
+  LEF_TimerInit(&eTimer3);
+  LEF_TimerStartRepeat(&eTimer1, 100);  // set as 100 ticks repeating timer
+  LEF_TimerStartRepeat(&eTimer2, 200);  // set as 100 ticks repeating timer
 
   sev_cmd_init(cmdTable);
 

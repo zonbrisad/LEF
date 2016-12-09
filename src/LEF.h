@@ -31,13 +31,15 @@ extern "C" {
 
 // Includes ---------------------------------------------------------------	
 #include <stdint.h>
+#include <util/atomic.h>
 
 #include "LEF_Config.h"
-	
+
+#include "LEF_Queue.h"
 #include "LEF_Timer.h"
 #include "LEF_Led.h"
 
-// Controlls --------------------------------------------------------------
+// Controls --------------------------------------------------------------
 
 #ifndef LEF_QUEUE_LENGTH
 #error "LEF_QUEUE_LENGTH not defined."
@@ -46,21 +48,6 @@ extern "C" {
 // Macros -----------------------------------------------------------------
 
 // Typedefs ---------------------------------------------------------------
-
-	
-typedef uint8_t eventT;
-
-typedef struct {	
-	eventT source;
-	uint8_t func;
-} LEF_queue_element;
-
-typedef struct {	
-	LEF_queue_element que[LEF_QUEUE_LENGTH];            // queue it self
-	uint8_t head;
-	volatile uint8_t cnt;                     // nr of elements in queue (i.e. not the size if the queue)
-} LEF_event_queue;
-
 	
 // Variables --------------------------------------------------------------
 

@@ -24,7 +24,7 @@
 typedef struct {
   uint16_t counter;
   uint16_t ticks;
-} sev_timer;
+} LEF_Timer;
 
 
 
@@ -40,12 +40,12 @@ typedef struct {
  *
  * @param timer  timer data struct to be initiated
  */
-void sev_timer_init(sev_timer *timer);
+void sev_timer_init(LEF_Timer *timer);
 
-void sev_timer_start_repeat(sev_timer *timer, uint16_t ticks);
-void sev_timer_start_single(sev_timer *timer, uint16_t ticks);
-void sev_timer_stop(sev_timer *timer, uint16_t ticks);
-void sev_timer_update(sev_timer *timer, event_queue *queue, eventT event);
+void LEF_TimerStartRepeat(LEF_Timer *timer, uint16_t ticks);
+void sev_timer_start_single(LEF_Timer *timer, uint16_t ticks);
+void LEF_TimerStop(LEF_Timer *timer, uint16_t ticks);
+void sev_timer_update(LEF_Timer *timer, event_queue *queue, LEF_EventId event);
 
 
 

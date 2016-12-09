@@ -21,7 +21,7 @@
  */
 
 
-typedef uint8_t eventT;
+typedef uint8_t LEF_EventId;
 
 /**
  * Queue size Max 250 is allowed. Above numbers are reserved.
@@ -40,7 +40,7 @@ typedef uint8_t eventT;
 #define BUTTON_LONG_PRESS_TIMEOUTE_TICK  200
 
 typedef struct {
-  eventT source;
+  LEF_EventId source;
   uint8_t func;
 } queue_element;
 
@@ -70,7 +70,7 @@ void queue_init(event_queue *queue);
 
 void queue_send(event_queue *queue,  queue_element *qe);
 
-void queue_send_event(event_queue *queue, eventT ev, void *data);
+void queue_send_event(event_queue *queue, LEF_EventId ev, void *data);
 
 void queue_wait(event_queue *queue, queue_element *qe);
 
