@@ -172,6 +172,8 @@ int main(void) {
 	LEF_LedInit(&Led1);
 	
 	printf("LEF Test program\n");
+	printf("\x1B\x63"); // vt100 init
+	printf("\x1B[2J"); // clear screen
 
 	//LEF_QueueTest1();
 	//LEF_QueueTest2();

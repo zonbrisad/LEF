@@ -194,7 +194,7 @@
 #define E_ON_WHITE      "\33[1;47"
 
 #define E_END           "\033[0m"
-#define E_CLEAR         "\033[2J"
+#define E_CLEAR         "\033[2J"  // clear screen
 
 #define E_WONR "\33[1;47\033[1;31m"
 

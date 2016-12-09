@@ -30,20 +30,30 @@
 
 // Macros -----------------------------------------------------------------
 
+#define CLIBUF 32
+
+#define CLI_PROMPT ">"
+
 // Variables --------------------------------------------------------------
 
-char cliBuf[32];
+
+char cliBuf[CLIBUF];
+uint8_t cliCnt;
+
 
 // Prototypes -------------------------------------------------------------
 
 // Code -------------------------------------------------------------------
 
 void LEF_CliInit(void) {
-
+  cliCnt=0;
+  printf(CLI_PROMPT);
 }
 
 void LEF_CliPutChar(char ch) {
 
+	cliBuf[cliCnt] = ch;
+	cliCnt++;
 
 }
 
