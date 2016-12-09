@@ -65,6 +65,8 @@ uint8_t LEF_LedUpdate(LEF_Led *led) {
 				return 0;
 
 			break;
+		case LED_STATE_SINGLE_BLINK:
+
 		default: return 0;
 	}
 }

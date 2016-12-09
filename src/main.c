@@ -64,17 +64,7 @@ void hw_init(void) {
 }
 
 
-void simulTest(void) {
-	volatile int tmp;
-
-	printf("Makeplate AVR example\n");
-	while (1) {
-		tmp = timer2_ticks;
-		printf("Timer counter %d\n", tmp);
-		_delay_ms(200);
-	}
-}
-
+void LEF_QueueTest1(void);
 void LEF_QueueTest1(void) {
 	LEF_queue_element src;
 	LEF_queue_element dst;
@@ -101,7 +91,7 @@ void LEF_QueueTest1(void) {
 
 
 }
-
+void LEF_QueueTest2(void);
 void LEF_QueueTest2(void) {
 	LEF_queue_element dst;
 	int i;
@@ -136,6 +126,7 @@ void LEF_QueueTest2(void) {
 
 }
 
+void LEF_LedTest(void);
 void LEF_LedTest(void) {
 	int i;
 	uint8_t l, state;
@@ -144,6 +135,7 @@ void LEF_LedTest(void) {
 
 	state = LED_STATE_OFF;
 	i=0;
+	l=0;
 	LEF_TimerStartRepeat(&Timer1, 100);
 	LEF_TimerStartRepeat(&Timer2, 10);
 	LEF_TimerStartRepeat(&Timer3, 5000);

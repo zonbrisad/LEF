@@ -33,7 +33,8 @@
 LEF_EventQueue StdQueue;
 
 // Prototypes -------------------------------------------------------------
-
+void LEF_element_cpy(LEF_queue_element *dst, LEF_queue_element *src);
+uint8_t queue_ptr_inc(uint8_t ptr);
 // Code -------------------------------------------------------------------
 
 
@@ -96,6 +97,7 @@ void LEF_QueueWait(LEF_EventQueue *queue, LEF_queue_element *qe) {
  */
 void LEF_QueueSendEvent(LEF_EventQueue *queue, LEF_EventId ev, void *data) {
   LEF_queue_element qe;
+  (void) data;
   qe.id = ev;
   LEF_QueueSend(queue, &qe);
 }

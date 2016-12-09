@@ -27,7 +27,9 @@ SRC = src/main.c      \
       src/LEF.c       \
       src/LEF_Queue.c \
       src/LEF_Led.c   \
-      src/LEF_Timer.c 
+      src/LEF_Timer.c \
+      src/LEF_Buzzer.c \
+      src/LEF_Cli.c    
 
 # List C++ source files here. (C dependencies are automatically generated.)
 CPPSRC = 

@@ -38,6 +38,9 @@ extern "C" {
 #include "LEF_Queue.h"
 #include "LEF_Timer.h"
 #include "LEF_Led.h"
+#include "LEF_Buzzer.h"
+#include "LEF_Cli.h"
+
 
 // Controls --------------------------------------------------------------
 

@@ -28,7 +28,7 @@ from datetime import datetime, date, time
 # Code
 # -----------------------------------------------------------------------
 
-def addHeader(file, fileName, brief, date, author, licence):
+def addHeader(file, fileName, brief, date, author, lisence):
     file.write( 
     "/**\n"
     " * LEF - Lightweight Event Framework\n"
@@ -41,7 +41,7 @@ def addHeader(file, fileName, brief, date, author, licence):
     " * @file    "+fileName+"\n"
     " * @author  "+author+"\n"
     " * @date    "+date+"\n"
-    " * @licence "+licence+"\n"
+    " * @lisence "+lisence+"\n"
     " *\n"
     " *---------------------------------------------------------------------------\n"
     " *\n"
@@ -55,6 +55,9 @@ def addHeader(file, fileName, brief, date, author, licence):
     " * 1 tab = 2 spaces\n"
     " */\n\n")
  
+
+def addRow(file, row):
+    file.write(row+"\n")
 
 def addSection(file, desc):
     line = '-' * (71 - len(desc))
@@ -110,19 +113,21 @@ def newModule(dir, author, licence):
     except IOError:
         logging.debug("Could not open template file %s" % (fileNameH))
         return
-
-    addHeader(fileC, fileNameC, brief, date, author, licence)
-
-    addSection(fileC, "Includes")
     
-    fileC.write("#include \"LEF.h\"\n\n");
-    fileC.write("#include \""+fileNameH+"\"\n\n");
+    # Generate C file
+    addHeader(fileC, fileNameC, brief, date, author, licence)
+    addSection(fileC, "Includes")   
+    #fileC.write("#include \"LEF.h\"\n");
+    #fileC.write("#include \""+fileNameH+"\"\n\n");
+    addRow(fileC,"#include \"LEF.h\"");
+    addRow(fileC,"#include \""+fileNameH+"\"\n");
     
     addSection(fileC, "Macros")
     addSection(fileC, "Variables")
     addSection(fileC, "Prototypes")
     addSection(fileC, "Code")    
     
+    # Generate H file
     addHeader(fileH, fileNameH, brief, date, author, licence)
     addSentinelBegin(fileH, fName.upper())
     addCppSentinel(fileH)
@@ -133,6 +138,8 @@ def newModule(dir, author, licence):
     addSection(fileH, "Prototypes")
     addCppSentinelEnd(fileH)
     addSentinelEnd(fileH)
+    
+    
     fileC.close()
     fileH.close()
 
