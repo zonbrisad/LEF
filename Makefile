@@ -900,9 +900,9 @@ program: $(TARGET).hex # $(TARGET).eep
 #
 # AVR simulator
 #============================================================================
-.PHONY: simul
+.PHONY: sim
 
-simul:  ## Run AVR simulator 
+sim:  ## Run AVR simulator 
 	simulavr -d $(MCU) -F $(F_CPU) --file $(TRGFILE) -W 0x20,- -R 0x22,- -T exit --irqstatistic
 	
 # Listing of phony targets.

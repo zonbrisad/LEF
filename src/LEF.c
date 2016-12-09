@@ -34,3 +34,10 @@
 
 // Code -------------------------------------------------------------------
 
+void LEF_Init(void) {
+
+	// initiate LEF standard queue
+	LEF_QueueInit(&StdQueue);
+
+
+}

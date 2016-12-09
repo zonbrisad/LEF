@@ -1,14 +1,14 @@
 /**
- * LEF - Lightweiht Event Framework
+ * LEF - Lightweight Event Framework
  *
  * This file is part of LEF distribution
  *
  *---------------------------------------------------------------------------
- * @brief   Main LEF file
+ * @brief   A basic buzzer driver.
  *
- * @file    LEF.h
- * @author  Your Name <your.name@yourdomain.org>
- * @date    2016-11-30
+ * @file    LEF_Buzzer.h
+ * @author  Peter Malmberg <peter.malmberg@gmail.com>
+ * @date    2016-12-09
  * @licence GPLv2
  *
  *---------------------------------------------------------------------------
@@ -17,45 +17,28 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  Full license text is available on the following
  *
+ * Source repository:
  * https://github.com/zonbrisad/LEF
  *
  * 1 tab = 2 spaces
  */
 
-#ifndef LEF_H
-#define LEF_H
+#ifndef LEF_BUZZER_H
+#define LEF_BUZZER_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-// Includes ---------------------------------------------------------------	
-#include <stdint.h>
-#include <util/atomic.h>
+// Includes ---------------------------------------------------------------
 
-#include "LEF_Config.h"
-
-#include "LEF_Queue.h"
-#include "LEF_Timer.h"
-#include "LEF_Led.h"
-
-// Controls --------------------------------------------------------------
-
-#ifndef LEF_QUEUE_LENGTH
-#error "LEF_QUEUE_LENGTH not defined."
-#endif
-	
 // Macros -----------------------------------------------------------------
 
 // Typedefs ---------------------------------------------------------------
-	
+
 // Variables --------------------------------------------------------------
 
-	
-// Functions --------------------------------------------------------------
-
-
-void LEF_Init(void);
+// Prototypes -------------------------------------------------------------
 
 #ifdef __cplusplus
 } //end brace for extern "C"

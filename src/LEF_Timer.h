@@ -38,7 +38,8 @@ extern "C" {
 typedef struct {
 	LEF_EventId id;
   uint16_t counter;
-  uint16_t ticks;
+  uint16_t reload;
+
 } LEF_Timer;
 
 
@@ -62,8 +63,11 @@ void LEF_TimerInit(LEF_Timer *timer);
 
 void LEF_TimerStartRepeat(LEF_Timer *timer, uint16_t ticks);
 void LEF_TimerStartSingle(LEF_Timer *timer, uint16_t ticks);
-void LEF_TimerStop(LEF_Timer *timer, uint16_t ticks);
+void LEF_TimerStop(LEF_Timer *timer);
 void LEF_TimerUpdate(LEF_Timer *timer, LEF_EventQueue *queue, LEF_EventId event);
+
+//void LEF_TimerReset(LEF_Timer *timer);
+
 
 
 #ifdef __cplusplus
