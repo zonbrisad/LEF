@@ -9,7 +9,7 @@
  * @file    LEF_Timer.h
  * @author  Your Name <your.name@yourdomain.org>
  * @date    2016-11-30
- * @licence GPLv2
+ * @license GPLv2
  *
  *---------------------------------------------------------------------------
  *
@@ -35,9 +35,40 @@ extern "C" {
 
 // Typedefs ---------------------------------------------------------------
 
+typedef struct {
+	LEF_EventId id;
+  uint16_t counter;
+  uint16_t reload;
+
+} LEF_Timer;
+
+
 // Variables --------------------------------------------------------------
 
 // Functions --------------------------------------------------------------
+
+
+
+
+
+
+
+/**
+ * API
+ * --------------------------------------------------------------------------
+ */
+
+
+void LEF_TimerInit(LEF_Timer *timer);
+
+void LEF_TimerStartRepeat(LEF_Timer *timer, uint16_t ticks);
+void LEF_TimerStartSingle(LEF_Timer *timer, uint16_t ticks);
+void LEF_TimerStop(LEF_Timer *timer);
+void LEF_TimerUpdate(LEF_Timer *timer, LEF_EventQueue *queue, LEF_EventId event);
+
+//void LEF_TimerReset(LEF_Timer *timer);
+
+
 
 #ifdef __cplusplus
 } //end brace for extern "C"

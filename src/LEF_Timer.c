@@ -9,7 +9,7 @@
  * @file    LEF_Timer.c
  * @author  Your Name <your.name@yourdomain.org>
  * @date    2016-11-30
- * @licence GPLv2
+ * @license GPLv2
  *
  *---------------------------------------------------------------------------
  *
@@ -23,7 +23,7 @@
  */
 
 // Includes ---------------------------------------------------------------
-
+#include "LEF.h"
 #include "LEF_Timer.h"
 
 // Macros -----------------------------------------------------------------
@@ -34,3 +34,43 @@
 
 // Code -------------------------------------------------------------------
 
+void LEF_TimerInit(LEF_Timer *timer) {
+  timer->counter = 0;
+  timer->reload   = 0;
+}
+
+void LEF_TimerUpdate(LEF_Timer *timer, LEF_EventQueue *queue, LEF_EventId event) {
+	LEF_queue_element qe;
+  ATOMIC_BLOCK(ATOMIC_FORCEON) {
+  if (timer->counter>0) {
+    timer->counter--;
+    if (timer->counter==0) {
+    	qe.id = event;
+    	LEF_QueueSend(queue, &qe);
+
+      if (timer->reload>0)
+        timer->counter = timer->reload;
+    }
+  }
+  }
+}
+
+
+void LEF_TimerStartRepeat(LEF_Timer *timer, uint16_t ticks) {
+  ATOMIC_BLOCK(ATOMIC_FORCEON) {
+    timer->reload   = ticks;
+    timer->counter = ticks;
+  }
+}
+void LEF_TimerStartSingle(LEF_Timer *timer, uint16_t ticks) {
+  ATOMIC_BLOCK(ATOMIC_FORCEON) {
+      timer->reload   = 0;
+      timer->counter = ticks;
+    }
+}
+void LEF_TimerStop(LEF_Timer *timer) {
+  ATOMIC_BLOCK(ATOMIC_FORCEON) {
+        timer->reload   = 0;
+        timer->counter = 0;
+      }
+}

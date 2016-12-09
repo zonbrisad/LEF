@@ -1,15 +1,15 @@
 /**
- * LEF - Lightweiht Event Framework
+ * LEF - Lightweight Event Framework
  *
  * This file is part of LEF distribution
  *
  *---------------------------------------------------------------------------
- * @brief   Main LEF file
+ * @brief   A simple Command Line Interface for LEF.
  *
- * @file    LEF.h
- * @author  Your Name <your.name@yourdomain.org>
- * @date    2016-11-30
- * @licence GPLv2
+ * @file    LEF_Cli.h
+ * @author  Peter Malmberg <peter.malmberg@gmail.com>
+ * @date    2016-12-09
+ * @lisence GPLv2
  *
  *---------------------------------------------------------------------------
  *
@@ -17,48 +17,34 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  Full license text is available on the following
  *
+ * Source repository:
  * https://github.com/zonbrisad/LEF
  *
  * 1 tab = 2 spaces
  */
 
-#ifndef LEF_H
-#define LEF_H
+#ifndef LEF_CLI_H
+#define LEF_CLI_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-// Includes ---------------------------------------------------------------	
-#include <stdint.h>
-#include <util/atomic.h>
+// Includes ---------------------------------------------------------------
 
-#include "LEF_Config.h"
-
-#include "LEF_Queue.h"
-#include "LEF_Timer.h"
-#include "LEF_Led.h"
-#include "LEF_Buzzer.h"
-#include "LEF_Cli.h"
-
-
-// Controls --------------------------------------------------------------
-
-#ifndef LEF_QUEUE_LENGTH
-#error "LEF_QUEUE_LENGTH not defined."
-#endif
-	
 // Macros -----------------------------------------------------------------
 
 // Typedefs ---------------------------------------------------------------
-	
+
 // Variables --------------------------------------------------------------
 
-	
-// Functions --------------------------------------------------------------
+// Prototypes -------------------------------------------------------------
 
+void LEF_CliInit(void);
 
-void LEF_Init(void);
+void LEF_CliPutChar(char ch);
+
+void LEF_CliExec(void);
 
 #ifdef __cplusplus
 } //end brace for extern "C"

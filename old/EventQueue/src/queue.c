@@ -63,7 +63,7 @@ void queue_wait(event_queue *queue, queue_element *qe) {
 /**
  * @todo add support for extra data
  */
-void queue_send_event(event_queue *queue, eventT ev, void *data) {
+void queue_send_event(event_queue *queue, LEF_EventId ev, void *data) {
   queue_element qe;
   qe.source = ev;
   queue_send(queue, &qe);

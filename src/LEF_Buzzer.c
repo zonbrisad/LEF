@@ -1,14 +1,14 @@
 /**
- * LEF - Lightweiht Event Framework
+ * LEF - Lightweight Event Framework
  *
  * This file is part of LEF distribution
  *
  *---------------------------------------------------------------------------
- * @brief   Main LEF file
+ * @brief   A basic buzzer driver.
  *
- * @file    LEF.c
- * @author  Your Name <your.name@yourdomain.org>
- * @date    2016-11-30
+ * @file    LEF_Buzzer.c
+ * @author  Peter Malmberg <peter.malmberg@gmail.com>
+ * @date    2016-12-09
  * @licence GPLv2
  *
  *---------------------------------------------------------------------------
@@ -17,6 +17,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  Full license text is available on the following
  *
+ * Source repository:
  * https://github.com/zonbrisad/LEF
  *
  * 1 tab = 2 spaces
@@ -26,6 +27,8 @@
 
 #include "LEF.h"
 
+#include "LEF_Buzzer.h"
+
 // Macros -----------------------------------------------------------------
 
 // Variables --------------------------------------------------------------
@@ -34,10 +37,3 @@
 
 // Code -------------------------------------------------------------------
 
-void LEF_Init(void) {
-
-	// initiate LEF standard queue
-	LEF_QueueInit(&StdQueue);
-
-
-}

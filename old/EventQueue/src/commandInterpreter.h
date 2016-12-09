@@ -64,8 +64,8 @@ void commandInterpreter(const commandStruct *cmdTable);
 
 
 void sev_cmd_init(commandStruct *cmdTable);
-void sev_cmd_update(event_queue *queue, eventT event);
-void sev_cmd_exec(eventT event);
+void sev_cmd_update(event_queue *queue, LEF_EventId event);
+void sev_cmd_exec(LEF_EventId event);
 
 /*--------------------------------------------------------------------------*/
 

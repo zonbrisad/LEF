@@ -100,7 +100,7 @@ void sev_cmd_init(commandStruct *cmdTable) {
   //printf_P(PSTR(CMD_PROMPT));                 // print the command prompt
 }
 
-void sev_cmd_update(event_queue *queue, eventT event) {
+void sev_cmd_update(event_queue *queue, LEF_EventId event) {
   uint16_t ch;
 
   do {
@@ -122,7 +122,7 @@ void sev_cmd_update(event_queue *queue, eventT event) {
   queue_send_event(queue, event, NULL);
 
 }
-void sev_cmd_exec(eventT event) {
+void sev_cmd_exec(LEF_EventId event) {
 
 
   if (!strcmp_P(cBuf, PSTR("help"))) {
