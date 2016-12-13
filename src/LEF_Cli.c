@@ -24,9 +24,12 @@
  */
 
 // Includes ---------------------------------------------------------------
+#include <stdio.h>
 
 #include "LEF.h"
 #include "LEF_Cli.h"
+#include "def.h"
+
 
 // Macros -----------------------------------------------------------------
 
@@ -39,6 +42,7 @@
 
 char cliBuf[CLIBUF];
 uint8_t cliCnt;
+uint8_t cliLock;
 
 
 // Prototypes -------------------------------------------------------------
@@ -46,17 +50,31 @@ uint8_t cliCnt;
 // Code -------------------------------------------------------------------
 
 void LEF_CliInit(void) {
-  cliCnt=0;
-  printf(CLI_PROMPT);
+  cliCnt  = 0;
+  cliLock = 0;
+  printf("\n%s",CLI_PROMPT);
 }
 
 void LEF_CliPutChar(char ch) {
+	LEF_queue_element qe;
 
-	cliBuf[cliCnt] = ch;
-	cliCnt++;
+	if (!cliLock) {
+		cliBuf[cliCnt] = ch;
+		cliCnt++;
 
+		//putc(ch);
+		printf("%c",ch);
+		qe.id = 250;
+		if (ch=='\n') {
+			cliLock = 1;
+			LEF_QueueSend(&StdQueue, &qe);
+		}
+	}
 }
 
 void LEF_CliExec(void) {
+	DEBUGPRINT("Exec\n");
 
+	cliLock=0;
+	printf(CLI_PROMPT);
 }
