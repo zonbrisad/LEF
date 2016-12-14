@@ -34,13 +34,28 @@ extern "C" {
 
 // Macros -----------------------------------------------------------------
 
+#define CLIBUF 32
+#define CLI_PROMPT ">"
+
+#define LEF_CLI_CMD_LENGTH  12
+#define LEF_CLI_DESC_LENGTH 32
+
 // Typedefs ---------------------------------------------------------------
+
+typedef void (*handler)(void);
+
+typedef struct {
+  handler function;
+  char name[LEF_CLI_CMD_LENGTH];
+  char desc[LEF_CLI_DESC_LENGTH];
+
+} LEF_CliCmd;
 
 // Variables --------------------------------------------------------------
 
 // Prototypes -------------------------------------------------------------
 
-void LEF_CliInit(void);
+void LEF_CliInit(LEF_CliCmd *cmds);
 
 void LEF_CliPutChar(char ch);
 

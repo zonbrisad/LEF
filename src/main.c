@@ -1,6 +1,7 @@
 
 #include <stdio.h>
 #include <avr/interrupt.h>
+#include <avr/pgmspace.h>
 #include <util/delay.h>
 
 #include "def.h"
@@ -162,22 +163,74 @@ void LEF_LedTest(void) {
 	}
 }
 
+void xx(void) {
+	printf("XX\n");
+}
+
+const PROGMEM LEF_CliCmd cmdTable[] = {
+  {xx,       "test",      "Test av kommando"},
+  {xx,       "test",      "Test av kommando"},
+  {xx,       "test",      "Test av kommando"},
+/*  {printInfo,         "info",         "Print basic info"},
+  {printTemperature,  "temperature",  "Read temperature cont."},
+  {Moist,             "moist",        "Read moist cont."},
+  {TimerPotTest,      "timer",        "Test timer pot"},
+  */
+  {NULL,              NULL,            NULL}
+};
+
+void LEF_CliTest(void);
+void LEF_CliTest(void) {
+	int i;
+	LEF_queue_element dst;
+	DEBUGPRINT("LEF Cli test\n");
+	char *str = "test\n";
+
+	LEF_CliPutChar('\n');
+
+	i=0;
+	LEF_TimerStartRepeat(&Timer1, 300);
+	while (1) {
+
+		LEF_QueueWait(&StdQueue, &dst);
+
+		if (dst.id == EVENT_TIMER1) {
+			if (str[i]!= '\0') {
+				LEF_CliPutChar(str[i]);
+				i++;
+			}
+
+		}
+		if (dst.id == 250) {
+			LEF_CliExec();
+		}
+
+
+	}
+
+}
+
 int main(void) {
 	
 	hw_init();
+
+	printf("LEF Test program\n");
+	printf("\x1B\x63"); // vt100 init
+	printf("\x1B[2J");  // clear screen
+
+
 	LEF_Init();
 	LEF_TimerInit(&Timer1);
 	LEF_TimerInit(&Timer2);
 	LEF_TimerInit(&Timer3);
 	LEF_LedInit(&Led1);
+	LEF_CliInit(cmdTable);
 	
-	printf("LEF Test program\n");
-	printf("\x1B\x63"); // vt100 init
-	printf("\x1B[2J"); // clear screen
 
 	//LEF_QueueTest1();
 	//LEF_QueueTest2();
-	LEF_LedTest();
+	//LEF_LedTest();
+	LEF_CliTest();
 
 	while (1) {};
 
