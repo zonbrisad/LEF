@@ -1,6 +1,7 @@
 
 #include <stdio.h>
 #include <avr/interrupt.h>
+#include <avr/pgmspace.h>
 #include <util/delay.h>
 
 #include "def.h"
@@ -162,12 +163,28 @@ void LEF_LedTest(void) {
 	}
 }
 
+void xx(void) {
+	printf("XX\n");
+}
+
+const PROGMEM LEF_CliCmd cmdTable[] = {
+  {xx,       "test",      "Test av kommando"},
+  {xx,       "test",      "Test av kommando"},
+  {xx,       "test",      "Test av kommando"},
+/*  {printInfo,         "info",         "Print basic info"},
+  {printTemperature,  "temperature",  "Read temperature cont."},
+  {Moist,             "moist",        "Read moist cont."},
+  {TimerPotTest,      "timer",        "Test timer pot"},
+  */
+  {NULL,              NULL,            NULL}
+};
+
 void LEF_CliTest(void);
 void LEF_CliTest(void) {
 	int i;
 	LEF_queue_element dst;
 	DEBUGPRINT("LEF Cli test\n");
-	char *str = "Kalle\n";
+	char *str = "test\n";
 
 	LEF_CliPutChar('\n');
 
@@ -207,7 +224,7 @@ int main(void) {
 	LEF_TimerInit(&Timer2);
 	LEF_TimerInit(&Timer3);
 	LEF_LedInit(&Led1);
-	LEF_CliInit();
+	LEF_CliInit(cmdTable);
 	
 
 	//LEF_QueueTest1();
