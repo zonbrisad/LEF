@@ -22,14 +22,6 @@ LICENCE = GPLv2
 TARGET = avrtest
 
 # List C source files here. (C dependencies are automatically generated.)
-<<<<<<< HEAD
-SRC = src/main.c     \
-      src/avrsimul.c \
-      src/LEF.c      \
-			src/LEF_Led.c  \
-			src/LEF_Timer.c \
-
-=======
 SRC = src/main.c      \
       src/avrsimul.c  \
       src/LEF.c       \
@@ -38,7 +30,7 @@ SRC = src/main.c      \
       src/LEF_Timer.c \
       src/LEF_Buzzer.c \
       src/LEF_Cli.c    
->>>>>>> 6250a679c206c54b7e6af8ef241fbedde3e10ddb
+
 
 # List C++ source files here. (C dependencies are automatically generated.)
 CPPSRC = 
