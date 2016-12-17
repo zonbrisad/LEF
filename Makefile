@@ -29,7 +29,8 @@ SRC = src/main.c      \
       src/LEF_Led.c   \
       src/LEF_Timer.c \
       src/LEF_Buzzer.c \
-      src/LEF_Cli.c    
+      src/LEF_Cli.c    \
+      src/m/mmm.c 
 
 
 # List C++ source files here. (C dependencies are automatically generated.)
@@ -48,6 +49,8 @@ LIB  =
 #     To put object files in current directory, use a dot (.), do NOT make
 #     this an empty or blank macro!
 OBJDIR = .
+
+BUILDDIR=build
 
 # Output directory
 OUTDIR = output
@@ -443,7 +446,7 @@ ALL_CPPFLAGS =  -I. -x c++ $(CPPFLAGS) $(GENDEPFLAGS)
 ALL_ASFLAGS  =  -I. -x assembler-with-cpp $(ASFLAGS)
 
 # Define all object files.
-OBJS = $(SRC:%.c=$(OBJDIR)/%.o) $(CPPSRC:%.cpp=$(OBJDIR)/%.o) $(ASRC:%.S=$(OBJDIR)/%.o)
+OBJS = $(patsubst src/%.c, $(BUILDDIR)/%.o, $(SRC))
 
 # Define all listing files.
 LST = $(SRC:%.c=$(OBJDIR)/%.lst) $(CPPSRC:%.cpp=$(OBJDIR)/%.lst) $(ASRC:%.S=$(OBJDIR)/%.lst) 
@@ -549,21 +552,21 @@ extcoff: $(TARGET).elf
 
 
 
-
 # Compile: create object files from C source files.
-$(OBJDIR)/%.o : %.c
+#$(OBJDIR)/%.o : %.c
+#$(BUILDDIR)/%.o : %.c
+$(OBJS): $(BUILDDIR)/%.o : src/%.c
+	@mkdir -p $(@D)                                       # Create object directory
 	@echo -e $(MSG_COMPILING) "$(C_FILE)" $< "$(E_END)"
 	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1  $(C_FILTER)
 
 # Compile: create object files from C++ source files.
 $(OBJDIR)/%.o : %.cpp
-	@echo
 	@echo -e $(MSG_COMPILING_CPP) "$(C_FILE)" $< "$(E_END)"
 	@$(CC) -c $(ALL_CPPFLAGS) $< -o $@ 2>&1 | $(CPP_FILTER)
 	
 # Assemble: create object files from assembler source files.
 $(OBJDIR)/%.o : %.S
-	@echo
 	@echo -e $(MSG_ASSEMBLING) "$(C_FILE)" $< "$(E_END)"
 	@$(CC) -c $(ALL_ASFLAGS) $< -o $@
 
