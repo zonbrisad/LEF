@@ -22,15 +22,15 @@ LICENCE = GPLv2
 TARGET = avrtest
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = src/main.c      \
-      src/avrsimul.c  \
-      src/LEF.c       \
-      src/LEF_Queue.c \
-      src/LEF_Led.c   \
-      src/LEF_Timer.c \
-      src/LEF_Buzzer.c \
-      src/LEF_Cli.c    \
-      src/m/mmm.c 
+SRC = src/main.c           \
+      src/avrsimul.c       \
+      src/LEF/LEF.c        \
+      src/LEF/LEF_Queue.c  \
+      src/LEF/LEF_Led.c    \
+      src/LEF/LEF_Timer.c  \
+      src/LEF/LEF_Buzzer.c \
+      src/LEF/LEF_Cli.c    \
+
 
 # List C++ source files here. (C dependencies are automatically generated.)
 CPPSRC = 
@@ -40,7 +40,8 @@ CPPSRC =
 ASRC =
 
 # Include directories
-INCLUDE =  src 
+INCLUDE =  src \
+           ../../src
 
 LIB  = 
 
@@ -552,8 +553,6 @@ extcoff: $(TARGET).elf
 
 
 # Compile: create object files from C source files.
-#$(OBJDIR)/%.o : %.c
-#$(BUILDDIR)/%.o : %.c
 $(OBJS): $(BUILDDIR)/%.o : src/%.c
 	@mkdir -p $(@D)                                       # Create object directory
 	@echo -e $(MSG_COMPILING) "$(C_FILE)" $< "$(E_END)"
