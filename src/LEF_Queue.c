@@ -38,7 +38,22 @@ uint8_t queue_ptr_inc(uint8_t ptr);
 // Code -------------------------------------------------------------------
 
 
+// Critical Section -------------------------------------------------------
 
+#define LEF_EnterCritical()  \
+		asm volatile ( "in    __tmp_reg__, __SREG__" :: );  \
+        asm volatile ( "cli" :: );                \
+        asm volatile ( "push  __tmp_reg__" :: )
+
+#define LEF_ExitCritical() \
+		asm volatile ( "pop   __tmp_reg__" :: );        \
+        asm volatile ( "out   __SREG__, __tmp_reg__" :: )
+
+#define LEF_DisableInterrupts()  asm volatile ( "cli" :: );
+#define LEF_EnableInterrupts()   asm volatile ( "sei" :: );
+
+// Architectural specifics ------------------------------------------------
+#define LEF_portNOP  asm volatile ( "nop" );
 
 void LEF_QueueClear(LEF_EventQueue *queue) {
   queue->head = 0;
@@ -70,14 +85,16 @@ void LEF_QueueSend(LEF_EventQueue *queue,  LEF_queue_element *qe) {
 //  if (queue->tail==queue->head) // if queue is full return
 //    return;
 
-  ATOMIC_BLOCK(ATOMIC_FORCEON) {
+  //ATOMIC_BLOCK(ATOMIC_FORCEON) {
+  LEF_EnterCritical();
 	  LEF_element_cpy(&queue->que[queue->head], qe);
 
     queue->cnt++;
     queue->head++;
     if (queue->head>=LEF_QUEUE_LENGTH)
       queue->head = 0;
-    }
+    //}
+   LEF_ExitCritical();
 }
 
 void LEF_QueueWait(LEF_EventQueue *queue, LEF_queue_element *qe) {

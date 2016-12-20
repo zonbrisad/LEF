@@ -204,11 +204,16 @@ void LEF_CliTest(void) {
 		if (dst.id == 250) {
 			LEF_CliExec();
 		}
-
-
 	}
-
 }
+
+
+//#define WEAK __attribute__((weak, alias("weakFunction")))
+
+void weakTest(void) {
+  printf("My strong function\n");
+}
+
 
 int main(void) {
 	
@@ -225,7 +230,8 @@ int main(void) {
 	LEF_TimerInit(&Timer3);
 	LEF_LedInit(&Led1);
 	LEF_CliInit(cmdTable);
-	
+
+	weakTest();
 
 	//LEF_QueueTest1();
 	//LEF_QueueTest2();

@@ -293,5 +293,8 @@
 #define UNUSED_PARAM(p)		(void)p
 #define UNUSED(p)         UNUSED_PARAM(p)
 
+#define WEAK     __attribute__((weak))
+#define WEAKA(a) __attribute__((weak, alias(a)))
+
 #endif	/* DEF_H */
 
