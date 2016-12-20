@@ -22,15 +22,16 @@ LICENCE = GPLv2
 TARGET = avrtest
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = src/main.c      \
-      src/avrsimul.c  \
-      src/LEF.c       \
-      src/LEF_Queue.c \
-      src/LEF_Led.c   \
-      src/LEF_Timer.c \
-      src/LEF_Buzzer.c \
-      src/LEF_Cli.c    \
-      src/m/mmm.c 
+SRC = src/main.c           \
+      src/avrsimul.c       \
+      src/LEF/LEF.c        \
+      src/LEF/LEF_Queue.c  \
+      src/LEF/LEF_Led.c    \
+      src/LEF/LEF_Timer.c  \
+      src/LEF/LEF_Buzzer.c \
+      src/LEF/LEF_Cli.c    \
+			src/XXX.c
+
 
 
 # List C++ source files here. (C dependencies are automatically generated.)
@@ -41,7 +42,8 @@ CPPSRC =
 ASRC =
 
 # Include directories
-INCLUDE =  src 
+INCLUDE =  src \
+           ../../src
 
 LIB  = 
 
@@ -89,7 +91,18 @@ CFLAGS += -O$(OPT)                             # Optimisation level
 CFLAGS += -std=$(CSTANDARD)                    # C standard
 CFLAGS += $(patsubst %,-I%,$(INCLUDE))         # Include directories 
 CFLAGS += $(patsubst %,-D%,$(CDEFS))           # Macro definitions
-CFLAGS += -Wa,-adhlns=$(<:%.c=$(OBJDIR)/%.lst) # Generate assembler listing
+#CFLAGS += -Wa,-adhlns=$(<:%.c=$(OBJDIR)/%.lst) # Generate assembler listing
+
+#CFLAGS += -Wa,-adhlns=$(<:%.c=$(BUILDDIR)/%.lst) # Generate assembler listing
+#CFLAGS += -Wa,-adhlns=$(patsubst src/%.c, $(BUILDDIR)/%.lst, $(SRC))
+
+#A = -adhlns=$(<:%.c=$(OBJDIR)/%.lst) # Generate assembler listing
+#B = -adhlns=$(patsubst src/%.c, $(BUILDDIR)/%.lst, $(SRC))
+
+#nisse:
+#	@echo ${A}
+#	@echo ${B}
+	
 
 # Compiler Tuning C ---------------------------------------------------------
 CFLAGS += -funsigned-char
@@ -449,7 +462,9 @@ ALL_ASFLAGS  =  -I. -x assembler-with-cpp $(ASFLAGS)
 OBJS = $(patsubst src/%.c, $(BUILDDIR)/%.o, $(SRC))
 
 # Define all listing files.
-LST = $(SRC:%.c=$(OBJDIR)/%.lst) $(CPPSRC:%.cpp=$(OBJDIR)/%.lst) $(ASRC:%.S=$(OBJDIR)/%.lst) 
+#LST = $(SRC:%.c=$(OBJDIR)/%.lst) $(CPPSRC:%.cpp=$(OBJDIR)/%.lst) $(ASRC:%.S=$(OBJDIR)/%.lst)
+LST = $(patsubst src/%.c, $(BUILDDIR)/%.lst, $(SRC))
+
 
 # Default target.
 all:	begin build finished end
@@ -485,7 +500,6 @@ end:
 	
 finished:
 	@echo
-#	@echo -e $(MSG_ERRORS_NONE)
 
 
 # Display size of file.
@@ -502,16 +516,12 @@ sizeafter: $(TRGFILE)
 	@$(ELFSIZE); 
 
 
-
-# Display compiler version information.
-gccversion :  ## Display compiler version
-	@$(CC) --version
-
 # Link target
 .SECONDARY : $(TARGET).elf
 .PRECIOUS : $(OBJS)
-%.elf: $(OBJS) $(OUTDIR)
-	@echo 
+%.elf: $(OBJS) 
+	@$(MKDIR) $(OUTDIR)
+	@echo
 	@echo -e $(MSG_LINKING)"\n             $(C_FILE)" $@ "$(E_END)"
 	@$(CC) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
 	
@@ -551,22 +561,21 @@ extcoff: $(TARGET).elf
 	--change-section-lma .eeprom=0 --no-change-warnings -O $(FORMAT) $< $@ || exit 0
 
 
-
 # Compile: create object files from C source files.
-#$(OBJDIR)/%.o : %.c
-#$(BUILDDIR)/%.o : %.c
 $(OBJS): $(BUILDDIR)/%.o : src/%.c
-	@mkdir -p $(@D)                                       # Create object directory
+	@$(MKDIR) $(@D)                                       # Create directory for object file
 	@echo -e $(MSG_COMPILING) "$(C_FILE)" $< "$(E_END)"
 	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1  $(C_FILTER)
 
 # Compile: create object files from C++ source files.
 $(OBJDIR)/%.o : %.cpp
+	@$(MKDIR) $(@D)                                       # Create directory for object file
 	@echo -e $(MSG_COMPILING_CPP) "$(C_FILE)" $< "$(E_END)"
 	@$(CC) -c $(ALL_CPPFLAGS) $< -o $@ 2>&1 | $(CPP_FILTER)
 	
 # Assemble: create object files from assembler source files.
 $(OBJDIR)/%.o : %.S
+	@$(MKDIR) $(@D)                                       # Create directory for object file
 	@echo -e $(MSG_ASSEMBLING) "$(C_FILE)" $< "$(E_END)"
 	@$(CC) -c $(ALL_ASFLAGS) $< -o $@
 
@@ -578,11 +587,8 @@ $(OBJDIR)/%.s : %.c
 $(OBJDIR)/%.s : %.cpp
 	@$(CC) -S $(ALL_CPPFLAGS) $< -o $@
 
-# Create output dir
-$(OUTDIR):
-	@$(MKDIR) $@
-
-size: $(TRGFILE)
+# Print information about target binary 
+size: $(TRGFILE)  
 	@echo
 	@echo -e $(MSG_SIZE_AFTER)
 	@$(SIZE) $(TRGFILE)
@@ -817,11 +823,12 @@ list-installinfo:
 	@echo "Install group: $(INSTALL_GROUP)"
 
 
-
-
 info: list-info list-includes list-defs list-flags list-ldflags list-installinfo ## Print information about project
 
 files: list-src ## List source files
+
+gccversion :    ## Display compiler version
+	@$(CC) --version
 	
 #
 # Personal settings

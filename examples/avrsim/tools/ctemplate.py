@@ -41,7 +41,7 @@ def addHeader(file, fileName, brief, date, author, lisence):
     " * @file    "+fileName+"\n"
     " * @author  "+author+"\n"
     " * @date    "+date+"\n"
-    " * @lisence "+lisence+"\n"
+    " * @license "+lisence+"\n"
     " *\n"
     " *---------------------------------------------------------------------------\n"
     " *\n"
@@ -52,7 +52,7 @@ def addHeader(file, fileName, brief, date, author, lisence):
     " * Source repository:\n"
     " * https://github.com/zonbrisad/LEF\n"
     " *\n"
-    " * 1 tab = 2 spaces\n"
+    " * 1 tab == 2 spaces\n"
     " */\n\n")
  
 
@@ -91,12 +91,62 @@ def addCppSentinelEnd(file):
     "#ifdef __cplusplus\n"             \
     "} //end brace for extern \"C\"\n" \
     "#endif\n")
+
+def newHFile(name, dir, author, licence, brief):
+    print("Creating new H file")
+    date = datetime.now().strftime("%Y-%m-%d")
+    fileName = name + ".h"
+    
+    try:
+        file = open(dir+"/"+fileName, 'w')
+    except IOError:
+        logging.debug("Could not open template file %s" % (fileName))
+        return       
+    
+    addHeader(file, fileName, brief, date, author, licence)
+    addSentinelBegin(file, name.upper())
+    addCppSentinel(file)
+    addSection(file, "Includes")
+    addSection(file, "Macros")
+    addSection(file, "Typedefs")
+    addSection(file, "Variables")
+    addSection(file, "Prototypes")
+    addCppSentinelEnd(file)
+    addSentinelEnd(file)    
+    file.close()
+    
+def newCFile(name, dir, author, licence, brief):
+    print("Creating new C file")
+    date = datetime.now().strftime("%Y-%m-%d")
+    fileName = name + ".c"
+    
+    try:
+        file = open(dir+"/"+fileName, 'w')
+    except IOError:
+        logging.debug("Could not open template file %s" % (fileName))
+        return       
+    
+    addHeader(file, fileName, brief, date, author, licence)
+    addSentinelBegin(file, name.upper())
+    addCppSentinel(file)
+    addSection(file, "Includes")
+    addSection(file, "Macros")
+    addSection(file, "Typedefs")
+    addSection(file, "Variables")
+    addSection(file, "Prototypes")
+    addCppSentinelEnd(file)
+    addSentinelEnd(file)    
+    file.close()
     
 def newModule(dir, author, licence):
     print("Creating new C module")
     fName = input("Enter module name(no extention:>")
     brief = input("Enter brief description:> ")
     date = datetime.now().strftime("%Y-%m-%d")
+
+    newHFile(fName, dir, author, licence, brief)
+    newCFile(fName, dir, author, licence, brief)
+    return
 
     fileNameC = fName + ".c"
     fileNameH = fName + ".h"
@@ -117,8 +167,6 @@ def newModule(dir, author, licence):
     # Generate C file
     addHeader(fileC, fileNameC, brief, date, author, licence)
     addSection(fileC, "Includes")   
-    #fileC.write("#include \"LEF.h\"\n");
-    #fileC.write("#include \""+fileNameH+"\"\n\n");
     addRow(fileC,"#include \"LEF.h\"");
     addRow(fileC,"#include \""+fileNameH+"\"\n");
     
@@ -149,7 +197,7 @@ if __name__ == "__main__":
     # options parsing
     parser = argparse.ArgumentParser(description="C/C++ template generator")
     parser.add_argument("--newc",    action="store_true", help="Create a new C and H file set")
-    parser.add_argument("--newcpp",  action="store_true", help="Create a new C++ and H file set")
+#    parser.add_argument("--newcpp",  action="store_true", help="Create a new C++ and H file set")
     parser.add_argument("--licence", type=str,            help="Licence of new file", default="")
     parser.add_argument("--author",  type=str,            help="Author of file",      default="")
     parser.add_argument("--dir",     type=str,            help="Directory where to store file",  default=".")
@@ -160,6 +208,6 @@ if __name__ == "__main__":
         newModule(args.dir, args.author, args.licence)
         exit
         
-    if args.newcpp:
-        print("To be implemented.")
-        exit
+#    if args.newcpp:
+#        print("To be implemented.")
+#        exit
