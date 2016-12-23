@@ -25,7 +25,7 @@
 
 // Includes ---------------------------------------------------------------
 #include <stdio.h>
-#include "avr/pgmspace.h"
+#include <avr/pgmspace.h>
 
 #include "LEF.h"
 #include "LEF_Cli.h"
