@@ -85,16 +85,16 @@ void LEF_QueueSend(LEF_EventQueue *queue,  LEF_queue_element *qe) {
 //  if (queue->tail==queue->head) // if queue is full return
 //    return;
 
-  //ATOMIC_BLOCK(ATOMIC_FORCEON) {
-  LEF_EnterCritical();
+  LEF_ATOMIC_BLOCK() {
+  //LEF_EnterCritical();
 	  LEF_element_cpy(&queue->que[queue->head], qe);
 
     queue->cnt++;
     queue->head++;
     if (queue->head>=LEF_QUEUE_LENGTH)
       queue->head = 0;
-    //}
-   LEF_ExitCritical();
+    }
+   //LEF_ExitCritical();
 }
 
 void LEF_QueueWait(LEF_EventQueue *queue, LEF_queue_element *qe) {
@@ -102,7 +102,7 @@ void LEF_QueueWait(LEF_EventQueue *queue, LEF_queue_element *qe) {
   while(queue->cnt==0) {               // wait until queue has an element
   }
 
-  ATOMIC_BLOCK(ATOMIC_FORCEON) {
+  LEF_ATOMIC_BLOCK() {
 	  LEF_element_cpy(qe, &queue->que[(queue->head+(LEF_QUEUE_LENGTH-queue->cnt))%LEF_QUEUE_LENGTH]);
     queue->cnt--;
   }

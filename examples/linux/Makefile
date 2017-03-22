@@ -1,7 +1,7 @@
 # Hey Emacs, this is a -*- makefile -*-
 #----------------------------------------------------------------------------
 # 
-# General Atmel AVR  Makefile template.
+# Makeplate example project
 #
 # author: Peter Malmberg <peter.malmberg@gmail.com>
 #
@@ -13,33 +13,35 @@
 
 # Target platform
 # linux win32 avr arm osx
-TARGET_PLATFORM = avr
+TARGET_PLATFORM = linux
 
 # Project Licence (GPL, GPLv2, MIT, BSD, Apache, etc.) 
 LICENCE = GPLv2
 
 # Target file name (without extension).
-TARGET = avrtest
+TARGET = makeplate
 
 # List C, C++ and assembler source files here. (C/C++ dependencies are automatically generated.)
-SRC = src/main.c           \
-      src/avrsimul.c       \
-      src/LEF/LEF.c        \
-      src/LEF/LEF_Queue.c  \
-      src/LEF/LEF_Led.c    \
-      src/LEF/LEF_Timer.c  \
-      src/LEF/LEF_Buzzer.c \
-      src/LEF/LEF_Cli.c    \
-			src/XXX.c
+SRC = src/main.c 
+#      Unity/src/unity.c
 
 # List C, C++ and assembler library/3rd partry source files here. (C/C++ dependencies are automatically generated.)
-LSRC =
+LSRC =	src/LEF/LEF.c \
+        src/LEF/LEF_Queue.c \
+				src/LEF/LEF_Cli.c
 
 # Include directories
-INCLUDE =  src \
-           ../../src
+INCLUDE = src \
+          src/LEF \
+#					Unity/src
 
-LIB  = 
+# Libraries to link
+LIB   = -lm 
+#LIB += $(shell pkg-config --libs glib-2.0)
+#LIB += $(shell pkg-config --libs gthread-2.0)
+#LIB += $(shell pkg-config --libs ncurses)
+#LIB += $(shell pkg-config --libs lua5.1)
+#LIB += $(shell pkg-config --libs sqlite3)
 
 # Object files directory
 #     To put object files in current directory, use a dot (.), do NOT make
@@ -57,7 +59,7 @@ OUTDIR = output
 
 # Optimization level, can be [0, 1, 2, 3, s]. 
 #     0 = turn off optimization. s = optimize for size.
-OPT = s
+OPT = 2
 
 # Compiler flag to set the C Standard level.
 # [ gnu99 gnu11 c++98 c++03 c++11 c++14 ] 
@@ -65,7 +67,10 @@ CSTANDARD   = gnu99
 CPPSTANDARD = c++11
 
 # C Macro definitions
-CDEFS = ARDUINO 
+CDEFS = DEBUGPRINT   \
+        WARNINGPRINT \
+        ERRORPRINT   \
+        INFOPRINT   
 
 # ASM  Macro definitions
 ADEFS = 
@@ -97,6 +102,9 @@ CFLAGS += -funsigned-char
 #CFLAGS += -funsigned-bitfields
 #CFLAGS += -fpack-struct
 #CFLAGS += -fshort-enums
+CFLAGS += -Wall
+#CFLAGS += -Wstrict-prototypes
+#CFLAGS += -mshort-calls
 #CFLAGS += -fno-unit-at-a-time
 #CFLAGS += -mshort-calls
 
@@ -117,6 +125,11 @@ CFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void po
 #CFLAGS += -Wundef
 #CFLAGS += -Werror               # All warnings will be treated as errors
 
+# Library compiler flags C --------------------------------------------------
+#CFLAGS += $(shell pkg-config --cflags glib-2.0)
+#CFLAGS += $(shell pkg-config --cflags gthread-2.0)
+#CFLAGS += $(shell pkg-config --cflags lua5.1)
+#CFLAGS += $(shell pkg-config --cflags sqlite3)
 
 
 # Compiler Options C++ ------------------------------------------------------
@@ -151,6 +164,11 @@ CPPFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void 
 #CPPFLAGS += -Wundef
 #CPPFLAGS += -Werror              # All warnings will be treated as errors
 
+# Library compiler flags C++ ------------------------------------------------
+#CPPFLAGS += $(shell pkg-config --cflags glib-2.0)
+#CPPFLAGS += $(shell pkg-config --cflags gthread-2.0)
+#CPPFLAGS += $(shell pkg-config --cflags lua5.1)
+#CPPFLAGS += $(shell pkg-config --cflags sqlite3)
 
 
 # Assembler Options ---------------------------------------------------------
@@ -171,7 +189,7 @@ ASFLAGS += -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-lines=100
 #    --cref:    add cross reference to  map file
 LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
 LDFLAGS += $(EXTMEMOPTS)
-LDFLAGS += $(patsubst %,-L%,$(INCLUDE))
+LDFLAGS += -g
 
 #
 # Platform specific options
@@ -201,97 +219,6 @@ TCHAIN_BASE=/usr/bin
 
 # Toolchain prefix 
 TCHAIN_PREFIX=
-
-endif
-# ARM Cortex options --------------------------------------------------------
-
-ifeq ($(TARGET_PLATFORM), arm)
-
-CFLAGS += -mcpu=$(MCU)
-CFLAGS += -mthumb
-#CFLAGS += -mfpu=fpv4-sp-d16 
-#CFLAGS += -mfloat-abi=hard 
-
-LDSCRIPT = stm32_flash.ld
-#LDSCRIPT = arm-gcc-link.ld
-LDFLAGS += -T$(LDSCRIPT) -mthumb -mcpu=$(MCU) -nostdlib 
-
-# Toolchain base directory
-TCHAIN_BASE=/usr/bin
-# Toolchain prefix 
-TCHAIN_PREFIX=arm-none-eabi-
-
-TRGFILE=$(OUTDIR)/$(TARGET).elf
-
-endif
-
-# Atmel AVR options ---------------------------------------------------------
-
-ifeq ($(TARGET_PLATFORM), avr)
-# MCU name
-MCU = atmega328
-
-# Processor frequency.
-# Some common values:
-#  1000000  1843200  2000000 3686400 4000000 7372800 8000000 11059200 14745600
-F_CPU = 16000000
-
-CFLAGS   += -mmcu=$(MCU)
-CPPFLAGS += -mmcu=$(MCU)
-ASFLAGS  += -mmcu=$(MCU)
-
-# Output format. (can be srec, ihex, binary)
-FORMAT = ihex
-
-# Debugging format.
-#     Native formats for AVR-GCC's -g are dwarf-2 [default] or stabs.
-#     AVR Studio 4.10 requires dwarf-2.
-#     AVR [Extended] COFF format requires stabs, plus an avr-objcopy run.
-DEBUG = dwarf-2
-
-CDEFS   += F_CPU=$(F_CPU)UL
-ADEFS   += F_CPU=$(F_CPU)UL
-CPPDEFS += F_CPU=$(F_CPU)UL
-
-# Toolchain base directory
-TCHAIN_BASE=/usr/bin
-# Toolchain prefix 
-TCHAIN_PREFIX=avr-
-
-TRGFILE=$(OUTDIR)/$(TARGET).elf
-
-# Library Options ------------------------------------------------------------
-# Minimalistic printf version
-PRINTF_LIB_MIN = -Wl,-u,vfprintf -lprintf_min
-
-# Floating point printf version (requires MATH_LIB = -lm below)
-PRINTF_LIB_FLOAT = -Wl,-u,vfprintf -lprintf_flt
-
-# If this is left blank, then it will use the Standard printf version.
-PRINTF_LIB = 
-#PRINTF_LIB = $(PRINTF_LIB_MIN)
-#PRINTF_LIB = $(PRINTF_LIB_FLOAT)
-
-# Minimalistic scanf version
-SCANF_LIB_MIN = -Wl,-u,vfscanf -lscanf_min
-
-# Floating point + %[ scanf version (requires MATH_LIB = -lm below)
-SCANF_LIB_FLOAT = -Wl,-u,vfscanf -lscanf_flt
-
-# If this is left blank, then it will use the Standard scanf version.
-SCANF_LIB = 
-#SCANF_LIB = $(SCANF_LIB_MIN)
-#SCANF_LIB = $(SCANF_LIB_FLOAT)
-
-MATH_LIB = -lm
-
-# List any extra directories to look for libraries here.
-#     Each directory must be seperated by a space.
-#     Use forward slashes for directory separators.
-#     For a directory that has spaces, enclose it in quotes.
-EXTRALIBDIRS = 
-
-LDFLAGS += $(PRINTF_LIB) $(SCANF_LIB) $(MATH_LIB)
 
 endif
 
@@ -483,7 +410,8 @@ nocolor:
 #	
 nc: nocolor all   ## Build with no color on compiler output
 
-build: elf hex eep lss sym size-avr
+
+build: elf lss sym size
 
 elf: $(TRGFILE)
 lss: $(OUTDIR)/$(TARGET).lss
@@ -518,7 +446,7 @@ $(TRGFILE): $(OBJS) $(OUTDIR)
 %.lss:	$(TRGFILE)
 	@echo
 	@echo -e $(MSG_EXTENDED_LISTING) "\n               $(C_FILE)" $@ "$(E_END)"
-	@$(OBJDUMP) -h -S -z $< > $@
+	@$(OBJDUMP) -h -S -C -r $< > $@
 	
 # Create a symbol table from ELF output file.
 %.sym: $(TRGFILE)
@@ -530,7 +458,7 @@ $(TRGFILE): $(OBJS) $(OUTDIR)
 %.hex: $(TRGFILE)
 	@echo
 	@echo -e $(MSG_HEX_FILE) "\n               $(C_FILE)" $@ "$(E_END)"
-	@$(OBJCOPY) -O $(FORMAT) -R .eeprom -R .fuse -R .lock -R .signature $< $@
+	@$(OBJCOPY) -O ihex $< $@
 
 # Compile: create object files from C source files.
 $(COBJS): $(BUILDDIR)/%.o : src/%.c
@@ -546,7 +474,6 @@ $(CPPOBJS): $(BUILDDIR)/%.o : src/%.cpp
 	
 # Assemble: create object files from assembler source files.
 $(OBJDIR)/%.o : %.S
-	@$(MKDIR) $(@D)                                       # Create directory for object file
 	@echo -e $(MSG_ASSEMBLING) "$(C_FILE)" $< "$(E_END)"
 	@$(CC) -c $(ALL_ASFLAGS) $< -o $@
 
@@ -557,24 +484,6 @@ $(OBJDIR)/%.s : %.c
 # Compile: create assembler files from C++ source files.
 $(OBJDIR)/%.s : %.cpp
 	@$(CC) -S $(ALL_CPPFLAGS) $< -o $@
-
-coff: $(TRGFILE)
-	@echo
-	@echo -e $(MSG_COFF)"\n             $(E_BR_CYAN)" $(TARGET).cof "$(E_END)"
-	$(COFFCONVERT) -O coff-avr $< $(TARGET).cof
-
-extcoff: $(TRGFILE)
-	@echo
-	@echo -e $(MSG_EXTENDED_COFF)"\n             $(E_BR_CYAN)" $(TARGET).cof "$(E_END)"
-	@$(COFFCONVERT) -O coff-ext-avr $< $(TARGET).cof
-
-%.eep: $(TRGFILE)
-	@echo
-	@echo -e $(MSG_EEPROM)"\n             $(E_BR_CYAN)" $@ "$(E_END)"
-	@$(OBJCOPY) -j .eeprom --set-section-flags=.eeprom="alloc,load" \
-	--change-section-lma .eeprom=0 --no-change-warnings -O $(FORMAT) $< $@ || exit 0
-
-
 
 # Create output dir
 $(OUTDIR):
@@ -587,10 +496,12 @@ size: $(TRGFILE)
 	@$(SIZE) $(TRGFILE)
 
 
-size-avr: $(TRGFILE)
-	@echo
-	@echo -e $(MSG_SIZE_AFTER) 
-	@$(SIZE) --mcu=$(MCU) --format=avr $(TRGFILE)
+# 
+# Debug rules
+#============================================================================
+debug: ## Debug program
+	@$(GDB) $(TRGFILE) 
+
 	
 #
 # Various utility rules	
@@ -691,6 +602,11 @@ backup: ## Make an incremental backup
 
 edit:   ## Open source and makefile in editor
 	@$(EDITOR) Makefile $(SRC)
+
+run:    ## Run application
+	@output/$(TARGET)
+
+debug:  ## Debug application
 
 
 # Include the dependency files.
@@ -844,7 +760,7 @@ gccversion :    ## Display compiler version
 #============================================================================
 
 # Only for default settings. Change value in settings.mk
-AUTHOR=Peter Malmberg <peter.malmberg@gmail.com>
+AUTHOR=Your Name <your.name@yourdomain.org>
 EDITOR=jed
 US:=$$USER
 #PERSONAL=personal_$${USER}.mk
@@ -919,57 +835,7 @@ PSRCH = $(PSRC:%.c=%.h)
 
 astyle: ## Format source to conform to a standard
 	@$(ASTYLE) $(AST) src/*.c src/*.cpp src/*.h
-#
-# Avrdude settings 
-# ----------------------------------------------------------
-.PHONY: program
-	
-AVRDUDE = avrdude	
-# Programming hardware
-# Type: avrdude -c ?
-# to get a full listing.
-#
-AVRDUDE_PROGRAMMER = stk500v2
- 
-# com1 = serial port. Use lpt1 to connect to parallel port.
-AVRDUDE_PORT = com1    # programmer connected to serial device
 
-AVRDUDE_BITRATE = 57600 
- 
-AVRDUDE_WRITE_FLASH = -U flash:w:$(OUTDIR)/$(TARGET).hex:i
-#AVRDUDE_WRITE_EEPROM = -U eeprom:w:$(TARGET).eep
-  
-# Uncomment the following if you want avrdude's erase cycle counter.
-# Note that this counter needs to be initialized first using -Yn,
-# see avrdude manual.
-#AVRDUDE_ERASE_COUNTER = -y
-
-# Uncomment the following if you do /not/ wish a verification to be
-# performed after programming the device.
-#AVRDUDE_NO_VERIFY = -V
-
-# Increase verbosity level.  Please use this when submitting bug
-# reports about avrdude. See <http://savannah.nongnu.org/projects/avrdude>
-# to submit bug reports.
-AVRDUDE_VERBOSE = -v -v
- 
-AVRDUDE_FLAGS = -p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER) -b ${AVRDUDE_BITRATE} -D
-AVRDUDE_FLAGS += $(AVRDUDE_NO_VERIFY)
-AVRDUDE_FLAGS += $(AVRDUDE_VERBOSE)
-AVRDUDE_FLAGS += $(AVRDUDE_ERASE_COUNTER)
-
-
-# Program the device.
-program: $(TARGET).hex # $(TARGET).eep
-	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH) # $(AVRDUDE_WRITE_EEPROM)
- 
-#
-# AVR simulator
-#============================================================================
-.PHONY: sim
-
-sim:  ## Run AVR simulator 
-	simulavr -d $(MCU) -F $(F_CPU) --file $(TRGFILE) -W 0x20,- -R 0x22,- -T exit --irqstatistic
 	
 # Listing of phony targets.
 .PHONY : all clean gccversion build begin finished end elf lss sym archive edit help backup list-src list-flags newproj run install

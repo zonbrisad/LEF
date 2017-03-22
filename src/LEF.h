@@ -31,7 +31,12 @@ extern "C" {
 
 // Includes ---------------------------------------------------------------	
 #include <stdint.h>
-#include <util/atomic.h>
+	
+
+	
+// AVR specific includes	
+//#include <util/atomic.h>
+//#include <avr/pgmspace.h>
 
 #include "LEF_Config.h"
 
@@ -50,6 +55,11 @@ extern "C" {
 	
 // Macros -----------------------------------------------------------------
 
+//#define LEF_ATOMIC_BLOCK() ATOMIC_BLOCK(ATOMIC_FORCEON)
+	
+#define LEF_ATOMIC_BLOCK() 
+
+	
 // Typedefs ---------------------------------------------------------------
 	
 // Variables --------------------------------------------------------------

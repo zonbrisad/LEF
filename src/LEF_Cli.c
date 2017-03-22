@@ -25,7 +25,6 @@
 
 // Includes ---------------------------------------------------------------
 #include <stdio.h>
-#include <avr/pgmspace.h>
 
 #include "LEF.h"
 #include "LEF_Cli.h"
@@ -33,6 +32,12 @@
 
 
 // Macros -----------------------------------------------------------------
+
+//#define PRINTF printf_p
+//#define STRCPY strcpy_P
+
+#define PRINTF printf
+#define STRCPY strcpy
 
 
 
@@ -53,7 +58,7 @@ void LEF_CliInit(LEF_CliCmd *cmds) {
   cliCnt  = 0;
   cliLock = 0;
   Cmds = cmds;
-  printf("\n%s",CLI_PROMPT);
+  PRINTF("\n%s",CLI_PROMPT);
 }
 
 void LEF_CliPutChar(char ch) {
@@ -64,7 +69,7 @@ void LEF_CliPutChar(char ch) {
 		cliCnt++;
 
 		//putc(ch);
-		printf("%c",ch);
+		PRINTF("%c",ch);
 		qe.id = 250;
 		if (ch=='\n') {
 			cliLock = 1;
@@ -82,15 +87,15 @@ void printCommands(const LEF_CliCmd *cmdTable) {
   int i;
   handler ptr;
   i = 0;
-  ptr = (handler)pgm_read_word(&cmdTable[i].function);
+//  ptr = (handler)pgm_read_word(&cmdTable[i].function);
   while (ptr!=NULL) {
 	ptr();
-    strcpy_P(cBuf,&cmdTable[i].name);
-    printf_P(PSTR("%-12s"), cBuf);
-    printf_P(&cmdTable[i].desc);
-    printf_P(PSTR("\n"));
+    STRCPY(cBuf,&cmdTable[i].name);
+    PRINTF(PSTR("%-12s"), cBuf);
+    PRINTF(&cmdTable[i].desc);
+    PRINTF(PSTR("\n"));
     i++;
-    ptr = (handler)pgm_read_word(&cmdTable[i].function);
+//    ptr = (handler)pgm_read_word(&cmdTable[i].function);
   }
 }
 
