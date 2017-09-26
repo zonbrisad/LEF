@@ -4,11 +4,11 @@
  * This file is part of LEF distribution
  *
  *---------------------------------------------------------------------------
- * @brief   A simple Command Line Interface for LEF.
+ * @brief   A test module
  *
- * @file    LEF_Cli.h
+ * @file    XXX.c
  * @author  Peter Malmberg <peter.malmberg@gmail.com>
- * @date    2016-12-09
+ * @date    2016-12-20
  * @lisence GPLv2
  *
  *---------------------------------------------------------------------------
@@ -23,48 +23,27 @@
  * 1 tab = 2 spaces
  */
 
-#ifndef LEF_CLI_H
-#define LEF_CLI_H
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 // Includes ---------------------------------------------------------------
 
+
+#include "LEF.h"
+#include "XXX.h"
+
+#include "def.h"
+
 // Macros -----------------------------------------------------------------
-
-#define CLIBUF 32
-#define CLI_PROMPT ">"
-
-#define LEF_CLI_CMD_LENGTH  12
-#define LEF_CLI_DESC_LENGTH 32
-
-// Typedefs ---------------------------------------------------------------
-
-typedef void (*handler)(void);
-
-typedef struct {
-  handler function;
-  char name[LEF_CLI_CMD_LENGTH];
-  char desc[LEF_CLI_DESC_LENGTH];
-
-} LEF_CliCmd;
 
 // Variables --------------------------------------------------------------
 
 // Prototypes -------------------------------------------------------------
 
-void LEF_CliInit(LEF_CliCmd *cmds);
+// Code -------------------------------------------------------------------
 
-void LEF_CliPutChar(char ch);
 
-void LEF_CliExec(void);
+//#define WEAK(a) __attribute__((weak, alias(a)))
 
-void LEF_CliPrintCommands(const LEF_CliCmd *cmdTable);
-	
-#ifdef __cplusplus
-} //end brace for extern "C"
-#endif
-#endif
+void WEAKA("weakFunction")  weakTest(void);
 
+void weakFunction(void) {
+  printf("My weak default function\n");
+}

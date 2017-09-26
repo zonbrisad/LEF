@@ -73,7 +73,14 @@ void LEF_QueueWait(LEF_EventQueue *queue, LEF_queue_element *qe);
  */
 uint8_t LEF_QueueCnt(LEF_EventQueue *queue);
 
+/**
+ *
+ */
+void LEF_QueueStdSend(LEF_queue_element *qe);
+	
+void LEF_QueueStdWait(LEF_queue_element *qe);
 
+	
 #ifdef __cplusplus
 } //end brace for extern "C"
 #endif

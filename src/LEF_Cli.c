@@ -28,21 +28,13 @@
 
 #include "LEF.h"
 #include "LEF_Cli.h"
-#include "def.h"
 
+#define DEBUGALL
+#include "def.h"
 
 // Macros -----------------------------------------------------------------
 
-//#define PRINTF printf_p
-//#define STRCPY strcpy_P
-
-#define PRINTF printf
-#define STRCPY strcpy
-
-
-
 // Variables --------------------------------------------------------------
-
 
 char cliBuf[CLIBUF];
 uint8_t cliCnt;
@@ -58,7 +50,7 @@ void LEF_CliInit(LEF_CliCmd *cmds) {
   cliCnt  = 0;
   cliLock = 0;
   Cmds = cmds;
-  PRINTF("\n%s",CLI_PROMPT);
+  defprintf("\n%s",CLI_PROMPT);
 }
 
 void LEF_CliPutChar(char ch) {
@@ -69,39 +61,41 @@ void LEF_CliPutChar(char ch) {
 		cliCnt++;
 
 		//putc(ch);
-		PRINTF("%c",ch);
+		defprintf("%c",ch);
 		qe.id = 250;
 		if (ch=='\n') {
 			cliLock = 1;
-			LEF_QueueSend(&StdQueue, &qe);
+			LEF_QueueStdSend(&qe);
 		}
 	}
 }
 
-char cBuf[32];
-uint8_t bIdx;
 
 
-void printCommands(const LEF_CliCmd *cmdTable);
-void printCommands(const LEF_CliCmd *cmdTable) {
+void LEF_CliPrintCommands(const LEF_CliCmd *cmdTable) {
   int i;
   handler ptr;
   i = 0;
-//  ptr = (handler)pgm_read_word(&cmdTable[i].function);
+	char cBuf[32];
+	uint8_t bIdx;
+
+	DEBUGPRINT("A\n");
+  ptr = (handler)pgm_read_word(&cmdTable[i].function);
   while (ptr!=NULL) {
-	ptr();
-    STRCPY(cBuf,&cmdTable[i].name);
-    PRINTF(PSTR("%-12s"), cBuf);
-    PRINTF(&cmdTable[i].desc);
-    PRINTF(PSTR("\n"));
+		DEBUGPRINT("X\n");
+	  //ptr();
+    defstrcpy(cBuf,&cmdTable[i].name);
+    defprintf("%-12s", cBuf);
+    printf(&cmdTable[i].desc);
+    defprintf("\n");
     i++;
-//    ptr = (handler)pgm_read_word(&cmdTable[i].function);
+    ptr = (handler)pgm_read_word(&cmdTable[i].function);
   }
 }
 
 void LEF_CliExec(void) {
 	DEBUGPRINT("Exec\n");
-	printCommands(Cmds);
+	LEF_CliPrintCommands(Cmds);
 	cliLock=0;
 	printf(CLI_PROMPT);
 }

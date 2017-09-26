@@ -1,8 +1,8 @@
 
 #include <stdio.h>
-#include <avr/interrupt.h>
-#include <avr/pgmspace.h>
-#include <util/delay.h>
+//#include <avr/interrupt.h>
+//#include <avr/pgmspace.h>
+//#include <util/delay.h>
 
 #include "def.h"
 #include "avrsimul.h"
@@ -73,20 +73,20 @@ void LEF_QueueTest1(void) {
 	printf("LEF Queue test 1\n");
 
 	src.id = 42;
-	LEF_QueueSend(&StdQueue, &src);
+	LEF_QueueStdSend(&src);
 	src.id = 43;
-	LEF_QueueSend(&StdQueue, &src);
+	LEF_QueueStdSend(&src);
 	src.id = 44;
-	LEF_QueueSend(&StdQueue, &src);
+	LEF_QueueStdSend(&src);
 
 	dst.id = 111;
-	LEF_QueueWait(&StdQueue, &dst);
+	LEF_QueueStdWait(&dst);
 	printf("Event = %d\n",dst.id);
 	dst.id = 111;
-	LEF_QueueWait(&StdQueue, &dst);
+	LEF_QueueStdWait(&dst);
 	printf("Event = %d\n",dst.id);
 	dst.id = 111;
-	LEF_QueueWait(&StdQueue, &dst);
+	LEF_QueueStdWait(&dst);
 	printf("Event = %d\n",dst.id);
 	dst.id = 111;
 
@@ -103,7 +103,7 @@ void LEF_QueueTest2(void) {
 	LEF_TimerStartSingle(&Timer2, 2000);
 	i = 0;
 	while (1) {
-		LEF_QueueWait(&StdQueue, &dst);
+		LEF_QueueStdWait(&dst);
 		printf("Event = %d\n",dst.id);
 		i++;
 		if (i==2) {
@@ -115,7 +115,7 @@ void LEF_QueueTest2(void) {
 	LEF_TimerStartRepeat(&Timer2, 250);
 	i=0;
 	while (1) {
-		LEF_QueueWait(&StdQueue, &dst);
+		LEF_QueueStdWait(&dst);
 		printf("Event = %d\n",dst.id);
 		i++;
 		if (i>10) {
@@ -142,11 +142,11 @@ void LEF_LedTest(void) {
 	LEF_TimerStartRepeat(&Timer3, 5000);
 	while (1) {
 
-		LEF_QueueWait(&StdQueue, &dst);
+		LEF_QueueStdWait(&dst);
 
 		if (dst.id == EVENT_TIMER1) {
 			printf("LED state %3d\n",l);
-			CUR_RETURN();
+			printf(E_CUR_RETURN);
 		}
 		if (dst.id == EVENT_TIMER2) {
 			l = LEF_LedUpdate(&Led1);
@@ -176,7 +176,7 @@ const PROGMEM LEF_CliCmd cmdTable[] = {
   {Moist,             "moist",        "Read moist cont."},
   {TimerPotTest,      "timer",        "Test timer pot"},
   */
-  {NULL,              NULL,            NULL}
+  {NULL,              "",            ""}
 };
 
 void LEF_CliTest(void);
@@ -214,7 +214,6 @@ void weakTest(void) {
   printf("My strong function\n");
 }
 
-
 int main(void) {
 	
 	hw_init();
@@ -225,16 +224,19 @@ int main(void) {
 
 
 	LEF_Init();
-	LEF_TimerInit(&Timer1);
-	LEF_TimerInit(&Timer2);
-	LEF_TimerInit(&Timer3);
-	LEF_LedInit(&Led1);
+//	LEF_TimerInit(&Timer1);
+//	LEF_TimerInit(&Timer2);
+//	LEF_TimerInit(&Timer3);
+//	LEF_LedInit(&Led1);
+	
 	LEF_CliInit(cmdTable);
+	LEF_CliPrintCommands(cmdTable);
 
-	weakTest();
 
-	//LEF_QueueTest1();
-	//LEF_QueueTest2();
+//	weakTest();
+
+	LEF_QueueTest1();
+	LEF_QueueTest2();
 	//LEF_LedTest();
 	LEF_CliTest();
 

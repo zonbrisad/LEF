@@ -1,7 +1,7 @@
 # Hey Emacs, this is a -*- makefile -*-
 #----------------------------------------------------------------------------
 # 
-# General Atmel AVR  Makefile template.
+# LEF avr simulator example.
 #
 # author: Peter Malmberg <peter.malmberg@gmail.com>
 #
@@ -15,8 +15,8 @@
 # linux win32 avr arm osx
 TARGET_PLATFORM = avr
 
-# Project Licence (GPL, GPLv2, MIT, BSD, Apache, etc.) 
-LICENCE = GPLv2
+# Project License (GPL, GPLv2, MIT, BSD, Apache, etc.) 
+LICENSE = GPLv2
 
 # Target file name (without extension).
 TARGET = avrtest
@@ -39,15 +39,13 @@ LSRC =
 INCLUDE =  src \
            ../../src
 
+# Libraries to link
 LIB  = 
 
 # Object files directory
 #     To put object files in current directory, use a dot (.), do NOT make
 #     this an empty or blank macro!
 OBJDIR = .
-
-# Source code directory
-SRCDIR=src
 
 # Build directory
 BUILDDIR=build
@@ -59,7 +57,7 @@ OUTDIR = output
 #     0 = turn off optimization. s = optimize for size.
 OPT = s
 
-# Compiler flag to set the C Standard level.
+# Compiler flag to set the C and C++ Standard level.
 # [ gnu99 gnu11 c++98 c++03 c++11 c++14 ] 
 CSTANDARD   = gnu99
 CPPSTANDARD = c++11
@@ -84,13 +82,15 @@ DEBUG=0
 # Compiler and Linker options
 #============================================================================
 
+##N- Build
+
 # Compiler Options C --------------------------------------------------------
 CFLAGS = -g$(DEBUG)                            # Debugging information
 CFLAGS += -O$(OPT)                             # Optimisation level
 CFLAGS += -std=$(CSTANDARD)                    # C standard
 CFLAGS += $(patsubst %,-I%,$(INCLUDE))         # Include directories 
 CFLAGS += $(patsubst %,-D%,$(CDEFS))           # Macro definitions
-CFLAGS += -Wa,-adhlns=$(<:%.c=$(OBJDIR)/%.lst) # Generate assembler listing
+CFLAGS += -Wa,-adhlns=$(<:%.c=$(BUILDDIR)/%.lst) # Generate assembler listing
 
 # Compiler Tuning C ---------------------------------------------------------
 CFLAGS += -funsigned-char
@@ -99,6 +99,7 @@ CFLAGS += -funsigned-char
 #CFLAGS += -fshort-enums
 #CFLAGS += -fno-unit-at-a-time
 #CFLAGS += -mshort-calls
+#CFLAGS += -fPIC                  # Position independet code
 
 # Compiler Warnings C -------------------------------------------------------
 CFLAGS += -Wall                  # Standard warnings
@@ -118,23 +119,23 @@ CFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void po
 #CFLAGS += -Werror               # All warnings will be treated as errors
 
 
-
 # Compiler Options C++ ------------------------------------------------------
 CPPFLAGS = -g$(DEBUG)                              # Debugging information
 CPPFLAGS += -O$(OPT)                               # Optimisation level
-CPPFLAGS += -std=$(CPPSTANDARD)                      # C standard
+CPPFLAGS += -std=$(CPPSTANDARD)                    # C++ standard
 CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))           # Include directories 
 CPPFLAGS += $(patsubst %,-D%,$(CPPDEFS))           # Macro definitions
-CPPFLAGS += -Wa,-adhlns=$(<:%.cpp=$(OBJDIR)/%.lst) # Generate assembler listing
+CPPFLAGS += -Wa,-adhlns=$(<:%.cpp=$(BUILDDIR)/%.lst) # Generate assembler listing
 
 # Compiler Tuning C++ -------------------------------------------------------
 CPPFLAGS += -funsigned-char
 CPPFLAGS += -funsigned-bitfields
-CPPFLAGS += -fpack-struct
+#CPPFLAGS += -fpack-struct
 CPPFLAGS += -fshort-enums
 CPPFLAGS += -fno-exceptions
 #CPPFLAGS += -mshort-calls
 #CPPFLAGS += -fno-unit-at-a-time
+#CPPFLAGS += -fPIC                  # Position independet code
 
 # Compiler Warnings C++ -----------------------------------------------------
 CPPFLAGS += -Wall                  # Standard warnings
@@ -150,8 +151,6 @@ CPPFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void 
 #CPPFLAGS += -Wsign-compare
 #CPPFLAGS += -Wundef
 #CPPFLAGS += -Werror              # All warnings will be treated as errors
-
-
 
 # Assembler Options ---------------------------------------------------------
 #  -Wa,...:   tell GCC to pass this to the assembler.
@@ -189,7 +188,28 @@ TCHAIN_BASE=/usr/bin
 # Toolchain prefix 
 TCHAIN_PREFIX=
 
+# Handle pkg-config libraries -----------------------------------------------
+CFLAGS   += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
+CPPFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
+LDFLAGS  += $(foreach X, $(PKGLIBS), $(shell pkg-config --libs $(X))   )
+
+# Size flags ----------------------------------------------------------------
+SIZEFLAGS = --format=berkley  # format = {sysv|berkeley}
+
+# objdump flags -------------------------------------------------------------
+ODFLAGS  = -h  # Display the contents of the section headers  
+ODFLAGS += -S  # Intermix source code with disassembly
+ODFLAGS += -C  #
+ODFLAGS += -r  # Display the relocation entries in the file
+
+# Output format. (can be srec, ihex, binary) --------------------------------
+FORMAT = ihex
+
+# object copy flags ---------------------------------------------------------
+OCFLAGS = -O $(FORMAT) 
+
 endif
+
 # Windows options -----------------------------------------------------------
 ifeq ($(TARGET_PLATFORM), win32)
 
@@ -228,6 +248,7 @@ endif
 # Atmel AVR options ---------------------------------------------------------
 
 ifeq ($(TARGET_PLATFORM), avr)
+
 # MCU name
 MCU = atmega328
 
@@ -240,7 +261,7 @@ CFLAGS   += -mmcu=$(MCU)
 CPPFLAGS += -mmcu=$(MCU)
 ASFLAGS  += -mmcu=$(MCU)
 
-# Output format. (can be srec, ihex, binary)
+# Output format. (can be srec, ihex, binary) --------------------------------
 FORMAT = ihex
 
 # Debugging format.
@@ -260,7 +281,20 @@ TCHAIN_PREFIX=avr-
 
 TRGFILE=$(OUTDIR)/$(TARGET).elf
 
-# Library Options ------------------------------------------------------------
+# Size flags ----------------------------------------------------------------
+SIZEFLAGS = --mcu=$(MCU) --format=avr  # format = {sysv|berkeley}
+
+# objdump flags -------------------------------------------------------------
+ODFLAGS  = -h  # Display the contents of the section headers  
+ODFLAGS += -S  # Intermix source code with disassembly
+ODFLAGS += -z  #
+#ODFLAGS += -r  # Display the relocation entries in the file
+
+
+# object copy flags ---------------------------------------------------------
+OCFLAGS = -O $(FORMAT) -R .eeprom -R .fuse -R .lock -R .signature
+
+# Library Options -----------------------------------------------------------
 # Minimalistic printf version
 PRINTF_LIB_MIN = -Wl,-u,vfprintf -lprintf_min
 
@@ -301,21 +335,23 @@ endif
 
 # Define programs and commands ----------------------------------------------
 SHELL     = bash
+WINSHELL  = cmd
 REMOVE    = rm -f
 REMOVEDIR = rm -rf
 COPY      = cp -f 
 MOVE      = mv -f
-WINSHELL  = cmd
 MKDIR     = mkdir -p
-SED       = sed
-MOC       = moc
-QMAKE     = qmake
-CTEMPLATE = python3 tools/ctemplate.py
-BIN2ARRAY = python3 tools/bin2array.py
-MPTOOL    = tools/mkptools
+SED       = sed              # stream editor program
+MOC       = moc              # Qt meta object compiler
+QMAKE     = qmake            # Qt make program
+UIC       = uic              # Qt resource file compiler
+CTEMPLATE = python3 tools/ctemplate.py # C/C++ template tool
+BIN2ARRAY = python3 tools/bin2array.py # Binary to array tool
+MPTOOL    = tools/mptools    # Makeplate tools
 CPPCHECK  = cppcheck
 INSTALL   = install
-ASTYLE    = astyle
+ASTYLE    = astyle           # Code beatyfier
+DOXYGEN   = doxygen          # Code documetation program
 
 TCHAIN = $(TCHAIN_BASE)/$(TCHAIN_PREFIX)
 
@@ -328,6 +364,7 @@ AR        = ${TCHAIN}ar rcs
 NM        = ${TCHAIN}nm
 AS        = ${TCHAIN}as
 GDB       = ${TCHAIN}gdb
+STRIP     = ${TCHAIN}strip
 
 #
 # Message/Filter settings
@@ -360,19 +397,31 @@ E_ON_MAGENTA   = \033[45m
 E_ON_CYAN      = \033[46m
 E_ON_WHITE     = \033[47m
 
+# ANSI Text attributes
+E_ATTR_BOLD=\e[1m
+E_ATTR_LOWI=\e[2m
+E_ATTR_UNDERLINE=\e[4m
+E_ATTR_BLINK=\e[5m
+E_ATTR_REVERSE=\e[7m
+
+# System color definitions
 C_OK=$(E_BR_GREEN)
-C_ERROR=$(E_BR_RED)
 C_WARNING=$(E_BR_YELLOW)
+C_ERROR=$(E_BR_RED)
 C_FILE=$(E_BR_CYAN)
+C_DIR=$(E_CYAN)
 C_NOTE=$(E_BR_GREEN)
 C_MSG=$(E_BR_GREEN)
 C_ACTION=$(E_BR_MAGENTA)
+C_VALUE=$(E_WHITE)$(E_ON_BLUE)
+C_IDENTIFIER=$(E_WHITE)
 
 # Messages ------------------------------------------------------------------
 MSG_LINE             = "$(E_WHITE)------------------------------------------------------------------$(E_END)"
 MSG_BEGIN            = "${E_WHITE}-------------------------------- Begin ---------------------------${E_END}"
 MSG_END              = "${E_WHITE}-------------------------------- End -----------------------------${E_END}"
 MSG_ERRORS_NONE      = "${C_OK}Errors: none ${E_END}"
+MSG_STRIP            = "${C_ACTION}Striping:${E_END}"
 MSG_LINKING          = "${C_ACTION}Linking:${E_END}"
 MSG_COMPILING        = "${C_ACTION}Compiling C:  ${E_END}"
 MSG_COMPILING_CPP    = "${C_ACTION}Compiling C++:${E_END}"
@@ -392,42 +441,44 @@ MSG_FLASH            = "${C_ACTION}Creating load file for Flash:${E_END}"
 MSG_EEPROM           = "${C_ACTION}Creating load file for EEPROM:${E_END}"
 MSG_COFF             = "${C_ACTION}Converting to AVR COFF:${E_END}"
 MSG_EXTENDED_COFF    = "${C_ACTION}Converting to AVR Extended COFF:${E_END}"
-MSG_BACKUP           = "${E_BR_GREEN}Making incremental backup of project:${E_END}"
+MSG_MOC              = "${C_ACTION}Creating MOC file:${E_END}"
+MSG_UI               = "${C_ACTION}Generating UI header:${E_END}"
+MSG_BACKUP           = "${C_ACTION}Making incremental backup of project:${E_END}"
 MSG_SRC              = "${C_MSG}Source files $(E_GREEN)-----------------------------------------------------${E_END}"
 MSG_FLAGS            = "${C_MSG}Compiler Flags $(E_GREEN)---------------------------------------------------${E_END}"
 MSG_LINKER           = "${C_MSG}Linker Flags $(E_GREEN)-----------------------------------------------------${E_END}"
 MSG_PROJECT          = "${C_MSG}Project info $(E_GREEN)-----------------------------------------------------${E_END}"
 MSG_INCLUDES         = "${C_MSG}Include directories $(E_GREEN)----------------------------------------------${E_END}"
+MSG_OBJECTS          = "${C_MSG}Object files $(E_GREEN)-----------------------------------------------------${E_END}"	
 MSG_DEFS             = "${C_MSG}Macro definitions $(E_GREEN)------------------------------------------------${E_END}"
 MSG_INSTALL_INFO     = "${C_MSG}Install settings $(E_GREEN)-------------------------------------------------${E_END}"
 MSG_INSTALLING       = "${C_ACTION}Installing:   ${E_END}"
 MSG_BUILDING         = "$(C_ACTION)Building:     "
 	
 # Compiler output colorizer filter ------------------------------------------
-
+F_SOURCE=| sed -e "s/\(.*\/\)\(.*\)/$$(printf "$(C_DIR)")\1$$(printf "$(C_FILE)")\2$$(printf "$(E_END)")/"
 F_INF="s/In function/$$(printf "$(E_BR_GREEN)")&$$(printf "$(E_END)")/i"
-FF_INF="s/^.*In function/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
+F_NOTE="s/note:/$$(printf "$(C_NOTE)")&$$(printf "$(E_END)")/i"
+F_WARNING="s/warning:/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_ERROR="s/error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
 F_FATAL_ERROR="s/fatal error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
-F_WARNING="s/warning:/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
-F_NOTE="s/note:/$$(printf "$(C_NOTE)")&$$(printf "$(E_END)")/i"
-FF_ERROR="s/^.*error:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
-FF_WARNING="s/^.*warning:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
-FF_NOTE="s/^.*note:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
 F_WARNING1="s/defined but not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_WARNING2="s/unused variable/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_WARNING3="s/may be used uninitialized in this function/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_WARNING4="s/implicit declaration of function/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_WARNING5="s/value computed is not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
-F_BRACKET="s/\[-W.*\]/$$(printf "$(E_GREEN)")&$$(printf "$(E_END)")/g"
-#XX="s/\[[^][]*\]/$$(printf "$(E_BR_BLUE)")&$$(printf "$(E_END)")/i"
-#YY="s/\'[^][]*\'/$$(printf "$(E_BR_GREEN)")&$$(printf "$(E_END)")/i"
-C_FILTER   = | sed -ru -e $(F_FATAL_ERROR) -e $(F_ERROR) -e $(FF_ERROR)     \
-                       -e $(F_WARNING) -e $(FF_WARNING)                     \
-                       -e $(F_WARNING1) -e $(F_WARNING2) -e $(F_WARNING3)   \
-                       -e $(F_WARNING4) -e $(F_WARNING5)                    \
-                       -e $(F_NOTE) -e $(FF_NOTE)                           \
-                       -e $(F_INF) -e $(FF_INF) -e $(F_BRACKET)
+F_BRACKET="s/\[\(.*\)\]/[$$(printf "$(E_GREEN)")\1$$(printf "$(E_END)")]/"	
+F_VARIABLE="s/\‘\(.*\)[\’\‘]/'$$(printf "$(C_IDENTIFIER)")\1$$(printf "$(E_END)")'/g"
+F_FILE="s/[^: ]*/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/"
+F_ROWNR="s/:\([0-9]*\):\([0-9]*\):/:$$(printf "$(C_VALUE)")\1$$(printf "$(E_END)"):$$(printf "$(C_VALUE)")\2$$(printf "$(E_END)"):/"
+
+C_FILTER   = | sed -u -e $(F_BRACKET) -e $(F_FILE) -e $(F_ROWNR)          \
+                      -e $(F_INF) -e $(F_NOTE)                            \
+ 	                  -e $(F_WARNING) -e $(F_ERROR) -e $(F_FATAL_ERROR)   \
+                      -e $(F_WARNING1) -e $(F_WARNING2) -e $(F_WARNING3)  \
+                      -e $(F_WARNING4) -e $(F_WARNING5)                   \
+                      -e $(F_VARIABLE)
+
 CPP_FILTER = $(C_FILTER)
 
 LD_ERROR1="s/undefined reference/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
@@ -449,41 +500,35 @@ ALL_ASFLAGS  =  -I. -x assembler-with-cpp $(ASFLAGS)
 
 
 # Filter out C sources
-CSRC_1 = $(patsubst $(SRCDIR)/%.cpp,  , $(SRC) $(LSRC))
-CSRC   = $(patsubst $(SRCDIR)/%.S,    , $(CSRC_1))
+CSRC_1 = $(patsubst %.cpp,  , $(SRC) $(LSRC))
+CSRC   = $(patsubst %.S,    , $(CSRC_1))
 
 # Filter out C++ sources
-CPPSRC_1 = $(patsubst $(SRCDIR)/%.c,  , $(SRC) $(LSRC))
-CPPSRC   = $(patsubst $(SRCDIR)/%.S,  , $(CPPSRC_1))
+CPPSRC_1 = $(patsubst %.c,  , $(SRC) $(LSRC))
+CPPSRC   = $(patsubst %.S,  , $(CPPSRC_1))
 
 # Filter out Assembler sources
-ASRC_1 = $(patsubst $(SRCDIR)/%.c,    , $(SRC) $(LSRC))
-ASRC   = $(patsubst $(SRCDIR)/%.cpp,  , $(ASRC_1))
+ASRC_1 = $(patsubst %.c,    , $(SRC) $(LSRC))
+ASRC   = $(patsubst %.cpp,  , $(ASRC_1))
 
 # Define all object files.
-COBJS    = $(patsubst $(SRCDIR)/%.c,   $(BUILDDIR)/%.o, $(CSRC)) 
-CPPOBJS  = $(patsubst $(SRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(CPPSRC))
-AOBJS    = $(patsubst $(SRCDIR)/%.S,   $(BUILDDIR)/%.o, $(ASRC))
+COBJS    = $(patsubst %.c,   $(BUILDDIR)/%.o, $(CSRC))
+CPPOBJS  = $(patsubst %.cpp, $(BUILDDIR)/%.o, $(CPPSRC))
+AOBJS    = $(patsubst %.S,   $(BUILDDIR)/%.o, $(ASRC))
 
 OBJS    = $(COBJS) $(CPPOBJS) $(AOBJS)
 
 # Define all listing files.
-LST = $(patsubst src/%.c, $(BUILDDIR)/%.lst, $(SRC)) $(patsubst src/%.cpp, $(BUILDDIR)/%.lst, $(CPPSRC)) $(patsubst src/%.S, $(BUILDDIR)/%.lst, $(ASRC))
+LST = $(patsubst %.c, $(OBJDIR)/%.lst, $(CSRC)) $(patsubst %.cpp, $(OBJDIR)/%.lst, $(CPPSRC)) $(patsubst %.S, $(OBJDIR)/%.lst, $(ASRC))
 
 # Default target.
-all:	begin build finished end
+all:	begin build finished end ## Build project (default)
 
-# Remove colorfilter
-nocolor:
-	$(eval C_FILTER:= )
-	
-#
-# Build with no color filter on compiler output
-# Useful for Netbeans, Eclipse builds etc. 
-#	
-nc: nocolor all   ## Build with no color on compiler output
+nc: C_FILTER:= 
+nc: all   ## Build with no color filter on compiler output
 
-build: elf hex eep lss sym size-avr
+
+build: elf hex eep lss sym size
 
 elf: $(TRGFILE)
 lss: $(OUTDIR)/$(TARGET).lss
@@ -492,10 +537,9 @@ hex: $(OUTDIR)/$(TARGET).hex
 bin: $(OUTDIR)/$(TARGET).bin
 eep: $(OUTDIR)/$(TARGET).eep
 
-# Eye candy.
 begin:
 	@echo -e $(MSG_BEGIN)
-	@echo -e ${MSG_BUILDING}"  $(E_BR_GREEN)$(TARGET) $(E_END)"
+	@echo -e ${MSG_BUILDING}" $(E_BR_GREEN)$(TARGET) $(E_END)"
  
 end:
 	@echo
@@ -504,44 +548,45 @@ end:
 finished:
 	@echo
 
-
-# Link target
-#.SECONDARY : $(TARGET)
+# Linking targets from object files
 .PRECIOUS : $(OBJS)
 $(TRGFILE): $(OBJS) $(OUTDIR)
-	@echo 
-	@echo -e $(MSG_LINKING)"\n               $(C_FILE)" $@ "$(E_END)"
+	@echo -en "\n"$(MSG_LINKING)"       "
+	@echo -e $@ $(F_SOURCE) 
 	@$(CPP) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
 	
 # Create extended listing file/disassambly from ELF output file.
 # using objdump testing: option -C
 %.lss:	$(TRGFILE)
-	@echo
-	@echo -e $(MSG_EXTENDED_LISTING) "\n               $(C_FILE)" $@ "$(E_END)"
-	@$(OBJDUMP) -h -S -z $< > $@
+	@echo -en "\n"$(MSG_EXTENDED_LISTING) "\n               "
+	@echo -e $@ $(F_SOURCE)
+	@$(OBJDUMP) $(ODFLAGS) $< > $@
 	
 # Create a symbol table from ELF output file.
 %.sym: $(TRGFILE)
-	@echo
-	@echo -e $(MSG_SYMBOL_TABLE) "\n               $(C_FILE)" $@ "$(E_END)"
+	@echo -en "\n"${MSG_SYMBOL_TABLE}"\n               "
+	@echo -e $@ $(F_SOURCE)
 	@$(NM) -n $< > $@
 
 # Create hex file from ELF output file.
 %.hex: $(TRGFILE)
 	@echo
-	@echo -e $(MSG_HEX_FILE) "\n               $(C_FILE)" $@ "$(E_END)"
-	@$(OBJCOPY) -O $(FORMAT) -R .eeprom -R .fuse -R .lock -R .signature $< $@
+	@echo -en $(MSG_HEX_FILE) "\n               "
+	@echo -e $@ $(F_SOURCE)
+	@$(OBJCOPY) $(OCFLAGS) $< $@
 
 # Compile: create object files from C source files.
-$(COBJS): $(BUILDDIR)/%.o : src/%.c
+$(COBJS): $(BUILDDIR)/%.o : %.c
 	@$(MKDIR) $(@D)                                       # Create directory for object file
-	@echo -e $(MSG_COMPILING) "$(C_FILE)" $< "$(E_END)"
+	@echo -en $(MSG_COMPILING)" "
+	@echo -e $< $(F_SOURCE)
 	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1  $(C_FILTER)
 
 # Compile: create object files from C++ source files.
-$(CPPOBJS): $(BUILDDIR)/%.o : src/%.cpp
+$(CPPOBJS): $(BUILDDIR)/%.o : %.cpp
 	@$(MKDIR) $(@D)                                       # Create directory for object file
-	@echo -e $(MSG_COMPILING_CPP) "$(C_FILE)" $< "$(E_END)"
+	@echo -en $(MSG_COMPILING_CPP)" " 
+	@echo -e $< $(F_SOURCE)
 	@$(CPP) -c $(ALL_CPPFLAGS) $< -o $@ 2>&1  $(CPP_FILTER)
 	
 # Assemble: create object files from assembler source files.
@@ -558,6 +603,27 @@ $(OBJDIR)/%.s : %.c
 $(OBJDIR)/%.s : %.cpp
 	@$(CC) -S $(ALL_CPPFLAGS) $< -o $@
 
+# Create output dir
+$(OUTDIR):
+	@$(MKDIR) $@
+
+# Create build dir
+$(BUILDDIR):
+	@$(MKDIR) $@
+
+# Print information about target binary 
+size: $(TRGFILE)
+	@echo
+	@echo -e $(MSG_SIZE_AFTER)
+	@$(SIZE) $(SIZEFLAGS) $(TRGFILE)
+
+strip: $(TRGFILE) ## Strip target binary from symbols
+	@echo -e $(MSG_STRIP)
+	@$(STRIP) $(TRGFILE)
+
+
+
+# AVR specific targets
 coff: $(TRGFILE)
 	@echo
 	@echo -e $(MSG_COFF)"\n             $(E_BR_CYAN)" $(TARGET).cof "$(E_END)"
@@ -570,27 +636,13 @@ extcoff: $(TRGFILE)
 
 %.eep: $(TRGFILE)
 	@echo
-	@echo -e $(MSG_EEPROM)"\n             $(E_BR_CYAN)" $@ "$(E_END)"
+	@echo -en $(MSG_EEPROM)"\n               "
+	@echo -e $@ $(F_SOURCE)
 	@$(OBJCOPY) -j .eeprom --set-section-flags=.eeprom="alloc,load" \
 	--change-section-lma .eeprom=0 --no-change-warnings -O $(FORMAT) $< $@ || exit 0
 
 
 
-# Create output dir
-$(OUTDIR):
-	@$(MKDIR) $@
-
-# Print information about target binary 
-size: $(TRGFILE)
-	@echo
-	@echo -e $(MSG_SIZE_AFTER)
-	@$(SIZE) $(TRGFILE)
-
-
-size-avr: $(TRGFILE)
-	@echo
-	@echo -e $(MSG_SIZE_AFTER) 
-	@$(SIZE) --mcu=$(MCU) --format=avr $(TRGFILE)
 	
 #
 # Various utility rules	
@@ -610,20 +662,28 @@ clean:  ## Remove all build files
 	@$(REMOVE) $(OUTDIR)/$(TARGET).eep
 	@$(REMOVE) $(OUTDIR)/$(TARGET).cof
 	@$(REMOVE) $(OBJS)
+	@$(REMOVE) $(LST)
+	@$(REMOVE) $(MOCSRC)
+	@$(REMOVE) $(UIH)
 	@$(REMOVEDIR) .dep
 	@$(REMOVEDIR) $(BUILDDIR)	
 	@find . -name "*~" -delete
+	@find . -name "*.orig" -delete
 
+
+# Directory where to store archives
+ARCHIVEDIR = archive
 
 archive: ## Make a tar archive of the source code
 	@echo
 	@echo -e $(MSG_ARCHIVING)
 	@$(eval DT=$(shell date +"%Y%m%d-%H%M%S"))
-	@$(MKDIR) archive
-	@tar -cvzf archive/$(TARGET)_${DT}.tar.gz *  \
-		--exclude='archive'  \
-		--exclude='backup'   \
-		--exclude='output'   \
+	@$(MKDIR) $(ARCHIVEDIR)
+	@tar -cvzf $(ARCHIVEDIR)/$(TARGET)_${DT}.tar.gz *  \
+		--exclude='$(ARCHIVEDIR)' \
+		--exclude='$(BACKUP_DIR)' \
+		--exclude='$(OUTDIR)'     \
+		--exclude='$(BUILDDIR)'   \
 		--exclude='*.a'      \
 		--exclude='*.o'      \
 		--exclude='*.ko'     \
@@ -655,7 +715,7 @@ archive: ## Make a tar archive of the source code
 # Backup directory
 BACKUP_DIR=backup
 
-# Nr of backups
+# Max number of backups
 BACKUPS=100
 
 backup: ## Make an incremental backup
@@ -672,18 +732,12 @@ backup: ## Make an incremental backup
 	    mv -f $${bdir}  $(BACKUP_DIR)/backup_$${x} ;  \
 	  fi ;                                            \
 	done 
-	@rsync --archive             \
-	      --delete               \
-				--relative             \
-				--exclude="backup"     \
-				--exclude="archive"    \
-				--exclude="output"     \
-				--exclude="*.o"        \
-				--exclude=".git"       \
-				--exclude=".svn"       \
-				--exclude="*~"         \
-				--exclude="*.old"      \
-				--exclude="*.tmp"      \	
+	@rsync --archive                 \
+	      --delete                  \
+				--relative                \
+				--exclude="$(BACKUP_DIR)" \
+				--exclude="$(ARCHIVEDIR)" \
+				--exclude="$(OUTDIR)"     \
 				--link-dest=$(CURDIR)/$(BACKUP_DIR)/backup_1 \
 				.                      \
 				$(BACKUP_DIR)/backup_0 
@@ -699,13 +753,15 @@ edit:   ## Open source and makefile in editor
 
 # Project options -----------------------------------------------------------
 
+##N- Create
+
 newfile:  ## Create a new C file
-	@${CTEMPLATE} --newc --dir src --author "$(AUTHOR)" --licence "$(LICENCE)"
+	@${CTEMPLATE} --newc --dir src --author "$(AUTHOR)" --license "$(LICENSE)"
 
 newclass:  ## Create a new C++ class
-	@${CTEMPLATE} --newclass --dir src --author "$(AUTHOR)" --licence "$(LICENCE)"	
+	@${CTEMPLATE} --newclass --dir src --author "$(AUTHOR)" --license "$(LICENSE)"	
 		
-#newproj:  ## Create a new project
+#newproj:  # Create a new project
 #	@${PROJECT} newproj
 
 
@@ -736,20 +792,10 @@ install: $(TRGFILE) ## Install program
 # Help information
 #============================================================================
 
+##N- Information
+
 help: ## This help information
-	@printf "%-30s %s\n" "target" "help"
-	@echo -e $(MSG_LINE)
-	@IFS=$$'\n' ;                                    \
-	help_lines=(`fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##/:/'`); \
-	for help_line in $${help_lines[@]}; do                                     \
-	  IFS=$$':' ;                                                              \
-		help_split=($$help_line) ;                                               \
-		help_command=`echo $${help_split[0]} | sed -e 's/^ *//' -e 's/ *$$//'` ; \
-		help_info=`echo $${help_split[2]} | sed -e 's/^ *//' -e 's/ *$$//'` ;    \
-		printf "$(E_BR_CYAN)%-15s %s$(E_END)" $$help_command ;                 \
-		printf "$(E_BR_GREEN)%s$(E_END)\n" $$help_info ;                       \
-	done ; 
-	@echo -e $(MSG_LINE)
+	@$(MPTOOL) mpHelp Makefile
 
 list-src: ## List all source files
 	@echo -e $(MSG_SRC)
@@ -771,6 +817,14 @@ list-ldflags: ## List linker flags
 	@for f in $(LDFLAGS); do   \
 	  echo $${f} ;             \
 	done                       \
+
+list-objs: ## List objects 
+	@echo -e $(MSG_OBJECTS)
+	@export IFS=" "
+	@for f in $(OBJS); do   \
+	  echo $${f} ;          \
+	done        
+
 
 check: ## Check if tools and libraries are present 
 	@$(MPTOOL) ce $(CC)
@@ -795,7 +849,7 @@ list-info:
 	@echo -e $(MSG_PROJECT)
 	@echo "Target:     $(TARGET)"
 	@echo "Platform:   $(TARGET_PLATFORM)"
-	@echo "Licence:    $(LICENCE)"
+	@echo "License:    $(LICENSE)"
 	@echo "Outdir:     $(OUTDIR)"
 	@echo "C standard: $(CSTANDARD)"
 	@echo "MCU:        $(MCU)"
@@ -838,6 +892,9 @@ files: list-src ## List source files
 
 gccversion :    ## Display compiler version
 	@$(CC) --version
+
+libs: ## List system wide libraries (pkg-config)
+	@pkg-config --list-all
 	
 #
 # Personal settings
@@ -863,16 +920,28 @@ $(PERSONAL):	# Create a settings file
 
 
 
+##N- Code
+
 #
 # CppCheck static code analysis
 #============================================================================
 .PHONY: ccheck acheck
 
+# Filter rules to colorize output from cppcheck (eye candy)
+F_CPPC_FILE="s/\[\(.*\):\(.*\)\]/[$$(printf "$(C_FILE)")\1$$(printf "$(E_END)"):\2]/i"
+F_CPPC_ROWNR="s/:\([0-9]*\)\]/:$$(printf "$(C_VALUE)")\1$$(printf "$(E_END)")]/"
+F_CPPC_VAR="s/'\(.*\)'/'$$(printf "$(C_IDENTIFIER)")\1$$(printf "$(E_END)")'/g"
+F_CPPC_STYLE="s/style/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
+F_CPPC_PORTABILITY="s/portability/$$(printf "$(C_CYAN)")&$$(printf "$(E_END)")/i"
+F_CPPC_ERROR="s/error/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
+F_CPPC_CHECK="s/\(Checking \)\(.*\)/$$(printf "$(C_ACTION)")\1$$(printf "$(E_END)")$$(printf "$(C_FILE)")\2$$(printf "$(E_END)")/i"	
+CPPCHECK_FILTER   = 2>&1 | sed -u -e $(F_CPPC_ROWNR) -e $(F_CPPC_FILE) -e $(F_CPPC_STYLE) -e $(F_CPPC_ERROR) -e $(F_CPPC_PORTABILITY) -e $(F_CPPC_VAR)  -e $(F_CPPC_CHECK)
+
 ccheck: ## Static code analysis using cppcheck(errors only)
-	@$(CPPCHECK) --inline-suppr $(SRC) 
+	@$(CPPCHECK) --inline-suppr $(SRC)  $(CPPCHECK_FILTER)
 
 acheck: ## Static code analysis using cppcheck(all warnings)
-	@$(CPPCHECK) --inline-suppr --enable=all $(SRC) 
+	@$(CPPCHECK) --inline-suppr --enable=all $(SRC) $(CPPCHECK_FILTER)
 
 #
 # Artistic Style (astyle) Format source code to a standard
@@ -929,10 +998,11 @@ AVRDUDE = avrdude
 # Type: avrdude -c ?
 # to get a full listing.
 #
-AVRDUDE_PROGRAMMER = stk500v2
+#AVRDUDE_PROGRAMMER = stk500v2
+AVRDUDE_PROGRAMMER = arduino
  
 # com1 = serial port. Use lpt1 to connect to parallel port.
-AVRDUDE_PORT = com1    # programmer connected to serial device
+AVRDUDE_PORT = /dev/ttyUSB0    # programmer connected to serial device
 
 AVRDUDE_BITRATE = 57600 
  
@@ -958,11 +1028,10 @@ AVRDUDE_FLAGS += $(AVRDUDE_NO_VERIFY)
 AVRDUDE_FLAGS += $(AVRDUDE_VERBOSE)
 AVRDUDE_FLAGS += $(AVRDUDE_ERASE_COUNTER)
 
-
 # Program the device.
-program: $(TARGET).hex # $(TARGET).eep
-	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH) # $(AVRDUDE_WRITE_EEPROM)
- 
+program: $(TARGET).hex # $(TARGET).eep  ## Burn program into flash 
+	@$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH) # $(AVRDUDE_WRITE_EEPROM)
+
 #
 # AVR simulator
 #============================================================================
@@ -973,3 +1042,18 @@ sim:  ## Run AVR simulator
 	
 # Listing of phony targets.
 .PHONY : all clean gccversion build begin finished end elf lss sym archive edit help backup list-src list-flags newproj run install
+
+#
+# Makeplate internal targets
+#============================================================================
+mpType=mp-c
+
+utools: # Update tools from locally installed tools
+	@echo -e "${C_ACTION}Updating makeplate tools${E_END}"
+	@$(COPY) ~/bin/makeplate_files/tools/* tools/.
+
+meld: # Meld Makefile with locally installed makefile
+	@meld ~/bin/makeplate_files/${mpType}/Makefile  Makefile
+
+
+##-

@@ -1,7 +1,7 @@
 /**
  * LEF - Lightweiht Event Framework
  *
- * This file is part of LEF distribution
+ * This file is part of LEF distribution.
  *
  *---------------------------------------------------------------------------
  * @brief   Main LEF file
@@ -32,11 +32,11 @@ extern "C" {
 // Includes ---------------------------------------------------------------	
 #include <stdint.h>
 	
-
-	
-// AVR specific includes	
-//#include <util/atomic.h>
-//#include <avr/pgmspace.h>
+// AVR specific includes
+#ifdef __AVR__	
+#include <util/atomic.h>
+#include <avr/pgmspace.h>
+#endif
 
 #include "LEF_Config.h"
 
@@ -59,6 +59,34 @@ extern "C" {
 	
 #define LEF_ATOMIC_BLOCK() 
 
+	
+// default lefprintf 
+#define lefprintf(...)  printf( __VA_ARGS__)
+	
+#ifdef DEF_PLATFORM_AVR   // if avr GCC use printf_P to store format strings in flash instead of RAM
+#undef lefprintf
+#define lefprintf(fmt, ...)  printf_P(PSTR(fmt), ##__VA_ARGS__)
+#endif
+	
+	
+// Critical Section -------------------------------------------------------
+
+#define LEF_EnterCritical()  \
+		asm volatile ( "in    __tmp_reg__, __SREG__" :: );  \
+        asm volatile ( "cli" :: );                \
+        asm volatile ( "push  __tmp_reg__" :: )
+
+#define LEF_ExitCritical() \
+		asm volatile ( "pop   __tmp_reg__" :: );        \
+        asm volatile ( "out   __SREG__, __tmp_reg__" :: )
+
+#define LEF_DisableInterrupts()  asm volatile ( "cli" :: );
+#define LEF_EnableInterrupts()   asm volatile ( "sei" :: );
+
+// Architectural specifics ------------------------------------------------
+#define LEF_portNOP  asm volatile ( "nop" );
+	
+	
 	
 // Typedefs ---------------------------------------------------------------
 	
