@@ -104,7 +104,7 @@ void LEF_QueueSendEvent(LEF_EventQueue *queue, LEF_EventId ev, void *data) {
 }
 
 
-uint8_t LEF_QueueCnt(LEF_EventQueue *queue) {
+uint16_t LEF_QueueCnt(LEF_EventQueue *queue) {
   return queue->cnt;
 }
 
@@ -115,5 +115,13 @@ void LEF_QueueStdSend(LEF_queue_element *qe) {
 
 void LEF_QueueStdWait(LEF_queue_element *qe) {
 	return LEF_QueueWait(&StdQueue, qe);
+}
+
+void LEF_QueueStdClear(void) {
+	return LEF_QueueClear(&StdQueue);
+}
+
+uint16_t LEF_QueueStdCnt(void) {
+  return LEF_QueueCnt(&StdQueue);
 }
 

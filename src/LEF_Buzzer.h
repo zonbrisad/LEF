@@ -9,7 +9,7 @@
  * @file    LEF_Buzzer.h
  * @author  Peter Malmberg <peter.malmberg@gmail.com>
  * @date    2016-12-09
- * @licence GPLv2
+ * @license GPLv2
  *
  *---------------------------------------------------------------------------
  *

@@ -1,5 +1,5 @@
 /**
- * LEF - Lightweiht Event Framework
+ * LEF - Lightweight Event Framework
  *
  * This file is part of LEF distribution.
  *
@@ -9,7 +9,7 @@
  * @file    LEF.h
  * @author  Your Name <your.name@yourdomain.org>
  * @date    2016-11-30
- * @licence GPLv2
+ * @license GPLv2
  *
  *---------------------------------------------------------------------------
  *
@@ -55,19 +55,19 @@ extern "C" {
 	
 // Macros -----------------------------------------------------------------
 
-//#define LEF_ATOMIC_BLOCK() ATOMIC_BLOCK(ATOMIC_FORCEON)
+#define LEF_ATOMIC_BLOCK() ATOMIC_BLOCK(ATOMIC_FORCEON)
 	
-#define LEF_ATOMIC_BLOCK() 
+//#define LEF_ATOMIC_BLOCK()
 
 	
 // default lefprintf 
-#define lefprintf(...)  printf( __VA_ARGS__)
-	
-#ifdef DEF_PLATFORM_AVR   // if avr GCC use printf_P to store format strings in flash instead of RAM
-#undef lefprintf
-#define lefprintf(fmt, ...)  printf_P(PSTR(fmt), ##__VA_ARGS__)
-#endif
-	
+//#define lefprintf(...)  printf( __VA_ARGS__)
+//
+//#ifdef DEF_PLATFORM_AVR   // if avr GCC use printf_P to store format strings in flash instead of RAM
+//#undef lefprintf
+//#define lefprintf(fmt, ...)  printf_P(PSTR(fmt), ##__VA_ARGS__)
+//#endif
+//
 	
 // Critical Section -------------------------------------------------------
 

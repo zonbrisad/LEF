@@ -49,22 +49,20 @@ typedef struct {
 
 
 
-
-
-
-
 /**
  * API
  * --------------------------------------------------------------------------
  */
 
-
 void LEF_TimerInit(LEF_Timer *timer);
 
 void LEF_TimerStartRepeat(LEF_Timer *timer, uint16_t ticks);
+
 void LEF_TimerStartSingle(LEF_Timer *timer, uint16_t ticks);
+
 void LEF_TimerStop(LEF_Timer *timer);
-void LEF_TimerUpdate(LEF_Timer *timer, LEF_EventQueue *queue, LEF_EventId event);
+	
+void LEF_TimerUpdate(LEF_Timer *timer, LEF_EventId event);
 
 //void LEF_TimerReset(LEF_Timer *timer);
 

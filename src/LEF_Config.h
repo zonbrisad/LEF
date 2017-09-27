@@ -1,5 +1,5 @@
 /**
- * LEF - Lightweiht Event Framework
+ * LEF - Lightweight Event Framework
  *
  * This file is part of LEF distribution
  *
@@ -9,7 +9,7 @@
  * @file    LEF_config.h
  * @author  Your Name <your.name@yourdomain.org>
  * @date    2016-11-30
- * @licence GPLv2
+ * @license GPLv2
  *
  *---------------------------------------------------------------------------
  *
@@ -29,21 +29,23 @@
 extern "C" {
 #endif
 
-// Includes ---------------------------------------------------------------	
 
-// Controlls --------------------------------------------------------------
 
-// Macros -----------------------------------------------------------------
+
+// StdQue settings --------------------------------------------------------
 
 #define LEF_QUEUE_LENGTH 10  /**< Length of LEF std queue */
 
 	
+// Cli settings -----------------------------------------------------------
 
-// Typedefs ---------------------------------------------------------------
+#define CLIBUF 32
+#define CLI_PROMPT ">"
 
-// Variables --------------------------------------------------------------
-	
-// Functions --------------------------------------------------------------
+#define LEF_CLI_CMD_LENGTH  12
+#define LEF_CLI_DESC_LENGTH 32
+
+
 
 #ifdef __cplusplus
 } //end brace for extern "C"

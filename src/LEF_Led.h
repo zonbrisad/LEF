@@ -4,12 +4,12 @@
  * This file is part of LEF distribution
  *
  *---------------------------------------------------------------------------
- * @brief   LED controll library.
+ * @brief   LED control library.
  *
  * @file    LEF_Led.h
  * @author  Peter Malmberg <peter.malmberg@gmail.com>
  * @date    2016-11-30
- * @licence GPLv2
+ * @license GPLv2
  *
  *---------------------------------------------------------------------------
  *

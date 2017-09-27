@@ -39,14 +39,14 @@ void LEF_TimerInit(LEF_Timer *timer) {
   timer->reload   = 0;
 }
 
-void LEF_TimerUpdate(LEF_Timer *timer, LEF_EventQueue *queue, LEF_EventId event) {
+void LEF_TimerUpdate(LEF_Timer *timer, LEF_EventId event) {
 	LEF_queue_element qe;
   ATOMIC_BLOCK(ATOMIC_FORCEON) {
   if (timer->counter>0) {
     timer->counter--;
     if (timer->counter==0) {
     	qe.id = event;
-    	LEF_QueueSend(queue, &qe);
+    	LEF_QueueStdSend(&qe);
 
       if (timer->reload>0)
         timer->counter = timer->reload;
@@ -59,7 +59,7 @@ void LEF_TimerUpdate(LEF_Timer *timer, LEF_EventQueue *queue, LEF_EventId event)
 void LEF_TimerStartRepeat(LEF_Timer *timer, uint16_t ticks) {
   ATOMIC_BLOCK(ATOMIC_FORCEON) {
     timer->reload   = ticks;
-    timer->counter = ticks;
+    timer->counter  = ticks;
   }
 }
 void LEF_TimerStartSingle(LEF_Timer *timer, uint16_t ticks) {
@@ -71,6 +71,6 @@ void LEF_TimerStartSingle(LEF_Timer *timer, uint16_t ticks) {
 void LEF_TimerStop(LEF_Timer *timer) {
   ATOMIC_BLOCK(ATOMIC_FORCEON) {
         timer->reload   = 0;
-        timer->counter = 0;
+        timer->counter  = 0;
       }
 }

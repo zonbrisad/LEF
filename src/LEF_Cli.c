@@ -9,7 +9,7 @@
  * @file    LEF_Cli.c
  * @author  Peter Malmberg <peter.malmberg@gmail.com>
  * @date    2016-12-09
- * @lisence GPLv2
+ * @license GPLv2
  *
  *---------------------------------------------------------------------------
  *
@@ -46,7 +46,7 @@ LEF_CliCmd *Cmds;
 
 // Code -------------------------------------------------------------------
 
-void LEF_CliInit(LEF_CliCmd *cmds) {
+void LEF_CliInit(const LEF_CliCmd *cmds) {
   cliCnt  = 0;
   cliLock = 0;
   Cmds = cmds;

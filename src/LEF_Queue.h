@@ -71,16 +71,25 @@ void LEF_QueueWait(LEF_EventQueue *queue, LEF_queue_element *qe);
 /**
  * Returns the number of events in the queue.
  */
-uint8_t LEF_QueueCnt(LEF_EventQueue *queue);
+uint16_t LEF_QueueCnt(LEF_EventQueue *queue);
 
 /**
  *
  */
 void LEF_QueueStdSend(LEF_queue_element *qe);
-	
+
+/**
+ * Wait for
+ * @param qe
+ */
 void LEF_QueueStdWait(LEF_queue_element *qe);
 
 	
+void LEF_QueueStdClear(void);
+
+uint16_t LEF_QueueStdCnt(void);
+
+
 #ifdef __cplusplus
 } //end brace for extern "C"
 #endif

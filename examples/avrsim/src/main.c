@@ -46,9 +46,9 @@ ISR(TIMER2_COMPA_vect) {
     }
     */
 
-    LEF_TimerUpdate(&Timer1, &StdQueue, EVENT_TIMER1);
-    LEF_TimerUpdate(&Timer2, &StdQueue, EVENT_TIMER2);
-    LEF_TimerUpdate(&Timer3, &StdQueue, EVENT_TIMER3);
+    LEF_TimerUpdate(&Timer1, EVENT_TIMER1);
+    LEF_TimerUpdate(&Timer2, EVENT_TIMER2);
+    LEF_TimerUpdate(&Timer3, EVENT_TIMER3);
 
 }
 
