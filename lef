@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # shellcheck disable=2034
+# shellcheck disable=2317
 # shellcheck disable=1090
 #---------------------------------------------------------------------
 #
@@ -42,6 +43,81 @@ bpUserSettings() {
 #---------------------------------------------------------------------
 # User defined functions
 #---------------------------------------------------------------------
+
+# Create a new Makeplate project
+#
+# $1 Create text
+# $2 source directory
+# $3 tools directory
+# $4 language c/cpp
+# $5 template
+#
+createProject() {
+  #echo -e "${1}"
+
+  #target=$5
+
+  while true; do
+    pn=$(bpRead "LEF project name>" "")
+
+    if ! bpReadY "Create subdirectory?"; then
+      dst=.
+      break
+    fi
+
+    dst="$(pwd)/${pn}"
+
+    if [ -e "$dst" ]; then
+      bpWarning "Directory ${dst} already exists."
+      if ! bpReadN "Use existing directory?"; then
+        continue
+      fi
+      break
+    fi
+
+    bpMkDir "$dst"
+    break
+  done
+
+  brief=$(bpRead "Brief description>" "")
+
+  # MKF=${dst}/Makefile
+
+  #  bpCp "${2}/Makefile" "${dst}/Makefile"
+
+  srcDst="${dst}/src"
+
+  bpMkDir "${dst}/src"
+  bpCp "${BP_SELF_DIR}"/src/LEF_* "${srcDst}/."
+  bpCp "${BP_SELF_DIR}/Makefile.linux" "${dst}/Makefile"
+
+  # # Check tool dir is present then full project otherwise simple
+  # if [ -e "${2}/tools" ]; then
+  #   # bpRm "${dst}/tools"
+  #   bpCp "${BP_SELF_DIR}/tools" "${dst}"
+  #   srcDst="${dst}/src"
+  #   bpMkDir "$srcDst"
+  # fi
+
+  # Replace keywords with data
+  # bpReplace "$MKF" "__NAME__" "${pn}"
+  # bpReplace "$MKF" "__AUTHOR__" "${BP_NAME} <${BP_EMAIL}>"
+  # bpReplace "$MKF" "__DATE__" "${DATE}"
+  # bpReplace "$MKF" "__DESCRIPTION__" "${brief}"
+  # bpReplace "$MKF" "__LICENSE__" "${BP_LICENSE}"
+  # bpReplace "$MKF" "__ORG__" "${BP_ORG}"
+
+  # mpReplaceSection "$MKF" "SETTINGS" "$target"
+  # mpReplaceSection "$MKF" "UTILS" "$target"
+  # mpReplaceSection "$MKF" "TARGETS" "$target"
+  # mpReplaceSection "$MKF" "INSTALL" "$target"
+  # mpReplaceSection "$MKF" "PLATFORM-SPECIFIC" "$target"
+
+}
+
+new() { ##D Create new LEF project
+  createProject
+}
 
 #---------------------------------------------------------------------
 # Bashplate modules
@@ -1247,7 +1323,6 @@ iinfo() { ##I Show information about script
   fi
   settings
 }
-
 
 iview() { ##I View example
   # Singe command documentation
