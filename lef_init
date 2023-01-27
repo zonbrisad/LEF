@@ -1,0 +1,15 @@
+#
+#---------------------------------------------------------------------
+# Lightweight Event Framework init script 
+#    
+#---------------------------------------------------------------------
+#
+
+##V Directory where script is located
+BP_SELF_DIR="${0%/*}"
+  
+
+#---------------------------------------------------------------------
+
+# Add script path to global path
+export PATH=${PATH}:${BP_SELF_DIR}
