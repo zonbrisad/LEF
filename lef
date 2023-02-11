@@ -115,9 +115,17 @@ createProject() {
 
 }
 
+##- LEF
 new() { ##D Create new LEF project
   createProject
 }
+
+
+##- Misc
+install() { ##D Install 
+  bpAddModule "${BP_SELF_DIR}/lef_init"
+}
+
 
 #---------------------------------------------------------------------
 # Bashplate modules
