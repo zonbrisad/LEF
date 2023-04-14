@@ -1,0 +1,390 @@
+   1              		.file	"LEF_Cli.c"
+   2              		.text
+   3              		.section	.rodata.str1.1,"aMS",@progbits,1
+   4              	.LC0:
+   5 0000 3E00     		.string	">"
+   6              	.LC1:
+   7 0002 0A257300 		.string	"\n%s"
+   8              		.text
+   9              		.p2align 4
+  10              		.globl	LEF_CliInit
+  12              	LEF_CliInit:
+  13              	.LFB52:
+  14              		.cfi_startproc
+  15 0000 F30F1EFA 		endbr64
+  16 0004 48893D00 		movq	%rdi, Cmds(%rip)
+  16      000000
+  17 000b 488D3500 		leaq	.LC0(%rip), %rsi
+  17      000000
+  18 0012 31C0     		xorl	%eax, %eax
+  19 0014 488D3D00 		leaq	.LC1(%rip), %rdi
+  19      000000
+  20 001b C6050000 		movb	$0, cliCnt(%rip)
+  20      000000
+  21 0022 C6050000 		movb	$0, cliLock(%rip)
+  21      000000
+  22 0029 E9000000 		jmp	defprintf@PLT
+  22      00
+  23              		.cfi_endproc
+  24              	.LFE52:
+  26              		.section	.rodata.str1.1
+  27              	.LC2:
+  28 0006 256300   		.string	"%c"
+  29              		.text
+  30 002e 6690     		.p2align 4
+  31              		.globl	LEF_CliPutChar
+  33              	LEF_CliPutChar:
+  34              	.LFB53:
+  35              		.cfi_startproc
+  36 0030 F30F1EFA 		endbr64
+  37 0034 53       		pushq	%rbx
+  38              		.cfi_def_cfa_offset 16
+  39              		.cfi_offset 3, -16
+  40 0035 4883EC10 		subq	$16, %rsp
+  41              		.cfi_def_cfa_offset 32
+  42 0039 64488B04 		movq	%fs:40, %rax
+  42      25280000 
+  42      00
+  43 0042 48894424 		movq	%rax, 8(%rsp)
+  43      08
+  44 0047 31C0     		xorl	%eax, %eax
+  45 0049 803D0000 		cmpb	$0, cliLock(%rip)
+  45      000000
+  46 0050 741E     		je	.L9
+  47              	.L3:
+  48 0052 488B4424 		movq	8(%rsp), %rax
+  48      08
+  49 0057 64482B04 		subq	%fs:40, %rax
+  49      25280000 
+  49      00
+  50 0060 755D     		jne	.L10
+  51 0062 4883C410 		addq	$16, %rsp
+  52              		.cfi_remember_state
+  53              		.cfi_def_cfa_offset 16
+  54 0066 5B       		popq	%rbx
+  55              		.cfi_def_cfa_offset 8
+  56 0067 C3       		ret
+  57 0068 0F1F8400 		.p2align 4,,10
+  57      00000000 
+  58              		.p2align 3
+  59              	.L9:
+  60              		.cfi_restore_state
+  61 0070 0FB61500 		movzbl	cliCnt(%rip), %edx
+  61      000000
+  62 0077 488D0D00 		leaq	cliBuf(%rip), %rcx
+  62      000000
+  63 007e 400FB6F7 		movzbl	%dil, %esi
+  64 0082 89FB     		movl	%edi, %ebx
+  65 0084 40883C11 		movb	%dil, (%rcx,%rdx)
+  66 0088 4889D0   		movq	%rdx, %rax
+  67 008b 488D3D00 		leaq	.LC2(%rip), %rdi
+  67      000000
+  68 0092 83C001   		addl	$1, %eax
+  69 0095 88050000 		movb	%al, cliCnt(%rip)
+  69      0000
+  70 009b 31C0     		xorl	%eax, %eax
+  71 009d E8000000 		call	defprintf@PLT
+  71      00
+  72 00a2 C6442406 		movb	$-6, 6(%rsp)
+  72      FA
+  73 00a7 80FB0A   		cmpb	$10, %bl
+  74 00aa 75A6     		jne	.L3
+  75 00ac 488D7C24 		leaq	6(%rsp), %rdi
+  75      06
+  76 00b1 C6050000 		movb	$1, cliLock(%rip)
+  76      000001
+  77 00b8 E8000000 		call	LEF_QueueStdSend@PLT
+  77      00
+  78 00bd EB93     		jmp	.L3
+  79              	.L10:
+  80 00bf E8000000 		call	__stack_chk_fail@PLT
+  80      00
+  81              		.cfi_endproc
+  82              	.LFE53:
+  84              		.section	.rodata.str1.8,"aMS",@progbits,1
+  85              		.align 8
+  86              	.LC3:
+  87 0000 1B5B313B 		.string	"\033[1;32mDBG  \033[1;37m%4d\033[1;36m %-25s\033[0m: A\n"
+  87      33326D44 
+  87      42472020 
+  87      1B5B313B 
+  87      33376D25 
+  88 002c 00000000 		.align 8
+  89              	.LC4:
+  90 0030 1B5B313B 		.string	"\033[1;32mDBG  \033[1;37m%4d\033[1;36m %-25s\033[0m: X\n"
+  90      33326D44 
+  90      42472020 
+  90      1B5B313B 
+  90      33376D25 
+  91              		.section	.rodata.str1.1
+  92              	.LC5:
+  93 0009 252D3132 		.string	"%-12s"
+  93      7300
+  94              	.LC6:
+  95 000f 0A00     		.string	"\n"
+  96              		.text
+  97 00c4 66662E0F 		.p2align 4
+  97      1F840000 
+  97      00000090 
+  98              		.globl	LEF_CliPrintCommands
+ 100              	LEF_CliPrintCommands:
+ 101              	.LFB54:
+ 102              		.cfi_startproc
+ 103 00d0 F30F1EFA 		endbr64
+ 104 00d4 4157     		pushq	%r15
+ 105              		.cfi_def_cfa_offset 16
+ 106              		.cfi_offset 15, -16
+ 107 00d6 4C8D0500 		leaq	__FUNCTION__.1(%rip), %r8
+ 107      000000
+ 108 00dd B9520000 		movl	$82, %ecx
+ 108      00
+ 109 00e2 488D1500 		leaq	.LC3(%rip), %rdx
+ 109      000000
+ 110 00e9 4156     		pushq	%r14
+ 111              		.cfi_def_cfa_offset 24
+ 112              		.cfi_offset 14, -24
+ 113 00eb BE010000 		movl	$1, %esi
+ 113      00
+ 114 00f0 4155     		pushq	%r13
+ 115              		.cfi_def_cfa_offset 32
+ 116              		.cfi_offset 13, -32
+ 117 00f2 4154     		pushq	%r12
+ 118              		.cfi_def_cfa_offset 40
+ 119              		.cfi_offset 12, -40
+ 120 00f4 55       		pushq	%rbp
+ 121              		.cfi_def_cfa_offset 48
+ 122              		.cfi_offset 6, -48
+ 123 00f5 53       		pushq	%rbx
+ 124              		.cfi_def_cfa_offset 56
+ 125              		.cfi_offset 3, -56
+ 126 00f6 4889FB   		movq	%rdi, %rbx
+ 127 00f9 4883EC38 		subq	$56, %rsp
+ 128              		.cfi_def_cfa_offset 112
+ 129 00fd 488B3D00 		movq	stderr(%rip), %rdi
+ 129      000000
+ 130 0104 64488B04 		movq	%fs:40, %rax
+ 130      25280000 
+ 130      00
+ 131 010d 48894424 		movq	%rax, 40(%rsp)
+ 131      28
+ 132 0112 31C0     		xorl	%eax, %eax
+ 133 0114 E8000000 		call	__fprintf_chk@PLT
+ 133      00
+ 134 0119 31C0     		xorl	%eax, %eax
+ 135 011b 4889DF   		movq	%rbx, %rdi
+ 136 011e E8000000 		call	pgm_read_word@PLT
+ 136      00
+ 137 0123 85C0     		testl	%eax, %eax
+ 138 0125 0F848A00 		je	.L11
+ 138      0000
+ 139 012b 4883C308 		addq	$8, %rbx
+ 140 012f 4C8D3500 		leaq	.LC4(%rip), %r14
+ 140      000000
+ 141 0136 4889E5   		movq	%rsp, %rbp
+ 142 0139 4C8D2D00 		leaq	.LC5(%rip), %r13
+ 142      000000
+ 143 0140 4C8D2500 		leaq	.LC6(%rip), %r12
+ 143      000000
+ 144 0147 4C8D3D00 		leaq	__FUNCTION__.1(%rip), %r15
+ 144      000000
+ 145 014e 6690     		.p2align 4,,10
+ 146              		.p2align 3
+ 147              	.L13:
+ 148 0150 488B3D00 		movq	stderr(%rip), %rdi
+ 148      000000
+ 149 0157 4D89F8   		movq	%r15, %r8
+ 150 015a 4C89F2   		movq	%r14, %rdx
+ 151 015d 31C0     		xorl	%eax, %eax
+ 152 015f B9550000 		movl	$85, %ecx
+ 152      00
+ 153 0164 BE010000 		movl	$1, %esi
+ 153      00
+ 154 0169 E8000000 		call	__fprintf_chk@PLT
+ 154      00
+ 155 016e 4889DE   		movq	%rbx, %rsi
+ 156 0171 4889EF   		movq	%rbp, %rdi
+ 157 0174 31C0     		xorl	%eax, %eax
+ 158 0176 E8000000 		call	defstrcpy@PLT
+ 158      00
+ 159 017b 4889EE   		movq	%rbp, %rsi
+ 160 017e 4C89EF   		movq	%r13, %rdi
+ 161 0181 31C0     		xorl	%eax, %eax
+ 162 0183 E8000000 		call	defprintf@PLT
+ 162      00
+ 163 0188 488D730C 		leaq	12(%rbx), %rsi
+ 164 018c BF010000 		movl	$1, %edi
+ 164      00
+ 165 0191 31C0     		xorl	%eax, %eax
+ 166 0193 E8000000 		call	__printf_chk@PLT
+ 166      00
+ 167 0198 4C89E7   		movq	%r12, %rdi
+ 168 019b 31C0     		xorl	%eax, %eax
+ 169 019d E8000000 		call	defprintf@PLT
+ 169      00
+ 170 01a2 488D7B30 		leaq	48(%rbx), %rdi
+ 171 01a6 31C0     		xorl	%eax, %eax
+ 172 01a8 4883C338 		addq	$56, %rbx
+ 173 01ac E8000000 		call	pgm_read_word@PLT
+ 173      00
+ 174 01b1 85C0     		testl	%eax, %eax
+ 175 01b3 759B     		jne	.L13
+ 176              	.L11:
+ 177 01b5 488B4424 		movq	40(%rsp), %rax
+ 177      28
+ 178 01ba 64482B04 		subq	%fs:40, %rax
+ 178      25280000 
+ 178      00
+ 179 01c3 750F     		jne	.L20
+ 180 01c5 4883C438 		addq	$56, %rsp
+ 181              		.cfi_remember_state
+ 182              		.cfi_def_cfa_offset 56
+ 183 01c9 5B       		popq	%rbx
+ 184              		.cfi_def_cfa_offset 48
+ 185 01ca 5D       		popq	%rbp
+ 186              		.cfi_def_cfa_offset 40
+ 187 01cb 415C     		popq	%r12
+ 188              		.cfi_def_cfa_offset 32
+ 189 01cd 415D     		popq	%r13
+ 190              		.cfi_def_cfa_offset 24
+ 191 01cf 415E     		popq	%r14
+ 192              		.cfi_def_cfa_offset 16
+ 193 01d1 415F     		popq	%r15
+ 194              		.cfi_def_cfa_offset 8
+ 195 01d3 C3       		ret
+ 196              	.L20:
+ 197              		.cfi_restore_state
+ 198 01d4 E8000000 		call	__stack_chk_fail@PLT
+ 198      00
+ 199              		.cfi_endproc
+ 200              	.LFE54:
+ 202              		.section	.rodata.str1.8
+ 203 005c 00000000 		.align 8
+ 204              	.LC7:
+ 205 0060 1B5B313B 		.string	"\033[1;32mDBG  \033[1;37m%4d\033[1;36m %-25s\033[0m: Exec\n"
+ 205      33326D44 
+ 205      42472020 
+ 205      1B5B313B 
+ 205      33376D25 
+ 206              		.text
+ 207 01d9 0F1F8000 		.p2align 4
+ 207      000000
+ 208              		.globl	LEF_CliExec
+ 210              	LEF_CliExec:
+ 211              	.LFB55:
+ 212              		.cfi_startproc
+ 213 01e0 F30F1EFA 		endbr64
+ 214 01e4 4883EC08 		subq	$8, %rsp
+ 215              		.cfi_def_cfa_offset 16
+ 216 01e8 B9610000 		movl	$97, %ecx
+ 216      00
+ 217 01ed BE010000 		movl	$1, %esi
+ 217      00
+ 218 01f2 31C0     		xorl	%eax, %eax
+ 219 01f4 488B3D00 		movq	stderr(%rip), %rdi
+ 219      000000
+ 220 01fb 4C8D0500 		leaq	__FUNCTION__.0(%rip), %r8
+ 220      000000
+ 221 0202 488D1500 		leaq	.LC7(%rip), %rdx
+ 221      000000
+ 222 0209 E8000000 		call	__fprintf_chk@PLT
+ 222      00
+ 223 020e 488B3D00 		movq	Cmds(%rip), %rdi
+ 223      000000
+ 224 0215 E8000000 		call	LEF_CliPrintCommands
+ 224      00
+ 225 021a C6050000 		movb	$0, cliLock(%rip)
+ 225      000000
+ 226 0221 BF3E0000 		movl	$62, %edi
+ 226      00
+ 227 0226 4883C408 		addq	$8, %rsp
+ 228              		.cfi_def_cfa_offset 8
+ 229 022a E9000000 		jmp	putchar@PLT
+ 229      00
+ 230              		.cfi_endproc
+ 231              	.LFE55:
+ 233              		.section	.rodata
+ 234              		.align 8
+ 237              	__FUNCTION__.0:
+ 238 0000 4C45465F 		.string	"LEF_CliExec"
+ 238      436C6945 
+ 238      78656300 
+ 239 000c 00000000 		.align 16
+ 242              	__FUNCTION__.1:
+ 243 0010 4C45465F 		.string	"LEF_CliPrintCommands"
+ 243      436C6950 
+ 243      72696E74 
+ 243      436F6D6D 
+ 243      616E6473 
+ 244              		.globl	Cmds
+ 245              		.bss
+ 246              		.align 8
+ 249              	Cmds:
+ 250 0000 00000000 		.zero	8
+ 250      00000000 
+ 251              		.globl	cliLock
+ 254              	cliLock:
+ 255 0008 00       		.zero	1
+ 256              		.globl	cliCnt
+ 259              	cliCnt:
+ 260 0009 00       		.zero	1
+ 261              		.globl	cliBuf
+ 262 000a 00000000 		.align 32
+ 262      00000000 
+ 262      00000000 
+ 262      00000000 
+ 262      00000000 
+ 265              	cliBuf:
+ 266 0020 00000000 		.zero	32
+ 266      00000000 
+ 266      00000000 
+ 266      00000000 
+ 266      00000000 
+ 267              		.ident	"GCC: (Ubuntu 11.3.0-1ubuntu1~22.04) 11.3.0"
+ 268              		.section	.note.GNU-stack,"",@progbits
+ 269              		.section	.note.gnu.property,"a"
+ 270              		.align 8
+ 271 0000 04000000 		.long	1f - 0f
+ 272 0004 10000000 		.long	4f - 1f
+ 273 0008 05000000 		.long	5
+ 274              	0:
+ 275 000c 474E5500 		.string	"GNU"
+ 276              	1:
+ 277              		.align 8
+ 278 0010 020000C0 		.long	0xc0000002
+ 279 0014 04000000 		.long	3f - 2f
+ 280              	2:
+ 281 0018 03000000 		.long	0x3
+ 282              	3:
+ 283 001c 00000000 		.align 8
+ 284              	4:
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 LEF_Cli.c
+     /tmp/ccq0jZFE.s:12     .text:0000000000000000 LEF_CliInit
+     /tmp/ccq0jZFE.s:249    .bss:0000000000000000 Cmds
+     /tmp/ccq0jZFE.s:259    .bss:0000000000000009 cliCnt
+     /tmp/ccq0jZFE.s:254    .bss:0000000000000008 cliLock
+     /tmp/ccq0jZFE.s:33     .text:0000000000000030 LEF_CliPutChar
+     /tmp/ccq0jZFE.s:265    .bss:0000000000000020 cliBuf
+     /tmp/ccq0jZFE.s:100    .text:00000000000000d0 LEF_CliPrintCommands
+     /tmp/ccq0jZFE.s:242    .rodata:0000000000000010 __FUNCTION__.1
+     /tmp/ccq0jZFE.s:210    .text:00000000000001e0 LEF_CliExec
+     /tmp/ccq0jZFE.s:237    .rodata:0000000000000000 __FUNCTION__.0
+     /tmp/ccq0jZFE.s:4      .rodata.str1.1:0000000000000000 .LC0
+     /tmp/ccq0jZFE.s:6      .rodata.str1.1:0000000000000002 .LC1
+     /tmp/ccq0jZFE.s:27     .rodata.str1.1:0000000000000006 .LC2
+     /tmp/ccq0jZFE.s:86     .rodata.str1.8:0000000000000000 .LC3
+     /tmp/ccq0jZFE.s:89     .rodata.str1.8:0000000000000030 .LC4
+     /tmp/ccq0jZFE.s:92     .rodata.str1.1:0000000000000009 .LC5
+     /tmp/ccq0jZFE.s:94     .rodata.str1.1:000000000000000f .LC6
+     /tmp/ccq0jZFE.s:204    .rodata.str1.8:0000000000000060 .LC7
+
+UNDEFINED SYMBOLS
+defprintf
+LEF_QueueStdSend
+__stack_chk_fail
+stderr
+__fprintf_chk
+pgm_read_word
+defstrcpy
+__printf_chk
+putchar

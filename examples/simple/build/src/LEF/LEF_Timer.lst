@@ -1,0 +1,454 @@
+   1               		.file	"LEF_Timer.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.text
+   8               	.Ltext0:
+   9               		.cfi_sections	.debug_frame
+  10               	.global	LEF_TimerInit
+  12               	LEF_TimerInit:
+  13               	.LFB6:
+  14               		.file 1 "src/LEF/LEF_Timer.c"
+   1:src/LEF/LEF_Timer.c **** /**
+   2:src/LEF/LEF_Timer.c ****  * LEF - Lightweiht Event Framework
+   3:src/LEF/LEF_Timer.c ****  *
+   4:src/LEF/LEF_Timer.c ****  * This file is part of LEF distribution
+   5:src/LEF/LEF_Timer.c ****  *
+   6:src/LEF/LEF_Timer.c ****  *---------------------------------------------------------------------------
+   7:src/LEF/LEF_Timer.c ****  * @brief   A software timer for LEF.
+   8:src/LEF/LEF_Timer.c ****  *
+   9:src/LEF/LEF_Timer.c ****  * @file    LEF_Timer.c
+  10:src/LEF/LEF_Timer.c ****  * @author  Your Name <your.name@yourdomain.org>
+  11:src/LEF/LEF_Timer.c ****  * @date    2016-11-30
+  12:src/LEF/LEF_Timer.c ****  * @license GPLv2
+  13:src/LEF/LEF_Timer.c ****  *
+  14:src/LEF/LEF_Timer.c ****  *---------------------------------------------------------------------------
+  15:src/LEF/LEF_Timer.c ****  *
+  16:src/LEF/LEF_Timer.c ****  * LEF is distributed in the hope that it will be useful, but WITHOUT ANY
+  17:src/LEF/LEF_Timer.c ****  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  18:src/LEF/LEF_Timer.c ****  * FOR A PARTICULAR PURPOSE.  Full license text is available on the following
+  19:src/LEF/LEF_Timer.c ****  *
+  20:src/LEF/LEF_Timer.c ****  * https://github.com/zonbrisad/LEF
+  21:src/LEF/LEF_Timer.c ****  *
+  22:src/LEF/LEF_Timer.c ****  * 1 tab = 2 spaces
+  23:src/LEF/LEF_Timer.c ****  */
+  24:src/LEF/LEF_Timer.c **** 
+  25:src/LEF/LEF_Timer.c **** // Includes ---------------------------------------------------------------
+  26:src/LEF/LEF_Timer.c **** #include "LEF.h"
+  27:src/LEF/LEF_Timer.c **** #include "LEF_Timer.h"
+  28:src/LEF/LEF_Timer.c **** 
+  29:src/LEF/LEF_Timer.c **** // Macros -----------------------------------------------------------------
+  30:src/LEF/LEF_Timer.c **** 
+  31:src/LEF/LEF_Timer.c **** // Variables --------------------------------------------------------------
+  32:src/LEF/LEF_Timer.c **** 
+  33:src/LEF/LEF_Timer.c **** // Prototypes -------------------------------------------------------------
+  34:src/LEF/LEF_Timer.c **** 
+  35:src/LEF/LEF_Timer.c **** // Code -------------------------------------------------------------------
+  36:src/LEF/LEF_Timer.c **** 
+  37:src/LEF/LEF_Timer.c **** 
+  38:src/LEF/LEF_Timer.c **** void LEF_TimerInit(LEF_Timer *timer, LEF_EventId id) {
+  15               		.loc 1 38 0
+  16               		.cfi_startproc
+  17               	.LVL0:
+  18               	/* prologue: function */
+  19               	/* frame size = 0 */
+  20               	/* stack size = 0 */
+  21               	.L__stack_usage = 0
+  22 0000 FC01      		movw r30,r24
+  39:src/LEF/LEF_Timer.c **** 	timer->id = id;
+  23               		.loc 1 39 0
+  24 0002 6083      		st Z,r22
+  40:src/LEF/LEF_Timer.c ****   timer->counter = 0;
+  25               		.loc 1 40 0
+  26 0004 1282      		std Z+2,__zero_reg__
+  27 0006 1182      		std Z+1,__zero_reg__
+  41:src/LEF/LEF_Timer.c ****   timer->reload   = 0;
+  28               		.loc 1 41 0
+  29 0008 1482      		std Z+4,__zero_reg__
+  30 000a 1382      		std Z+3,__zero_reg__
+  31 000c 0895      		ret
+  32               		.cfi_endproc
+  33               	.LFE6:
+  35               	.global	LEF_TimerUpdate
+  37               	LEF_TimerUpdate:
+  38               	.LFB7:
+  42:src/LEF/LEF_Timer.c **** }
+  43:src/LEF/LEF_Timer.c **** 
+  44:src/LEF/LEF_Timer.c **** 
+  45:src/LEF/LEF_Timer.c **** void LEF_TimerUpdate(LEF_Timer *timer) {
+  39               		.loc 1 45 0
+  40               		.cfi_startproc
+  41               	.LVL1:
+  42 000e 0F93      		push r16
+  43               	.LCFI0:
+  44               		.cfi_def_cfa_offset 3
+  45               		.cfi_offset 16, -2
+  46 0010 1F93      		push r17
+  47               	.LCFI1:
+  48               		.cfi_def_cfa_offset 4
+  49               		.cfi_offset 17, -3
+  50 0012 CF93      		push r28
+  51               	.LCFI2:
+  52               		.cfi_def_cfa_offset 5
+  53               		.cfi_offset 28, -4
+  54 0014 DF93      		push r29
+  55               	.LCFI3:
+  56               		.cfi_def_cfa_offset 6
+  57               		.cfi_offset 29, -5
+  58 0016 00D0      		rcall .
+  59               	.LCFI4:
+  60               		.cfi_def_cfa_offset 8
+  61 0018 CDB7      		in r28,__SP_L__
+  62 001a DEB7      		in r29,__SP_H__
+  63               	.LCFI5:
+  64               		.cfi_def_cfa_register 28
+  65               	/* prologue: function */
+  66               	/* frame size = 2 */
+  67               	/* stack size = 6 */
+  68               	.L__stack_usage = 6
+  69 001c FC01      		movw r30,r24
+  70               	.LVL2:
+  71               	.LBB22:
+  72               	.LBB23:
+  73               	.LBB24:
+  74               		.file 2 "/usr/lib/avr/include/util/atomic.h"
+   1:/usr/lib/avr/include/util/atomic.h **** /* Copyright (c) 2007 Dean Camera
+   2:/usr/lib/avr/include/util/atomic.h ****    All rights reserved.
+   3:/usr/lib/avr/include/util/atomic.h **** 
+   4:/usr/lib/avr/include/util/atomic.h ****    Redistribution and use in source and binary forms, with or without
+   5:/usr/lib/avr/include/util/atomic.h ****    modification, are permitted provided that the following conditions are met:
+   6:/usr/lib/avr/include/util/atomic.h **** 
+   7:/usr/lib/avr/include/util/atomic.h ****    * Redistributions of source code must retain the above copyright
+   8:/usr/lib/avr/include/util/atomic.h ****      notice, this list of conditions and the following disclaimer.
+   9:/usr/lib/avr/include/util/atomic.h **** 
+  10:/usr/lib/avr/include/util/atomic.h ****    * Redistributions in binary form must reproduce the above copyright
+  11:/usr/lib/avr/include/util/atomic.h ****      notice, this list of conditions and the following disclaimer in
+  12:/usr/lib/avr/include/util/atomic.h ****      the documentation and/or other materials provided with the
+  13:/usr/lib/avr/include/util/atomic.h ****      distribution.
+  14:/usr/lib/avr/include/util/atomic.h **** 
+  15:/usr/lib/avr/include/util/atomic.h ****    * Neither the name of the copyright holders nor the names of
+  16:/usr/lib/avr/include/util/atomic.h ****      contributors may be used to endorse or promote products derived
+  17:/usr/lib/avr/include/util/atomic.h ****      from this software without specific prior written permission.
+  18:/usr/lib/avr/include/util/atomic.h **** 
+  19:/usr/lib/avr/include/util/atomic.h ****   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  20:/usr/lib/avr/include/util/atomic.h ****   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  21:/usr/lib/avr/include/util/atomic.h ****   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  22:/usr/lib/avr/include/util/atomic.h ****   ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+  23:/usr/lib/avr/include/util/atomic.h ****   LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+  24:/usr/lib/avr/include/util/atomic.h ****   CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+  25:/usr/lib/avr/include/util/atomic.h ****   SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+  26:/usr/lib/avr/include/util/atomic.h ****   INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+  27:/usr/lib/avr/include/util/atomic.h ****   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+  28:/usr/lib/avr/include/util/atomic.h ****   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+  29:/usr/lib/avr/include/util/atomic.h ****   POSSIBILITY OF SUCH DAMAGE.
+  30:/usr/lib/avr/include/util/atomic.h **** */
+  31:/usr/lib/avr/include/util/atomic.h **** 
+  32:/usr/lib/avr/include/util/atomic.h **** /* $Id$ */
+  33:/usr/lib/avr/include/util/atomic.h **** 
+  34:/usr/lib/avr/include/util/atomic.h **** #ifndef _UTIL_ATOMIC_H_
+  35:/usr/lib/avr/include/util/atomic.h **** #define _UTIL_ATOMIC_H_ 1
+  36:/usr/lib/avr/include/util/atomic.h **** 
+  37:/usr/lib/avr/include/util/atomic.h **** #include <avr/io.h>
+  38:/usr/lib/avr/include/util/atomic.h **** #include <avr/interrupt.h>
+  39:/usr/lib/avr/include/util/atomic.h **** 
+  40:/usr/lib/avr/include/util/atomic.h **** #if !defined(__DOXYGEN__)
+  41:/usr/lib/avr/include/util/atomic.h **** /* Internal helper functions. */
+  42:/usr/lib/avr/include/util/atomic.h **** static __inline__ uint8_t __iSeiRetVal(void)
+  43:/usr/lib/avr/include/util/atomic.h **** {
+  44:/usr/lib/avr/include/util/atomic.h ****     sei();
+  45:/usr/lib/avr/include/util/atomic.h ****     return 1;
+  46:/usr/lib/avr/include/util/atomic.h **** }
+  47:/usr/lib/avr/include/util/atomic.h **** 
+  48:/usr/lib/avr/include/util/atomic.h **** static __inline__ uint8_t __iCliRetVal(void)
+  49:/usr/lib/avr/include/util/atomic.h **** {
+  50:/usr/lib/avr/include/util/atomic.h ****     cli();
+  75               		.loc 2 50 0
+  76               	/* #APP */
+  77               	 ;  50 "/usr/lib/avr/include/util/atomic.h" 1
+  78 001e F894      		cli
+  79               	 ;  0 "" 2
+  80               	.LVL3:
+  81               	/* #NOAPP */
+  82               	.LBE24:
+  83               	.LBE23:
+  46:src/LEF/LEF_Timer.c **** 	LEF_queue_element qe;
+  47:src/LEF/LEF_Timer.c **** 
+  48:src/LEF/LEF_Timer.c ****   ATOMIC_BLOCK(ATOMIC_FORCEON) {
+  49:src/LEF/LEF_Timer.c ****   if (timer->counter>0) {
+  84               		.loc 1 49 0
+  85 0020 2181      		ldd r18,Z+1
+  86 0022 3281      		ldd r19,Z+2
+  87 0024 2115      		cp r18,__zero_reg__
+  88 0026 3105      		cpc r19,__zero_reg__
+  89 0028 01F0      		breq .L5
+  50:src/LEF/LEF_Timer.c ****     timer->counter--;
+  90               		.loc 1 50 0
+  91 002a 2150      		subi r18,1
+  92 002c 3109      		sbc r19,__zero_reg__
+  93 002e 3283      		std Z+2,r19
+  94 0030 2183      		std Z+1,r18
+  51:src/LEF/LEF_Timer.c ****     if (timer->counter==0) {
+  95               		.loc 1 51 0
+  96 0032 232B      		or r18,r19
+  97 0034 01F0      		breq .L4
+  98               	.LVL4:
+  99               	.L5:
+ 100               	.LBB25:
+ 101               	.LBB26:
+  51:/usr/lib/avr/include/util/atomic.h ****     return 1;
+  52:/usr/lib/avr/include/util/atomic.h **** }
+  53:/usr/lib/avr/include/util/atomic.h **** 
+  54:/usr/lib/avr/include/util/atomic.h **** static __inline__ void __iSeiParam(const uint8_t *__s)
+  55:/usr/lib/avr/include/util/atomic.h **** {
+  56:/usr/lib/avr/include/util/atomic.h ****     sei();
+ 102               		.loc 2 56 0
+ 103               	/* #APP */
+ 104               	 ;  56 "/usr/lib/avr/include/util/atomic.h" 1
+ 105 0036 7894      		sei
+ 106               	 ;  0 "" 2
+  57:/usr/lib/avr/include/util/atomic.h ****     __asm__ volatile ("" ::: "memory");
+ 107               		.loc 2 57 0
+ 108               	.LVL5:
+ 109               	/* epilogue start */
+ 110               	/* #NOAPP */
+ 111               	.LBE26:
+ 112               	.LBE25:
+ 113               	.LBE22:
+  52:src/LEF/LEF_Timer.c **** 			qe.id = timer->id;
+  53:src/LEF/LEF_Timer.c **** 			qe.func = 0;
+  54:src/LEF/LEF_Timer.c ****     	LEF_QueueStdSend(&qe);
+  55:src/LEF/LEF_Timer.c ****       if (timer->reload>0)
+  56:src/LEF/LEF_Timer.c ****         timer->counter = timer->reload;
+  57:src/LEF/LEF_Timer.c ****     }
+  58:src/LEF/LEF_Timer.c ****   }
+  59:src/LEF/LEF_Timer.c ****   }
+  60:src/LEF/LEF_Timer.c **** }
+ 114               		.loc 1 60 0
+ 115 0038 0F90      		pop __tmp_reg__
+ 116 003a 0F90      		pop __tmp_reg__
+ 117 003c DF91      		pop r29
+ 118 003e CF91      		pop r28
+ 119 0040 1F91      		pop r17
+ 120 0042 0F91      		pop r16
+ 121 0044 0895      		ret
+ 122               	.LVL6:
+ 123               	.L4:
+ 124 0046 8C01      		movw r16,r24
+ 125               	.LBB27:
+  52:src/LEF/LEF_Timer.c **** 			qe.id = timer->id;
+ 126               		.loc 1 52 0
+ 127 0048 8081      		ld r24,Z
+ 128               	.LVL7:
+ 129 004a 8983      		std Y+1,r24
+  53:src/LEF/LEF_Timer.c ****     	LEF_QueueStdSend(&qe);
+ 130               		.loc 1 53 0
+ 131 004c 1A82      		std Y+2,__zero_reg__
+  54:src/LEF/LEF_Timer.c ****       if (timer->reload>0)
+ 132               		.loc 1 54 0
+ 133 004e CE01      		movw r24,r28
+ 134 0050 0196      		adiw r24,1
+ 135 0052 0E94 0000 		call LEF_QueueStdSend
+ 136               	.LVL8:
+  55:src/LEF/LEF_Timer.c ****         timer->counter = timer->reload;
+ 137               		.loc 1 55 0
+ 138 0056 F801      		movw r30,r16
+ 139 0058 8381      		ldd r24,Z+3
+ 140 005a 9481      		ldd r25,Z+4
+ 141 005c 0097      		sbiw r24,0
+ 142 005e 01F0      		breq .L5
+  56:src/LEF/LEF_Timer.c ****     }
+ 143               		.loc 1 56 0
+ 144 0060 9283      		std Z+2,r25
+ 145 0062 8183      		std Z+1,r24
+ 146               	.LVL9:
+ 147 0064 00C0      		rjmp .L5
+ 148               	.LBE27:
+ 149               		.cfi_endproc
+ 150               	.LFE7:
+ 152               	.global	LEF_TimerStartRepeat
+ 154               	LEF_TimerStartRepeat:
+ 155               	.LFB8:
+  61:src/LEF/LEF_Timer.c **** 
+  62:src/LEF/LEF_Timer.c **** 
+  63:src/LEF/LEF_Timer.c **** void LEF_TimerStartRepeat(LEF_Timer *timer, uint16_t ticks) {
+ 156               		.loc 1 63 0
+ 157               		.cfi_startproc
+ 158               	.LVL10:
+ 159               	/* prologue: function */
+ 160               	/* frame size = 0 */
+ 161               	/* stack size = 0 */
+ 162               	.L__stack_usage = 0
+ 163               	.LBB28:
+ 164               	.LBB29:
+ 165               	.LBB30:
+  50:/usr/lib/avr/include/util/atomic.h ****     return 1;
+ 166               		.loc 2 50 0
+ 167               	/* #APP */
+ 168               	 ;  50 "/usr/lib/avr/include/util/atomic.h" 1
+ 169 0066 F894      		cli
+ 170               	 ;  0 "" 2
+ 171               	.LVL11:
+ 172               	/* #NOAPP */
+ 173               	.LBE30:
+ 174               	.LBE29:
+  64:src/LEF/LEF_Timer.c ****   ATOMIC_BLOCK(ATOMIC_FORCEON) {
+  65:src/LEF/LEF_Timer.c ****     timer->reload   = ticks;
+ 175               		.loc 1 65 0
+ 176 0068 FC01      		movw r30,r24
+ 177 006a 7483      		std Z+4,r23
+ 178 006c 6383      		std Z+3,r22
+  66:src/LEF/LEF_Timer.c ****     timer->counter  = ticks;
+ 179               		.loc 1 66 0
+ 180 006e 7283      		std Z+2,r23
+ 181 0070 6183      		std Z+1,r22
+ 182               	.LVL12:
+ 183               	.LBB31:
+ 184               	.LBB32:
+  56:/usr/lib/avr/include/util/atomic.h ****     __asm__ volatile ("" ::: "memory");
+ 185               		.loc 2 56 0
+ 186               	/* #APP */
+ 187               	 ;  56 "/usr/lib/avr/include/util/atomic.h" 1
+ 188 0072 7894      		sei
+ 189               	 ;  0 "" 2
+ 190               		.loc 2 57 0
+ 191               	.LVL13:
+ 192               	/* #NOAPP */
+ 193 0074 0895      		ret
+ 194               	.LBE32:
+ 195               	.LBE31:
+ 196               	.LBE28:
+ 197               		.cfi_endproc
+ 198               	.LFE8:
+ 200               	.global	LEF_TimerStartSingle
+ 202               	LEF_TimerStartSingle:
+ 203               	.LFB9:
+  67:src/LEF/LEF_Timer.c ****   }
+  68:src/LEF/LEF_Timer.c **** }
+  69:src/LEF/LEF_Timer.c **** 
+  70:src/LEF/LEF_Timer.c **** 
+  71:src/LEF/LEF_Timer.c **** void LEF_TimerStartSingle(LEF_Timer *timer, uint16_t ticks) {
+ 204               		.loc 1 71 0
+ 205               		.cfi_startproc
+ 206               	.LVL14:
+ 207               	/* prologue: function */
+ 208               	/* frame size = 0 */
+ 209               	/* stack size = 0 */
+ 210               	.L__stack_usage = 0
+ 211               	.LBB33:
+ 212               	.LBB34:
+ 213               	.LBB35:
+  50:/usr/lib/avr/include/util/atomic.h ****     return 1;
+ 214               		.loc 2 50 0
+ 215               	/* #APP */
+ 216               	 ;  50 "/usr/lib/avr/include/util/atomic.h" 1
+ 217 0076 F894      		cli
+ 218               	 ;  0 "" 2
+ 219               	.LVL15:
+ 220               	/* #NOAPP */
+ 221               	.LBE35:
+ 222               	.LBE34:
+  72:src/LEF/LEF_Timer.c ****   ATOMIC_BLOCK(ATOMIC_FORCEON) {
+  73:src/LEF/LEF_Timer.c ****       timer->reload   = 0;
+ 223               		.loc 1 73 0
+ 224 0078 FC01      		movw r30,r24
+ 225 007a 1482      		std Z+4,__zero_reg__
+ 226 007c 1382      		std Z+3,__zero_reg__
+  74:src/LEF/LEF_Timer.c ****       timer->counter = ticks;
+ 227               		.loc 1 74 0
+ 228 007e 7283      		std Z+2,r23
+ 229 0080 6183      		std Z+1,r22
+ 230               	.LVL16:
+ 231               	.LBB36:
+ 232               	.LBB37:
+  56:/usr/lib/avr/include/util/atomic.h ****     __asm__ volatile ("" ::: "memory");
+ 233               		.loc 2 56 0
+ 234               	/* #APP */
+ 235               	 ;  56 "/usr/lib/avr/include/util/atomic.h" 1
+ 236 0082 7894      		sei
+ 237               	 ;  0 "" 2
+ 238               		.loc 2 57 0
+ 239               	.LVL17:
+ 240               	/* #NOAPP */
+ 241 0084 0895      		ret
+ 242               	.LBE37:
+ 243               	.LBE36:
+ 244               	.LBE33:
+ 245               		.cfi_endproc
+ 246               	.LFE9:
+ 248               	.global	LEF_TimerStop
+ 250               	LEF_TimerStop:
+ 251               	.LFB10:
+  75:src/LEF/LEF_Timer.c ****     }
+  76:src/LEF/LEF_Timer.c **** }
+  77:src/LEF/LEF_Timer.c **** 
+  78:src/LEF/LEF_Timer.c **** 
+  79:src/LEF/LEF_Timer.c **** void LEF_TimerStop(LEF_Timer *timer) {
+ 252               		.loc 1 79 0
+ 253               		.cfi_startproc
+ 254               	.LVL18:
+ 255               	/* prologue: function */
+ 256               	/* frame size = 0 */
+ 257               	/* stack size = 0 */
+ 258               	.L__stack_usage = 0
+ 259               	.LBB38:
+ 260               	.LBB39:
+ 261               	.LBB40:
+  50:/usr/lib/avr/include/util/atomic.h ****     return 1;
+ 262               		.loc 2 50 0
+ 263               	/* #APP */
+ 264               	 ;  50 "/usr/lib/avr/include/util/atomic.h" 1
+ 265 0086 F894      		cli
+ 266               	 ;  0 "" 2
+ 267               	.LVL19:
+ 268               	/* #NOAPP */
+ 269               	.LBE40:
+ 270               	.LBE39:
+  80:src/LEF/LEF_Timer.c ****   ATOMIC_BLOCK(ATOMIC_FORCEON) {
+  81:src/LEF/LEF_Timer.c ****         timer->reload   = 0;
+ 271               		.loc 1 81 0
+ 272 0088 FC01      		movw r30,r24
+ 273 008a 1482      		std Z+4,__zero_reg__
+ 274 008c 1382      		std Z+3,__zero_reg__
+  82:src/LEF/LEF_Timer.c ****         timer->counter  = 0;
+ 275               		.loc 1 82 0
+ 276 008e 1282      		std Z+2,__zero_reg__
+ 277 0090 1182      		std Z+1,__zero_reg__
+ 278               	.LVL20:
+ 279               	.LBB41:
+ 280               	.LBB42:
+  56:/usr/lib/avr/include/util/atomic.h ****     __asm__ volatile ("" ::: "memory");
+ 281               		.loc 2 56 0
+ 282               	/* #APP */
+ 283               	 ;  56 "/usr/lib/avr/include/util/atomic.h" 1
+ 284 0092 7894      		sei
+ 285               	 ;  0 "" 2
+ 286               		.loc 2 57 0
+ 287               	.LVL21:
+ 288               	/* #NOAPP */
+ 289 0094 0895      		ret
+ 290               	.LBE42:
+ 291               	.LBE41:
+ 292               	.LBE38:
+ 293               		.cfi_endproc
+ 294               	.LFE10:
+ 296               	.Letext0:
+ 297               		.file 3 "/usr/lib/avr/include/stdint.h"
+ 298               		.file 4 "src/LEF/LEF_Queue.h"
+ 299               		.file 5 "src/LEF/LEF_Timer.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 LEF_Timer.c
+     /tmp/ccPmrfYy.s:2      *ABS*:000000000000003e __SP_H__
+     /tmp/ccPmrfYy.s:3      *ABS*:000000000000003d __SP_L__
+     /tmp/ccPmrfYy.s:4      *ABS*:000000000000003f __SREG__
+     /tmp/ccPmrfYy.s:5      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/ccPmrfYy.s:6      *ABS*:0000000000000001 __zero_reg__
+     /tmp/ccPmrfYy.s:12     .text:0000000000000000 LEF_TimerInit
+     /tmp/ccPmrfYy.s:37     .text:000000000000000e LEF_TimerUpdate
+     /tmp/ccPmrfYy.s:154    .text:0000000000000066 LEF_TimerStartRepeat
+     /tmp/ccPmrfYy.s:202    .text:0000000000000076 LEF_TimerStartSingle
+     /tmp/ccPmrfYy.s:250    .text:0000000000000086 LEF_TimerStop
+
+UNDEFINED SYMBOLS
+LEF_QueueStdSend
