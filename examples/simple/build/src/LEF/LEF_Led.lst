@@ -192,13 +192,13 @@
  119               		.file 3 "src/LEF/LEF_Led.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 LEF_Led.c
-     /tmp/ccLtucdv.s:2      *ABS*:000000000000003e __SP_H__
-     /tmp/ccLtucdv.s:3      *ABS*:000000000000003d __SP_L__
-     /tmp/ccLtucdv.s:4      *ABS*:000000000000003f __SREG__
-     /tmp/ccLtucdv.s:5      *ABS*:0000000000000000 __tmp_reg__
-     /tmp/ccLtucdv.s:6      *ABS*:0000000000000001 __zero_reg__
-     /tmp/ccLtucdv.s:12     .text:0000000000000000 LEF_LedInit
-     /tmp/ccLtucdv.s:31     .text:0000000000000006 LEF_LedUpdate
-     /tmp/ccLtucdv.s:98     .text:000000000000004c LEF_LedSetState
+     /tmp/ccQo6P28.s:2      *ABS*:000000000000003e __SP_H__
+     /tmp/ccQo6P28.s:3      *ABS*:000000000000003d __SP_L__
+     /tmp/ccQo6P28.s:4      *ABS*:000000000000003f __SREG__
+     /tmp/ccQo6P28.s:5      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/ccQo6P28.s:6      *ABS*:0000000000000001 __zero_reg__
+     /tmp/ccQo6P28.s:12     .text:0000000000000000 LEF_LedInit
+     /tmp/ccQo6P28.s:31     .text:0000000000000006 LEF_LedUpdate
+     /tmp/ccQo6P28.s:98     .text:000000000000004c LEF_LedSetState
 
 NO UNDEFINED SYMBOLS

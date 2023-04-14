@@ -683,21 +683,21 @@
  375               		.file 11 "<built-in>"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 main.c
-     /tmp/cccGoMQc.s:2      *ABS*:000000000000003e __SP_H__
-     /tmp/cccGoMQc.s:3      *ABS*:000000000000003d __SP_L__
-     /tmp/cccGoMQc.s:4      *ABS*:000000000000003f __SREG__
-     /tmp/cccGoMQc.s:5      *ABS*:0000000000000000 __tmp_reg__
-     /tmp/cccGoMQc.s:6      *ABS*:0000000000000001 __zero_reg__
-     /tmp/cccGoMQc.s:12     .text:0000000000000000 __vector_11
-     /tmp/cccGoMQc.s:349    .bss:0000000000000004 x
+     /tmp/ccSJGr5K.s:2      *ABS*:000000000000003e __SP_H__
+     /tmp/ccSJGr5K.s:3      *ABS*:000000000000003d __SP_L__
+     /tmp/ccSJGr5K.s:4      *ABS*:000000000000003f __SREG__
+     /tmp/ccSJGr5K.s:5      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/ccSJGr5K.s:6      *ABS*:0000000000000001 __zero_reg__
+     /tmp/ccSJGr5K.s:12     .text:0000000000000000 __vector_11
+     /tmp/ccSJGr5K.s:349    .bss:0000000000000004 x
                             *COM*:0000000000000005 timer1
                             *COM*:0000000000000005 timer2
                             *COM*:0000000000000002 led
                             *COM*:0000000000000003 button
-     /tmp/cccGoMQc.s:153    .text:00000000000000a6 hw_init
-     /tmp/cccGoMQc.s:354    .data:0000000000000000 mystdout
-     /tmp/cccGoMQc.s:211    .text.startup:0000000000000000 main
-     /tmp/cccGoMQc.s:344    .bss:0000000000000000 y
+     /tmp/ccSJGr5K.s:153    .text:00000000000000a6 hw_init
+     /tmp/ccSJGr5K.s:354    .data:0000000000000000 mystdout
+     /tmp/ccSJGr5K.s:211    .text.startup:0000000000000000 main
+     /tmp/ccSJGr5K.s:344    .bss:0000000000000000 y
 
 UNDEFINED SYMBOLS
 LEF_TimerUpdate

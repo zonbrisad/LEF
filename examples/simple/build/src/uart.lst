@@ -1035,25 +1035,25 @@
  469               		.file 2 "/usr/lib/avr/include/stdint.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 uart.c
-     /tmp/ccdpIcnC.s:2      *ABS*:000000000000003e __SP_H__
-     /tmp/ccdpIcnC.s:3      *ABS*:000000000000003d __SP_L__
-     /tmp/ccdpIcnC.s:4      *ABS*:000000000000003f __SREG__
-     /tmp/ccdpIcnC.s:5      *ABS*:0000000000000000 __tmp_reg__
-     /tmp/ccdpIcnC.s:6      *ABS*:0000000000000001 __zero_reg__
-     /tmp/ccdpIcnC.s:12     .text:0000000000000000 __vector_18
-     /tmp/ccdpIcnC.s:457    .bss:0000000000000002 UART_RxHead
-     /tmp/ccdpIcnC.s:455    .bss:0000000000000001 UART_RxTail
-     /tmp/ccdpIcnC.s:463    .bss:0000000000000005 UART_RxBuf
+     /tmp/cc347PWM.s:2      *ABS*:000000000000003e __SP_H__
+     /tmp/cc347PWM.s:3      *ABS*:000000000000003d __SP_L__
+     /tmp/cc347PWM.s:4      *ABS*:000000000000003f __SREG__
+     /tmp/cc347PWM.s:5      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/cc347PWM.s:6      *ABS*:0000000000000001 __zero_reg__
+     /tmp/cc347PWM.s:12     .text:0000000000000000 __vector_18
+     /tmp/cc347PWM.s:457    .bss:0000000000000002 UART_RxHead
+     /tmp/cc347PWM.s:455    .bss:0000000000000001 UART_RxTail
+     /tmp/cc347PWM.s:463    .bss:0000000000000005 UART_RxBuf
                              .bss:0000000000000000 UART_LastRxError
-     /tmp/ccdpIcnC.s:109    .text:000000000000005c __vector_19
-     /tmp/ccdpIcnC.s:461    .bss:0000000000000004 UART_TxHead
-     /tmp/ccdpIcnC.s:459    .bss:0000000000000003 UART_TxTail
-     /tmp/ccdpIcnC.s:465    .bss:0000000000000025 UART_TxBuf
-     /tmp/ccdpIcnC.s:188    .text:00000000000000b0 uart_init
-     /tmp/ccdpIcnC.s:230    .text:00000000000000e2 uart_getc
-     /tmp/ccdpIcnC.s:283    .text:000000000000011e uart_putc
-     /tmp/ccdpIcnC.s:321    .text:0000000000000148 uart_puts
-     /tmp/ccdpIcnC.s:378    .text:0000000000000184 uart_puts_p
+     /tmp/cc347PWM.s:109    .text:000000000000005c __vector_19
+     /tmp/cc347PWM.s:461    .bss:0000000000000004 UART_TxHead
+     /tmp/cc347PWM.s:459    .bss:0000000000000003 UART_TxTail
+     /tmp/cc347PWM.s:465    .bss:0000000000000025 UART_TxBuf
+     /tmp/cc347PWM.s:188    .text:00000000000000b0 uart_init
+     /tmp/cc347PWM.s:230    .text:00000000000000e2 uart_getc
+     /tmp/cc347PWM.s:283    .text:000000000000011e uart_putc
+     /tmp/cc347PWM.s:321    .text:0000000000000148 uart_puts
+     /tmp/cc347PWM.s:378    .text:0000000000000184 uart_puts_p
 
 UNDEFINED SYMBOLS
 __do_clear_bss
