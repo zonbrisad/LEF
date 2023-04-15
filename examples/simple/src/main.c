@@ -27,10 +27,15 @@
 #include "uart.h"
 #include "def.h"
 #include "LEF.h"
-#include "LEF_Timer.h"
+
 
 
 #define UART_BAUD_RATE 57600
+
+#define BUZZER_PIN PD3
+
+#define BUZZER_ON() PORTD &= ~(1<<BUZZER_PIN)
+#define BUZZER_OFF() PORTD |= (1<<BUZZER_PIN)
 
 
 void hw_init(void);
@@ -42,13 +47,10 @@ LEF_Button button;
 
 static FILE mystdout = FDEV_SETUP_STREAM((void*)uart_putc, NULL, _FDEV_SETUP_WRITE);
 
-uint32_t volatile x = 0;
-uint32_t volatile y = 0;
-
 
 ISR(TIMER1_COMPA_vect) {
+	char ch;
   TIMER1_RELOAD(0);
-	x++;
 
 	LEF_TimerUpdate(&timer1);
 	LEF_TimerUpdate(&timer2);
@@ -60,6 +62,14 @@ ISR(TIMER1_COMPA_vect) {
 	}
 
 	LEF_Button_update(&button, (PIND & (1<<PIN7))==0  );
+
+	ch = LEF_Buzzer_update();
+ if (ch > 0) {
+//	if (LEF_Buzzer_update() > 0) {
+		BUZZER_ON();
+	} else {
+		BUZZER_OFF();
+	}
 }
 
 
@@ -87,16 +97,21 @@ void hw_init(void) {
 	//set_sleep_mode(SLEEP_MODE_IDLE);
 	//sleep_enable();
 
-	// Activate pullup 
-	PIND = 0x01 << PIN7;
-	
+	// Activate pullup for click button
+	PORTD = (0x01 << PIN7);
+
+	// Configure buzzer port
+	DDRD |= (0x01 << BUZZER_PIN);
+	PORTD |= (0x01 << BUZZER_PIN);
+
 	sei();
 }
 
 
 int main() {
 	LEF_queue_element dst;
-//	uint8_t i;
+  uint8_t ls;
+	ls = LED_STATE_OFF;
 	 
 	LEF_Init();
 	LEF_TimerInit(&timer1, 1);
@@ -109,8 +124,12 @@ int main() {
 	
 	LEF_Button_init(&button, 10);
 
+	LEF_Buzzer_init();
+	
 	hw_init();
-	_delay_ms(1000);
+
+	LEF_Buzzer_set(LEF_BUZZER_BEEP);
+	
 	printf("\n\nStarting LEF simple test\n");
 
 	while(1) {
@@ -122,7 +141,15 @@ int main() {
 		LEF_QueueWait(&StdQueue, &dst);
 		printf("Event id: %3d   func: %3d   PIND: %x\n", dst.id, dst.func, PIND);
 
-//		printf("Var x = %8lu   PIND = %x\n", x, PIND);
+		if ((dst.id==10) && (dst.func==1)) {
+			ls++;
+			if (ls >= LED_STATE_LAST)
+				ls = LED_STATE_OFF;
+//			LEF_LedSetState(&led, ls);
+			LEF_LedSetState(&led, LED_STATE_SINGLE_BLINK);
+			LEF_Buzzer_set(LEF_BUZZER_SHORT_BEEP);
+		}
+
 
 		//sleep_cpu();
 	}

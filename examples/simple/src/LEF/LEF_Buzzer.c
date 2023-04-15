@@ -26,7 +26,6 @@
 // Includes ---------------------------------------------------------------
 
 #include "LEF.h"
-
 #include "LEF_Buzzer.h"
 
 // Macros -----------------------------------------------------------------
@@ -37,3 +36,46 @@
 
 // Code -------------------------------------------------------------------
 
+//typedef LEF_Buzzer_
+
+
+uint16_t buz_cnt;
+LEF_Buzzer_mode buz_state;
+
+void LEF_Buzzer_init() {
+	buz_state = LEF_BUZZER_OFF;
+  buz_cnt   = 0;
+}
+
+void LEF_Buzzer_set(LEF_Buzzer_mode state) {
+	if (buz_state == state)
+		return;
+	
+	buz_cnt = 0;
+	buz_state = state;
+}
+
+bool LEF_Buzzer_update() {
+
+	switch (buz_state) {
+	 case LEF_BUZZER_OFF: buz_cnt = 0; return 0; break;
+	 case LEF_BUZZER_ON: return 1; break;
+	 case LEF_BUZZER_SHORT_BEEP:
+		buz_cnt++;
+		if (buz_cnt > LEF_BUZZER_SHORT_BEEP_DURATION) {
+			buz_state = LEF_BUZZER_OFF;
+		}
+		return 1;
+		break;
+	 case LEF_BUZZER_BEEP:
+		buz_cnt++;
+		if (buz_cnt > LEF_BUZZER_BEEP_DURATION) {
+			buz_state = LEF_BUZZER_OFF;
+		}
+		return 1;
+		break;
+	 default: break; //return 0;
+		
+	}
+	return 0;
+}

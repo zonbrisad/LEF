@@ -31,6 +31,7 @@ extern "C" {
 
 // Includes ---------------------------------------------------------------	
 #include <stdint.h>
+#include <stdbool.h>
 	
 // AVR specific includes
 #ifdef __AVR__	

@@ -46,6 +46,12 @@ extern "C" {
 #define LEF_CLI_DESC_LENGTH 32
 
 
+// Buzzer settings --------------------------------------------------------
+
+#define LEF_BUZZER_BEEP_DURATION 40
+#define LEF_BUZZER_SHORT_BEEP_DURATION 10
+
+	
 
 #ifdef __cplusplus
 } //end brace for extern "C"

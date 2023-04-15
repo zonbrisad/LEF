@@ -4,7 +4,7 @@
  * This file is part of LEF distribution
  *
  *---------------------------------------------------------------------------
- * @brief   A basic buzzer driver.
+ * @brief   A simple driver for an active buzzer.
  *
  * @file    LEF_Buzzer.h
  * @author  Peter Malmberg <peter.malmberg@gmail.com>
@@ -31,15 +31,30 @@ extern "C" {
 #endif
 
 // Includes ---------------------------------------------------------------
-
+#include "LEF.h"
+	
 // Macros -----------------------------------------------------------------
 
 // Typedefs ---------------------------------------------------------------
-
+typedef enum {
+	LEF_BUZZER_OFF = 0,
+	LEF_BUZZER_ON = 1,
+	LEF_BUZZER_BEEP = 2,
+	LEF_BUZZER_SHORT_BEEP = 3,
+//	LEF_BUZZER_LONG_BEEP = 4,
+} LEF_Buzzer_mode;
+	
 // Variables --------------------------------------------------------------
 
 // Prototypes -------------------------------------------------------------
 
+	void LEF_Buzzer_init();
+	
+	void LEF_Buzzer_set(LEF_Buzzer_mode state);
+
+	bool LEF_Buzzer_update();
+	
+	
 #ifdef __cplusplus
 } //end brace for extern "C"
 #endif
