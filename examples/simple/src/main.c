@@ -46,6 +46,8 @@ LEF_Timer  timer2;
 LEF_Led    led;
 LEF_Button button;
 
+char evOn = 0;
+
 static FILE mystdout = FDEV_SETUP_STREAM((void*)uart_putc, NULL, _FDEV_SETUP_WRITE);
 
 
@@ -69,15 +71,40 @@ void cmdBlink() {
   LEF_LedSetState(&led, LED_STATE_SINGLE_BLINK);
 }
 
+
+void cmdLedOn() {
+  LEF_LedSetState(&led, LED_STATE_ON);
+}
+
+void cmdLedOff() {
+  LEF_LedSetState(&led, LED_STATE_OFF);
+}
+
+
+
+void cmdEvOn() {
+	evOn = 1;
+}
+
+void cmdEvOff() {
+	evOn = 0;
+}
+
 void cmdHelp();
 
 const PROGMEM LEF_CliCmd cmdTable[] = {
 	{cmdBuzon,   "buzon",     "Buzzer on"},
 	{cmdBuzoff,  "buzoff",    "Buzzer off"},
-	{cmdBeep,    "beep",      "Make a beep"},
-		
+	{cmdBeep,    "beep",      "Make a beep"},	
 	{cmdSBeep,  "sbeep",     "Make a short beep"},
+
+	{cmdLedOn,  "ledon",     "Turn led on"},
+	{cmdLedOff, "ledoff",    "Turn led off"}, 
 	{cmdBlink,  "blink",     "Make led blink once"},
+
+	{cmdEvOn,   "evon",      "Turn event on"},
+	{cmdEvOff,  "evoff",     "Turn event off"},
+	
 	{cmdHelp,   "help",      "Show help"},
 };
 
@@ -145,12 +172,9 @@ int main() {
 	LEF_TimerStartRepeat(&timer1, 100);
 	LEF_TimerInit(&timer2, 2);
 	LEF_TimerStartRepeat(&timer2, 10);
-	
 	LEF_LedInit(&led);
 	LEF_LedSetState(&led, LED_STATE_FAST_BLINK);
-	
 	LEF_Button_init(&button, 10);
-
 	LEF_Buzzer_init();
 	
 	hw_init();
@@ -164,7 +188,9 @@ int main() {
 	while(1) {
 
 		LEF_QueueWait(&StdQueue, &event);
-		//LEF_Print_event(&event);
+
+		if (evOn)
+			LEF_Print_event(&event);
 
 		switch (event.id) {
 
@@ -190,7 +216,6 @@ int main() {
 			break;
 		
 		 case LEF_EVENT_CLI:
-//			LEF_Print_event(&event);
 			LEF_CliExec();
 			break;
 		}

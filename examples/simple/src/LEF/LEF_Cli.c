@@ -143,7 +143,7 @@ void LEF_CliExec(void) {
 			ptr();
 			goto cli_cleanup;
 		}
-     i++;
+		i++;
   }
 
 	printf("Command \"%s\" not found\n", cliBuf);

@@ -40,7 +40,7 @@ extern "C" {
 // Cli settings -----------------------------------------------------------
 
 #define LEF_CLI_BUF_LENGTH   32
-#define LEF_CLI_PROMPT      " > "
+#define LEF_CLI_PROMPT      "> "
 
 #define LEF_CLI_CMD_LENGTH   12
 #define LEF_CLI_DESC_LENGTH  32
