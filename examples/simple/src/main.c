@@ -26,6 +26,7 @@
 #include "main.h"
 #include "uart.h"
 #include "def.h"
+
 #include "LEF.h"
 
 
@@ -46,6 +47,23 @@ LEF_Led    led;
 LEF_Button button;
 
 static FILE mystdout = FDEV_SETUP_STREAM((void*)uart_putc, NULL, _FDEV_SETUP_WRITE);
+
+
+void xx(void) {
+	printf("Command XX\n");
+}
+void cmdHelp();
+
+const PROGMEM LEF_CliCmd cmdTable[] = {
+	{xx,       "test1",      "Test av kommando"},
+	{xx,       "test2",      "Test av kommando"},
+	{cmdHelp,  "help",       "Show help"},
+	{NULL,              "",            ""}
+};
+void cmdHelp() {
+	LEF_CliPrintCommands(cmdTable);
+}
+
 
 
 ISR(TIMER1_COMPA_vect) {
@@ -109,15 +127,16 @@ void hw_init(void) {
 
 
 int main() {
-	LEF_queue_element dst;
+	LEF_queue_element event;
   uint8_t ls;
 	ls = LED_STATE_OFF;
+	uint16_t ch;
 	 
 	LEF_Init();
 	LEF_TimerInit(&timer1, 1);
 	LEF_TimerStartRepeat(&timer1, 100);
 	LEF_TimerInit(&timer2, 2);
-	LEF_TimerStartRepeat(&timer2, 400);
+	LEF_TimerStartRepeat(&timer2, 20);
 	
 	LEF_LedInit(&led);
 	LEF_LedSetState(&led, LED_STATE_FAST_BLINK);
@@ -129,28 +148,48 @@ int main() {
 	hw_init();
 
 	LEF_Buzzer_set(LEF_BUZZER_BEEP);
+	LEF_CliInit(cmdTable, sizeof(cmdTable) / sizeof((cmdTable)[0]) );
 	
+	
+	//_delay_ms(1000);
 	printf("\n\nStarting LEF simple test\n");
 
 	while(1) {
 
 //	    DEBUGPRINT("LEF Cli test\n");
-//	    char *str = "test\n";
-//	    LEF_CliPutChar('\n');
 
-		LEF_QueueWait(&StdQueue, &dst);
-		printf("Event id: %3d   func: %3d   PIND: %x\n", dst.id, dst.func, PIND);
 
-		if ((dst.id==10) && (dst.func==1)) {
-			ls++;
-			if (ls >= LED_STATE_LAST)
-				ls = LED_STATE_OFF;
+		LEF_QueueWait(&StdQueue, &event);
+		//LEF_Print_event(&event);
+
+		switch (event.id) {
+
+		 case 10:           // Handle button press event
+			LEF_Print_event(&event);
+			if  (event.func==1) {
+				ls++;
+				if (ls >= LED_STATE_LAST)
+					ls = LED_STATE_OFF;
 //			LEF_LedSetState(&led, ls);
-			LEF_LedSetState(&led, LED_STATE_SINGLE_BLINK);
-			LEF_Buzzer_set(LEF_BUZZER_SHORT_BEEP);
+				LEF_LedSetState(&led, LED_STATE_SINGLE_BLINK);
+				LEF_Buzzer_set(LEF_BUZZER_SHORT_BEEP);
+			}
+		break;
+
+		
+	 case 2:                  // Handle data from uart to Cli
+			ch = uart_getc();
+			while ((ch & 0xff00) != UART_NO_DATA ) {
+				LEF_CliPutChar(ch);
+				ch = uart_getc();
+			}
+			break;
+		
+		 case LEF_EVENT_CLI:
+			LEF_Print_event(&event);
+			LEF_CliExec();
+			break;
 		}
-
-
 		//sleep_cpu();
 	}
 	return 0;

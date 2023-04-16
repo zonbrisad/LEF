@@ -54,9 +54,15 @@ extern "C" {
 #error "LEF_QUEUE_LENGTH not defined."
 #endif
 	
-// Macros -----------------------------------------------------------------
+// Events ----------------------------------------------------------------
 
+#define LEF_EVENT_CLI 250
+
+// Macros -----------------------------------------------------------------
+	
 #define LEF_ATOMIC_BLOCK() ATOMIC_BLOCK(ATOMIC_FORCEON)
+
+
 	
 //#define LEF_ATOMIC_BLOCK()
 

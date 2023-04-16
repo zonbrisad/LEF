@@ -39,19 +39,18 @@ extern "C" {
 	
 // Cli settings -----------------------------------------------------------
 
-#define CLIBUF 32
-#define CLI_PROMPT ">"
+#define LEF_CLI_BUF_LENGTH   32
+#define LEF_CLI_PROMPT      " > "
 
-#define LEF_CLI_CMD_LENGTH  12
-#define LEF_CLI_DESC_LENGTH 32
+#define LEF_CLI_CMD_LENGTH   12
+#define LEF_CLI_DESC_LENGTH  32
 
 
 // Buzzer settings --------------------------------------------------------
 
-#define LEF_BUZZER_BEEP_DURATION 40
-#define LEF_BUZZER_SHORT_BEEP_DURATION 10
+#define LEF_BUZZER_BEEP_DURATION       40  // (cycles)
+#define LEF_BUZZER_SHORT_BEEP_DURATION 10  // (cycles)
 
-	
 
 #ifdef __cplusplus
 } //end brace for extern "C"
