@@ -49,21 +49,41 @@ LEF_Button button;
 static FILE mystdout = FDEV_SETUP_STREAM((void*)uart_putc, NULL, _FDEV_SETUP_WRITE);
 
 
-void xx(void) {
-	printf("Command XX\n");
+void cmdBuzon() {
+	LEF_Buzzer_set(LEF_BUZZER_ON);
 }
+
+void cmdBuzoff() {
+	LEF_Buzzer_set(LEF_BUZZER_OFF);
+}
+
+void cmdBeep() {
+	LEF_Buzzer_set(LEF_BUZZER_BEEP);
+}
+
+void cmdSBeep() {
+	LEF_Buzzer_set(LEF_BUZZER_SHORT_BEEP);
+}
+
+void cmdBlink() {
+  LEF_LedSetState(&led, LED_STATE_SINGLE_BLINK);
+}
+
 void cmdHelp();
 
 const PROGMEM LEF_CliCmd cmdTable[] = {
-	{xx,       "test1",      "Test av kommando"},
-	{xx,       "test2",      "Test av kommando"},
-	{cmdHelp,  "help",       "Show help"},
-	{NULL,              "",            ""}
+	{cmdBuzon,   "buzon",     "Buzzer on"},
+	{cmdBuzoff,  "buzoff",    "Buzzer off"},
+	{cmdBeep,    "beep",      "Make a beep"},
+		
+	{cmdSBeep,  "sbeep",     "Make a short beep"},
+	{cmdBlink,  "blink",     "Make led blink once"},
+	{cmdHelp,   "help",      "Show help"},
 };
+
 void cmdHelp() {
 	LEF_CliPrintCommands(cmdTable);
 }
-
 
 
 ISR(TIMER1_COMPA_vect) {
@@ -90,17 +110,6 @@ ISR(TIMER1_COMPA_vect) {
 	}
 }
 
-
-//ISR(TIMER2_COMPA_vect) {
-	//static int cnt;
-	//static LEF_queue_element qe;
-	//timer2_ticks++;
-	
-//	LEF_TimerUpdate(&timer1, 1);
-
-//}
-
-
 void hw_init(void) {
 	stdout = &mystdout;
 	uart_init(UART_BAUD_SELECT(UART_BAUD_RATE, F_CPU));
@@ -125,7 +134,6 @@ void hw_init(void) {
 	sei();
 }
 
-
 int main() {
 	LEF_queue_element event;
   uint8_t ls;
@@ -136,7 +144,7 @@ int main() {
 	LEF_TimerInit(&timer1, 1);
 	LEF_TimerStartRepeat(&timer1, 100);
 	LEF_TimerInit(&timer2, 2);
-	LEF_TimerStartRepeat(&timer2, 20);
+	LEF_TimerStartRepeat(&timer2, 10);
 	
 	LEF_LedInit(&led);
 	LEF_LedSetState(&led, LED_STATE_FAST_BLINK);
@@ -149,15 +157,11 @@ int main() {
 
 	LEF_Buzzer_set(LEF_BUZZER_BEEP);
 	LEF_CliInit(cmdTable, sizeof(cmdTable) / sizeof((cmdTable)[0]) );
-	
-	
+		
 	//_delay_ms(1000);
-	printf("\n\nStarting LEF simple test\n");
+	printf("\n\nStarting LEF simple test\n\n");
 
 	while(1) {
-
-//	    DEBUGPRINT("LEF Cli test\n");
-
 
 		LEF_QueueWait(&StdQueue, &event);
 		//LEF_Print_event(&event);
@@ -186,7 +190,7 @@ int main() {
 			break;
 		
 		 case LEF_EVENT_CLI:
-			LEF_Print_event(&event);
+//			LEF_Print_event(&event);
 			LEF_CliExec();
 			break;
 		}

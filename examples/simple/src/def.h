@@ -929,7 +929,8 @@ typedef unsigned long ulong;
 #define E_UP "\033[A"      // cursor up one line
 #define E_DOWN "\033[B"    // cursor down one lin
 #define E_FORWARD "\033[C" // cursor right one character
-#define E_BACK "\033[D"    // cursor left one charachter
+//#define E_BACK "\033[D"    // cursor left one charachter
+#define E_BACK "\x1b[D"    // cursor left one charachter
 
 #define E_HIDE_CURSOR "\033[?25l" // hide cursor
 #define E_SHOW_CURSOR "\033[?25h" // show cursor

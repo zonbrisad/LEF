@@ -103,7 +103,11 @@ extern "C" {
 // Functions --------------------------------------------------------------
 
 
+
+	
 void LEF_Init(void);
+
+void LEF_Print_event(LEF_queue_element *event);
 
 #ifdef __cplusplus
 } //end brace for extern "C"

@@ -29,7 +29,7 @@
 #include "LEF.h"
 #include "LEF_Cli.h"
 
-#define DEBUGALL
+//#define DEBUGALL
 #include "def.h"
 
 // Macros -----------------------------------------------------------------
@@ -62,9 +62,21 @@ void LEF_CliInit(const LEF_CliCmd *cmds, uint8_t size) {
 	printf("\n%s", LEF_CLI_PROMPT);
 }
 
+
 void LEF_CliPutChar(char ch) {
 	LEF_queue_element event;
-
+	
+	// handle backspace
+	if (ch=='\b') {
+		DEBUGPRINT("cliCnt = %d\n", cliCnt);
+		if (cliCnt > 0 ) {
+		  cliCnt--;
+			printf("\b \b");
+			return;
+		}
+		return;
+	}
+	
 	if (ch=='\n') {
 //			cliLock = 1;
 	//	cliCnt=0;
@@ -85,7 +97,6 @@ void LEF_CliPutChar(char ch) {
 	cliBuf[cliCnt] = ch;
 	cliCnt++;
 	printf("%c",ch);
-
 }
 
 
@@ -107,7 +118,6 @@ void LEF_CliPrintCommands(const LEF_CliCmd *cmdTable) {
 void LEF_CliExec(void) {
 	handler ptr;
 	char cmd[LEF_CLI_BUF_LENGTH];
-	uint8_t bIdx;
 	int i;
 
 	if (cliCnt == 0) {
