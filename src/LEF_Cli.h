@@ -51,7 +51,7 @@ typedef struct {
 
 // Prototypes -------------------------------------------------------------
 
-void LEF_CliInit(const LEF_CliCmd *cmds);
+void LEF_CliInit(const LEF_CliCmd *cmds, uint8_t size);
 
 void LEF_CliPutChar(char ch);
 

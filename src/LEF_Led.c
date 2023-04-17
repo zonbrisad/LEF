@@ -40,8 +40,8 @@ void LEF_LedInit(LEF_Led *led) {
 }
 
 #define LED_BLINK_LIMIT      40
-#define LED_FAST_BLINK_LIMIT 70
-
+#define LED_FAST_BLINK_LIMIT  5
+#define LED_SINGLE_BLINK      5
 
 uint8_t LEF_LedUpdate(LEF_Led *led) {
 	uint8_t limit;
@@ -66,12 +66,27 @@ uint8_t LEF_LedUpdate(LEF_Led *led) {
 
 			break;
 		case LED_STATE_SINGLE_BLINK:
+		  led->cnt++;
+		  if (led->cnt>LED_SINGLE_BLINK)
+			  led->mode = LED_STATE_OFF;
+		  return 1;
+		break;
 
+				
 		default: return 0;
 	}
 }
 
 void LEF_LedSetState(LEF_Led *led, LED_STATES state) {
 	led->mode = state;
-	led->cnt = - LED_BLINK_LIMIT;
+	switch (state) {
+	 case LED_STATE_BLINK:
+	 case LED_STATE_FAST_BLINK:
+		led->cnt = - LED_BLINK_LIMIT;
+		break;
+	 case LED_STATE_SINGLE_BLINK:
+		led->cnt = 0;
+		break;
+	 default:break;
+	}
 }

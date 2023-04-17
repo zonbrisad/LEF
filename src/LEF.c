@@ -24,6 +24,7 @@
 
 // Includes ---------------------------------------------------------------
 
+#include <stdio.h>
 #include "LEF.h"
 
 // Macros -----------------------------------------------------------------
@@ -34,10 +35,14 @@
 
 // Code -------------------------------------------------------------------
 
+
 void LEF_Init(void) {
 
 	// initiate LEF standard queue
 	LEF_QueueInit(&StdQueue);
+}
 
 
+void LEF_Print_event(LEF_queue_element *event) {
+	printf("Event id: %3d   func: %3d\n", event->id, event->func);
 }

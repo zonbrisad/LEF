@@ -37,7 +37,7 @@ extern "C" {
 // Typedefs ---------------------------------------------------------------
 
 typedef enum {
-	LED_STATE_OFF,
+	LED_STATE_OFF = 0, 
 	LED_STATE_ON,
 	LED_STATE_BLINK,
 	LED_STATE_FAST_BLINK,

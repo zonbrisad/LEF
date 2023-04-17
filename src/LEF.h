@@ -31,6 +31,7 @@ extern "C" {
 
 // Includes ---------------------------------------------------------------	
 #include <stdint.h>
+#include <stdbool.h>
 	
 // AVR specific includes
 #ifdef __AVR__	
@@ -45,7 +46,7 @@ extern "C" {
 #include "LEF_Led.h"
 #include "LEF_Buzzer.h"
 #include "LEF_Cli.h"
-
+#include "LEF_Button.h"
 
 // Controls --------------------------------------------------------------
 
@@ -53,21 +54,35 @@ extern "C" {
 #error "LEF_QUEUE_LENGTH not defined."
 #endif
 	
-// Macros -----------------------------------------------------------------
+// Events ----------------------------------------------------------------
 
+#define LEF_EVENT_CLI 250
+
+// Macros -----------------------------------------------------------------
+	
 #define LEF_ATOMIC_BLOCK() ATOMIC_BLOCK(ATOMIC_FORCEON)
+
+
 	
 //#define LEF_ATOMIC_BLOCK()
 
 	
-// default lefprintf 
-//#define lefprintf(...)  printf( __VA_ARGS__)
-//
-//#ifdef DEF_PLATFORM_AVR   // if avr GCC use printf_P to store format strings in flash instead of RAM
+// 
+#define lefprintf(...)   printf( __VA_ARGS__)
+#define lefstrcpy(d, s)  strcpy(d,s)
+ 
+
+// if avr GCC use printf_P to store format strings in flash instead of RAM
+#ifdef __AVR__   
+
 //#undef lefprintf
+#undef lefstrcpy
+
 //#define lefprintf(fmt, ...)  printf_P(PSTR(fmt), ##__VA_ARGS__)
-//#endif
-//
+#define lefstrcpy(d, s)  strcpy_P(d,s)
+	
+#endif
+
 	
 // Critical Section -------------------------------------------------------
 
@@ -96,7 +111,11 @@ extern "C" {
 // Functions --------------------------------------------------------------
 
 
+
+	
 void LEF_Init(void);
+
+void LEF_Print_event(LEF_queue_element *event);
 
 #ifdef __cplusplus
 } //end brace for extern "C"

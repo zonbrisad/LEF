@@ -29,73 +29,124 @@
 #include "LEF.h"
 #include "LEF_Cli.h"
 
-#define DEBUGALL
+//#define DEBUGALL
 #include "def.h"
 
 // Macros -----------------------------------------------------------------
 
+
 // Variables --------------------------------------------------------------
 
-char cliBuf[CLIBUF];
+char cliBuf[LEF_CLI_BUF_LENGTH];
 uint8_t cliCnt;
 uint8_t cliLock;
+uint8_t lef_cmds_length;
 
-LEF_CliCmd *Cmds;
+const LEF_CliCmd *Cmds;
 
 // Prototypes -------------------------------------------------------------
 
 // Code -------------------------------------------------------------------
 
-void LEF_CliInit(const LEF_CliCmd *cmds) {
+void LEF_CliInit(const LEF_CliCmd *cmds, uint8_t size) {
   cliCnt  = 0;
   cliLock = 0;
   Cmds = cmds;
-  defprintf("\n%s",CLI_PROMPT);
+
+	lef_cmds_length = size;
+	printf("\n%s", LEF_CLI_PROMPT);
 }
+
 
 void LEF_CliPutChar(char ch) {
-	LEF_queue_element qe;
-
-	if (!cliLock) {
-		cliBuf[cliCnt] = ch;
-		cliCnt++;
-
-		//putc(ch);
-		defprintf("%c",ch);
-		qe.id = 250;
-		if (ch=='\n') {
-			cliLock = 1;
-			LEF_QueueStdSend(&qe);
+	LEF_queue_element event;
+	
+	// handle backspace
+	if (ch=='\b') {
+		DEBUGPRINT("cliCnt = %d\n", cliCnt);
+		if (cliCnt > 0 ) {
+		  cliCnt--;
+			printf("\b \b");
+			return;
 		}
+		return;
 	}
-}
 
+	// handle newline(enter)
+	if (ch=='\n') {
+//			cliLock = 1;
+	//	cliCnt=0;
+		printf("\n");
+
+		event.id = LEF_EVENT_CLI;
+		event.func = 0;
+		
+		LEF_QueueStdSend(&event);
+				
+		return;
+	}
+
+	if (cliCnt >= LEF_CLI_BUF_LENGTH)
+		return;
+
+//	if (!cliLock) {
+	cliBuf[cliCnt] = ch;
+	cliCnt++;
+	printf("%c",ch);
+}
 
 
 void LEF_CliPrintCommands(const LEF_CliCmd *cmdTable) {
   int i;
-  handler ptr;
-  i = 0;
-	char cBuf[32];
-	uint8_t bIdx;
+	char cBuf[LEF_CLI_BUF_LENGTH];
 
-	DEBUGPRINT("A\n");
-  ptr = (handler)pgm_read_word(&cmdTable[i].function);
-  while (ptr!=NULL) {
-		DEBUGPRINT("X\n");
-	  //ptr();
-    defstrcpy(cBuf,&cmdTable[i].name);
-    defprintf("%-12s", cBuf);
-    printf(&cmdTable[i].desc);
-    defprintf("\n");
+	i = 0;
+  while (i < lef_cmds_length) {
+		lefstrcpy(cBuf, cmdTable[i].name);		
+		lefprintf("%-12s", cBuf);
+		lefstrcpy(cBuf, cmdTable[i].desc);
+    lefprintf(cBuf);
+		lefprintf("\n");
     i++;
-    ptr = (handler)pgm_read_word(&cmdTable[i].function);
   }
 }
 
 void LEF_CliExec(void) {
-	DEBUGPRINT("Exec\n");
-	LEF_CliPrintCommands(Cmds);
-	cliLock=0;
-	printf(CLI_PROMPT);
+	handler ptr;
+	char cmd[LEF_CLI_BUF_LENGTH];
+	int i;
+
+	if (cliCnt == 0) {
+		lefprintf(LEF_CLI_PROMPT);
+		return;
+	}
+
+	i = 0;
+	while ((cliBuf[i] != ' ') && (i<cliCnt)) {
+		i++;
+	}
+	
+	cliBuf[i] = '\0';
+	DEBUGPRINT("Command = %s\n", cliBuf);
+
+	i = 0;
+  while (i < lef_cmds_length) {
+		
+		lefstrcpy(cmd, Cmds[i].name);
+		if ( !strncmp(cmd, cliBuf, LEF_CLI_BUF_LENGTH) ) {
+			DEBUGPRINT("Found command: %s\n", cmd);
+			ptr = (handler)pgm_read_word(&Cmds[i].function);
+			ptr();
+			goto cli_cleanup;
+		}
+		i++;
+  }
+
+	lefprintf("%s: Command not found\n", cliBuf);
+
+cli_cleanup:
+	
+	cliLock = 0;
+	cliCnt = 0;
+	lefprintf(LEF_CLI_PROMPT);
 }
