@@ -108,7 +108,6 @@ void LEF_CliPrintCommands(const LEF_CliCmd *cmdTable) {
 	i = 0;
   while (i < lef_cmds_length) {
 		strcpy_P(cBuf, cmdTable[i].name);
-//		printf("%-12s", cBuf);
 		lefprintf("%-12s", cBuf);
 		strcpy_P(cBuf, cmdTable[i].desc);
     lefprintf(cBuf);
@@ -148,7 +147,8 @@ void LEF_CliExec(void) {
 		i++;
   }
 
-	lefprintf("Command \"%s\" not found\n", cliBuf);
+//	lefprintf("Command \"%s\" not found\n", cliBuf);
+	lefprintf("%s: Command not found\n", cliBuf);
 
 cli_cleanup:
 	
