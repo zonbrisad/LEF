@@ -48,8 +48,8 @@ typedef enum {
 	
 } LEF_Buzzer_mode;
 
-#define BUZZER_OFF 0,0,0
-#define BUZZER_ON  1,0,0
+//#define BUZZER_OFF 0,0,0
+//#define BUZZER_ON  1,0,0
 	
 // Variables --------------------------------------------------------------
 
