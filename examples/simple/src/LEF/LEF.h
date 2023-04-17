@@ -67,14 +67,22 @@ extern "C" {
 //#define LEF_ATOMIC_BLOCK()
 
 	
-// default lefprintf 
-#define lefprintf(...)  printf( __VA_ARGS__)
+// 
+#define lefprintf(...)   printf( __VA_ARGS__)
+#define lefstrcpy(d, s)  strcpy(d,s)
+ 
 
-//#ifdef DEF_PLATFORM_AVR   // if avr GCC use printf_P to store format strings in flash instead of RAM
+// if avr GCC use printf_P to store format strings in flash instead of RAM
+#ifdef __AVR__   
+
 //#undef lefprintf
+#undef lefstrcpy
+
 //#define lefprintf(fmt, ...)  printf_P(PSTR(fmt), ##__VA_ARGS__)
-//#endif
-//
+#define lefstrcpy(d, s)  strcpy_P(d,s)
+	
+#endif
+
 	
 // Critical Section -------------------------------------------------------
 

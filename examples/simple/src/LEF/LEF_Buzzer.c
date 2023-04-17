@@ -40,11 +40,21 @@
 
 
 uint16_t buz_cnt;
+uint16_t buz_rep;
+
+uint16_t buz_duration;
+uint16_t buz_pause;
+uint16_t buz_repeat;
+
 LEF_Buzzer_mode buz_state;
 
 void LEF_Buzzer_init() {
 	buz_state = LEF_BUZZER_OFF;
   buz_cnt   = 0;
+
+	buz_duration = 0;
+	buz_pause = 0;
+	buz_repeat = 0;
 }
 
 void LEF_Buzzer_set(LEF_Buzzer_mode state) {
@@ -52,28 +62,82 @@ void LEF_Buzzer_set(LEF_Buzzer_mode state) {
 		return;
 	
 	buz_cnt = 0;
-	buz_state = state;
+	buz_rep = 0;
+	buz_state = state;	
+}
+
+void LEF_Buzzer(uint16_t duration, uint16_t pause, uint16_t repeat) {
+	buz_duration = duration;
+	buz_pause = pause;
+	buz_repeat = repeat;
+
+	buz_cnt = 0;
+	buz_rep = 0;
+}
+
+int8_t LEF_Beep(uint16_t duration, uint16_t pause, uint16_t repeat);
+
+int8_t LEF_Beep(uint16_t duration, uint16_t pause, uint16_t repeat) {
+	
+	buz_cnt++;
+	if (buz_cnt <= duration) {
+		return 1;
+	}
+	if ((buz_cnt > duration) && (buz_cnt < (duration+pause))) {
+		return 0;
+	}
+	if (buz_cnt >= (duration+pause)) {
+		buz_cnt = 0;
+		buz_rep++;
+	}
+	if (buz_rep >= (repeat)) {
+		buz_state = LEF_BUZZER_OFF;
+		buz_duration = 0;
+		buz_pause = 0;
+		buz_repeat = 0;
+	}
+
+	return 0;
 }
 
 bool LEF_Buzzer_update() {
+/*	
+	if ((buz_duration+buz_pause+buz_repeat) == 0)
+		return 0;
 
+	if ((buz_duration+buz_pause+buz_repeat) == 1)
+		return 1;
+		
+	LEF_Beep(buz_duration, buz_pause, buz_repeat);	
+*/	
 	switch (buz_state) {
 	 case LEF_BUZZER_OFF: buz_cnt = 0; return 0; break;
 	 case LEF_BUZZER_ON: return 1; break;
 	 case LEF_BUZZER_SHORT_BEEP:
-		buz_cnt++;
-		if (buz_cnt > LEF_BUZZER_SHORT_BEEP_DURATION) {
-			buz_state = LEF_BUZZER_OFF;
-		}
-		return 1;
+		return LEF_Beep(LEF_BUZZER_SHORT_BEEP_DURATION, 0, 1);
 		break;
+		
 	 case LEF_BUZZER_BEEP:
-		buz_cnt++;
-		if (buz_cnt > LEF_BUZZER_BEEP_DURATION) {
-			buz_state = LEF_BUZZER_OFF;
-		}
-		return 1;
+		return LEF_Beep(LEF_BUZZER_BEEP_DURATION, 0, 1);
 		break;
+
+	 case LEF_BUZZER_LONG_BEEP:
+		return LEF_Beep(LEF_BUZZER_LONG_BEEP_DURATION, 0, 1);
+		break;
+		
+	 case LEF_BUZZER_DOUBLE_BEEP:
+		return LEF_Beep(LEF_BUZZER_BEEP_DURATION, LEF_BUZZER_PAUSE, 2);
+		break;
+
+	 case LEF_BUZZER_TRIPPLE_BEEP:
+		return LEF_Beep(LEF_BUZZER_BEEP_DURATION, LEF_BUZZER_PAUSE, 3);
+		break;
+
+	 case LEF_BUZZER_BRP:
+		return LEF_Beep(1, 1, 20);
+		break;
+
+		
 	 default: break; //return 0;
 		
 	}

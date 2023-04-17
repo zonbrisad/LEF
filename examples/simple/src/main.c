@@ -40,16 +40,23 @@
 
 
 void hw_init(void);
+
+void cmdBrp(void);
+void cmdDBeep(void);
+void cmdTBeep(void);
 void cmdBuzon(void);
 void cmdBuzoff(void);
 void cmdBeep(void);
 void cmdSBeep(void);
+void cmdLBeep(void);
 void cmdBlink(void);
 void cmdLedOn(void);
 void cmdLedOff(void);
 void cmdEvOn(void);
 void cmdEvOff(void);
 void cmdHelp(void);
+
+
 
 LEF_Timer  timer1;
 LEF_Timer  timer2;
@@ -61,15 +68,15 @@ char evOn = 0;
 static FILE mystdout = FDEV_SETUP_STREAM((void*)uart_putc, NULL, _FDEV_SETUP_WRITE);
 
 
-
-
-
-
 const PROGMEM LEF_CliCmd cmdTable[] = {
 	{cmdBuzon,   "buzon",     "Buzzer on"},
 	{cmdBuzoff,  "buzoff",    "Buzzer off"},
 	{cmdBeep,    "beep",      "Make a beep"},	
-	{cmdSBeep,  "sbeep",     "Make a short beep"},
+	{cmdSBeep,   "sbeep",     "Make a short beep"},
+	{cmdLBeep,   "lbeep",     "Make a long beep"},
+	{cmdDBeep,   "dbeep",     "Make a double beep"},
+	{cmdTBeep,   "tbeep",     "Make a tripple beep"},
+	{cmdBrp,     "brp",       "BRP sound"},
 
 	{cmdLedOn,  "ledon",     "Turn led on"},
 	{cmdLedOff, "ledoff",    "Turn led off"}, 
@@ -81,6 +88,18 @@ const PROGMEM LEF_CliCmd cmdTable[] = {
 	{cmdHelp,   "help",      "Show help"},
 };
 
+
+void cmdBrp(void) {
+	LEF_Buzzer_set(LEF_BUZZER_BRP);
+}
+
+void cmdTBeep(void) {
+	LEF_Buzzer_set(LEF_BUZZER_TRIPPLE_BEEP);
+}
+
+void cmdDBeep(void) {
+	LEF_Buzzer_set(LEF_BUZZER_DOUBLE_BEEP);
+}
 
 void cmdBuzon(void) {
 	LEF_Buzzer_set(LEF_BUZZER_ON);
@@ -98,10 +117,13 @@ void cmdSBeep(void) {
 	LEF_Buzzer_set(LEF_BUZZER_SHORT_BEEP);
 }
 
+void cmdLBeep(void) {
+	LEF_Buzzer_set(LEF_BUZZER_LONG_BEEP);
+}
+
 void cmdBlink(void) {
   LEF_LedSetState(&led, LED_STATE_SINGLE_BLINK);
 }
-
 
 void cmdLedOn(void) {
   LEF_LedSetState(&led, LED_STATE_ON);
