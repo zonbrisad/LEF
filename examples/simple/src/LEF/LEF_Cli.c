@@ -31,6 +31,7 @@
 
 //#define DEBUGALL
 #include "def.h"
+#include <avr/pgmspace.h>
 
 // Macros -----------------------------------------------------------------
 
@@ -47,7 +48,7 @@ uint8_t cliCnt;
 uint8_t cliLock;
 uint8_t lef_cmds_length;
 
-LEF_CliCmd *Cmds;
+const LEF_CliCmd *Cmds;
 
 // Prototypes -------------------------------------------------------------
 
@@ -106,11 +107,12 @@ void LEF_CliPrintCommands(const LEF_CliCmd *cmdTable) {
 
 	i = 0;
   while (i < lef_cmds_length) {
-		strcpy_P(cBuf, &cmdTable[i].name);
-		printf("%-12s", cBuf);
-		strcpy_P(cBuf, &cmdTable[i].desc);
-    printf(cBuf);
-		printf("\n");
+		strcpy_P(cBuf, cmdTable[i].name);
+//		printf("%-12s", cBuf);
+		lefprintf("%-12s", cBuf);
+		strcpy_P(cBuf, cmdTable[i].desc);
+    lefprintf(cBuf);
+		lefprintf("\n");
     i++;
   }
 }
@@ -121,7 +123,7 @@ void LEF_CliExec(void) {
 	int i;
 
 	if (cliCnt == 0) {
-		printf(LEF_CLI_PROMPT);
+		lefprintf(LEF_CLI_PROMPT);
 		return;
 	}
 
@@ -136,7 +138,7 @@ void LEF_CliExec(void) {
 	i = 0;
   while (i < lef_cmds_length) {
 		
-		strcpy_P(cmd, &Cmds[i].name);
+		strcpy_P(cmd, Cmds[i].name);
 		if ( !strncmp(cmd, cliBuf, LEF_CLI_BUF_LENGTH) ) {
 			DEBUGPRINT("Found command: %s\n", cmd);
 			ptr = (handler)pgm_read_word(&Cmds[i].function);
@@ -146,11 +148,11 @@ void LEF_CliExec(void) {
 		i++;
   }
 
-	printf("Command \"%s\" not found\n", cliBuf);
+	lefprintf("Command \"%s\" not found\n", cliBuf);
 
 cli_cleanup:
 	
 	cliLock = 0;
 	cliCnt = 0;
-	printf(LEF_CLI_PROMPT);
+	lefprintf(LEF_CLI_PROMPT);
 }

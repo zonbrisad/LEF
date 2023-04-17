@@ -31,7 +31,7 @@ typedef struct {
 } LEF_Button;
 
 
-LEF_Button *LEF_Button_new();
+LEF_Button *LEF_Button_new(void);
 
 void LEF_Button_init(LEF_Button *button, LEF_EventId id);
 

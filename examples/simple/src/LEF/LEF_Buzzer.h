@@ -48,11 +48,11 @@ typedef enum {
 
 // Prototypes -------------------------------------------------------------
 
-	void LEF_Buzzer_init();
+	void LEF_Buzzer_init(void);
 	
 	void LEF_Buzzer_set(LEF_Buzzer_mode state);
 
-	bool LEF_Buzzer_update();
+	bool LEF_Buzzer_update(void);
 	
 	
 #ifdef __cplusplus

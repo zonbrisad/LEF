@@ -68,8 +68,8 @@ extern "C" {
 
 	
 // default lefprintf 
-//#define lefprintf(...)  printf( __VA_ARGS__)
-//
+#define lefprintf(...)  printf( __VA_ARGS__)
+
 //#ifdef DEF_PLATFORM_AVR   // if avr GCC use printf_P to store format strings in flash instead of RAM
 //#undef lefprintf
 //#define lefprintf(fmt, ...)  printf_P(PSTR(fmt), ##__VA_ARGS__)

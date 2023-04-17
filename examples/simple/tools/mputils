@@ -241,7 +241,9 @@ avrdude-arduino() { ##D Write firmware to arduino with avrdude
   MCU=${3}
   PORT=${4}
   bpPrintLine "Available USB->serial ports"
-  ls --width 1 /dev/ttyUSB*
+  ls --width 1 /dev/ttyUSB* 2>/dev/null
+  ls --width 1 /dev/ttyACM* 2>/dev/null
+	
   bpPrintLine
 
   PORT=$(bpReadStrR "Enter Port >" "PORT" "${PORT}")
