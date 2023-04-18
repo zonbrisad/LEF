@@ -38,6 +38,10 @@
 #define BUZZER_ON() PORTD &= ~(1<<BUZZER_PIN)
 #define BUZZER_OFF() PORTD |= (1<<BUZZER_PIN)
 
+#define LED_RED_ON() PORTB |= (0x01 << PB4)
+#define LED_RED_OFF() PORTB &= ~(0x01 << PB4)
+#define LED_GREEN_ON() PORTB |= (0x01 << PB3)
+#define LED_GREEN_OFF() PORTB &= ~(0x01 << PB3)
 
 void hw_init(void);
 
@@ -61,6 +65,7 @@ void cmdHelp(void);
 LEF_Timer  timer1;
 LEF_Timer  timer2;
 LEF_Led    led;
+LEF_LedRG  ledrg;
 LEF_Button button;
 
 char evOn = 0;
@@ -160,8 +165,21 @@ ISR(TIMER1_COMPA_vect) {
 		ARDUINO_LED_OFF();
 	}
 
+	ch = LEF_LedRGUpdate(&ledrg);
+	if (ch & 0x01) 
+		LED_RED_ON();
+	else
+		LED_RED_OFF();
+
+	if (ch & 0x02) 
+		LED_GREEN_ON();
+	else
+		LED_GREEN_OFF();
+	
+	
 	LEF_Button_update(&button, (PIND & (1<<PIN7))==0  );
 
+	
 	ch = LEF_Buzzer_update();
  if (ch > 0) {
 //	if (LEF_Buzzer_update() > 0) {
@@ -192,22 +210,31 @@ void hw_init(void) {
 	DDRD |= (0x01 << BUZZER_PIN);
 	PORTD |= (0x01 << BUZZER_PIN);
 
+	// Red Green LED
+	DDRB |= (0x01 << PB4) | (0x01 << PB3);
+	
 	sei();
 }
 
 int main() {
 	LEF_queue_element event;
   uint8_t ls;
-	ls = LED_STATE_OFF;
+	ls = LEDRG_OFF;
 	uint16_t ch;
 	 
 	LEF_Init();
+
 	LEF_TimerInit(&timer1, 1);
 	LEF_TimerStartRepeat(&timer1, 100);
 	LEF_TimerInit(&timer2, 2);
 	LEF_TimerStartRepeat(&timer2, 10);
+
 	LEF_LedInit(&led);
 	LEF_LedSetState(&led, LED_STATE_FAST_BLINK);
+
+	LEF_LedRGInit(&ledrg);
+	LEF_LedRGSetState(&ledrg, LEDRG_RED_DOUBLE_BLINK);
+
 	LEF_Button_init(&button, 10);
 	LEF_Buzzer_init();
 	
@@ -232,14 +259,18 @@ int main() {
 			LEF_Print_event(&event);
 			if  (event.func==1) {
 				ls++;
-				if (ls >= LED_STATE_LAST)
-					ls = LED_STATE_OFF;
-//			LEF_LedSetState(&led, ls);
+				if (ls >= LEDRG_LAST)
+					ls = LEDRG_OFF;
+
 				LEF_LedSetState(&led, LED_STATE_SINGLE_BLINK);
+				LEF_LedRGSetState(&ledrg, ls);
+				
 				LEF_Buzzer_set(LEF_BUZZER_SHORT_BEEP);
 			}
+			if (event.func==3) {
+				LEF_Buzzer_set(LEF_BUZZER_BRP);
+			}
 		break;
-
 		
 	 case 2:                  // Handle data from uart to Cli
 			ch = uart_getc();

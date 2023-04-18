@@ -17,3 +17,5 @@
 2023-04-16 21:37:59 [Info] Waiting for port 5678 to become available.
 2023-04-17 09:32:57 [Warn] Device /dev/ttyUSB1 does not exist!
 2023-04-17 09:33:04 [Warn] Device /dev/ttyUSB1 does not exist!
+2023-04-17 22:48:17 [Warn] Device /dev/ttyUSB2 does not exist!
+2023-04-18 08:32:43 [Warn] Device /dev/ttyUSB1 does not exist!

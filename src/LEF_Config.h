@@ -53,6 +53,22 @@ extern "C" {
 #define LEF_BUZZER_LONG_BEEP_DURATION  80  // (cycles)
 #define LEF_BUZZER_PAUSE               15  // (cycles)
 
+
+// Led settings -----------------------------------------------------------
+
+#define LED_BLINK_LIMIT                40
+#define LED_FAST_BLINK_LIMIT            5
+#define LED_SINGLE_BLINK                5
+
+	
+// LedRG settings ---------------------------------------------------------
+
+#define LEDRG_BLINK_PERIOD             30
+#define LEDRG_FAST_BLINK_PERIOD         5
+#define LEDRG_SINGLE_BLINK_PERIOD       5
+
+
+	
 #ifdef __cplusplus
 } //end brace for extern "C"
 #endif

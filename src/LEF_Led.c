@@ -25,6 +25,7 @@
 
 // Includes ---------------------------------------------------------------
 
+#include "LEF.h"
 #include "LEF_Led.h"
 
 // Macros -----------------------------------------------------------------
@@ -38,10 +39,6 @@
 void LEF_LedInit(LEF_Led *led) {
 	led->mode = LED_STATE_OFF;
 }
-
-#define LED_BLINK_LIMIT      40
-#define LED_FAST_BLINK_LIMIT  5
-#define LED_SINGLE_BLINK      5
 
 uint8_t LEF_LedUpdate(LEF_Led *led) {
 	uint8_t limit;
