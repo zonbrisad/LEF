@@ -122,7 +122,7 @@ new() { ##D Create new LEF project
   createProject
 }
 
-<<<<<<< HEAD
+
 csf() { ##D Copy LEF source files
 #  FILES=$(ls ${BP_SELF_DIR}/src/*.{c,h})
   #DST=${2:-.}
@@ -135,19 +135,11 @@ csf() { ##D Copy LEF source files
 
 }
 
-
+##- Misc
 install() { ##D Install
   bpAddModule "${BP_SELF_DIR}/lef_init"
 }
 	
-=======
-
-##- Misc
-install() { ##D Install 
-  bpAddModule "${BP_SELF_DIR}/lef_init"
-}
->>>>>>> e20748b412b490b723af9b61604aec01319278fe
-
 
 #---------------------------------------------------------------------
 # Bashplate modules
