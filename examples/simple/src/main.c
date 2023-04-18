@@ -67,6 +67,7 @@ LEF_Timer  timer2;
 LEF_Led    led;
 LEF_LedRG  ledrg;
 LEF_Button button;
+LEF_Rotary rotary;
 
 char evOn = 0;
 
@@ -146,7 +147,6 @@ void cmdEvOff(void) {
 	evOn = 0;
 }
 
-
 void cmdHelp(void) {
 	LEF_CliPrintCommands(cmdTable);
 }
@@ -154,6 +154,8 @@ void cmdHelp(void) {
 
 ISR(TIMER1_COMPA_vect) {
 	char ch;
+	LEF_queue_element event;
+	
   TIMER1_RELOAD(0);
 
 	LEF_TimerUpdate(&timer1);
@@ -179,6 +181,8 @@ ISR(TIMER1_COMPA_vect) {
 	
 	LEF_Button_update(&button, (PIND & (1<<PIN7))==0  );
 
+	ch = PINC;
+	LEF_Rotary_update(&rotary, (ch & (1<<PC0)), (ch & (1<<PC1)));
 	
 	ch = LEF_Buzzer_update();
  if (ch > 0) {
@@ -187,6 +191,9 @@ ISR(TIMER1_COMPA_vect) {
 	} else {
 		BUZZER_OFF();
 	}
+
+//	event.id = LEF_SYSTICK_EVENT;
+//	LEF_QueueWait(&StdQueue, &event);
 }
 
 void hw_init(void) {
@@ -212,6 +219,9 @@ void hw_init(void) {
 
 	// Red Green LED
 	DDRB |= (0x01 << PB4) | (0x01 << PB3);
+
+	// Rotary encoder input pullup activation
+	PORTC |= (1<<PC0) | (1<<PC1);
 	
 	sei();
 }
@@ -236,6 +246,8 @@ int main() {
 	LEF_LedRGSetState(&ledrg, LEDRG_RED_DOUBLE_BLINK);
 
 	LEF_Button_init(&button, 10);
+	LEF_Rotary_init(&rotary, 11);
+
 	LEF_Buzzer_init();
 	
 	hw_init();
@@ -254,7 +266,20 @@ int main() {
 			LEF_Print_event(&event);
 
 		switch (event.id) {
+/*		 case LEF_SYSTICK_EVENT:
+				ch = LEF_LedRGUpdate(&ledrg);
+			if (ch & 0x01) 
+				LED_RED_ON();
+			else
+				LED_RED_OFF();
+			
+			if (ch & 0x02) 
+				LED_GREEN_ON();
+			else
+				LED_GREEN_OFF();
 
+			break;
+*/
 		 case 10:           // Handle button press event
 			LEF_Print_event(&event);
 			if  (event.func==1) {
@@ -270,8 +295,12 @@ int main() {
 			if (event.func==3) {
 				LEF_Buzzer_set(LEF_BUZZER_BRP);
 			}
+			printf("Port C: %x  Clk = %d   Dt = %d\n", PINC, (PINC & (1<<PC0)), (PINC & (1<<PC1)));
 		break;
-		
+		 case 11:           // Handle rotary event
+			LEF_Print_event(&event);
+			break;
+			
 	 case 2:                  // Handle data from uart to Cli
 			ch = uart_getc();
 			while ((ch & 0xff00) != UART_NO_DATA ) {

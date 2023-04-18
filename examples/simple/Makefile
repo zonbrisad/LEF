@@ -33,7 +33,8 @@ SRC = src/main.c \
 			src/LEF/LEF_Button.c \
 			src/LEF/LEF_Buzzer.c \
 			src/LEF/LEF_Cli.c \
-			src/LEF/LEF_LedRG.c
+			src/LEF/LEF_LedRG.c \
+			src/LEF/LEF_RotaryE.c
 
 
 # List C, C++ and assembler library/3rd party source files here. (C/C++ dependencies are automatically generated.)

@@ -48,7 +48,8 @@ extern "C" {
 #include "LEF_Buzzer.h"
 #include "LEF_Cli.h"
 #include "LEF_Button.h"
-
+#include "LEF_RotaryE.h"
+	
 // Controls --------------------------------------------------------------
 
 #ifndef LEF_QUEUE_LENGTH
@@ -57,8 +58,12 @@ extern "C" {
 	
 // Events ----------------------------------------------------------------
 
-#define LEF_EVENT_CLI 250
 
+
+#define LEF_EVENT_CLI     250
+#define LEF_SYSTICK_EVENT 255
+
+	
 // Macros -----------------------------------------------------------------
 	
 #define LEF_ATOMIC_BLOCK() ATOMIC_BLOCK(ATOMIC_FORCEON)
