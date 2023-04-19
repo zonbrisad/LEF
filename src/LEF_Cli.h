@@ -38,7 +38,7 @@ extern "C" {
 
 // Typedefs ---------------------------------------------------------------
 
-typedef void (*handler)(void);
+typedef void (*handler)(char *);
 
 typedef struct {
   handler function;

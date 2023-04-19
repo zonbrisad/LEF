@@ -113,6 +113,7 @@ void LEF_CliPrintCommands(const LEF_CliCmd *cmdTable) {
 
 void LEF_CliExec(void) {
 	handler ptr;
+	char *args;
 	char cmd[LEF_CLI_BUF_LENGTH];
 	int i;
 
@@ -125,9 +126,12 @@ void LEF_CliExec(void) {
 	while ((cliBuf[i] != ' ') && (i<cliCnt)) {
 		i++;
 	}
-	
+
+	cliBuf[cliCnt] = '\0';
 	cliBuf[i] = '\0';
-	DEBUGPRINT("Command = %s\n", cliBuf);
+	args=cliBuf;
+	args +=  (cliCnt > i) ? (i+1) : i;
+	DEBUGPRINT("Command = %s    args = %s\n", cliBuf, args);
 
 	i = 0;
   while (i < lef_cmds_length) {
@@ -136,7 +140,7 @@ void LEF_CliExec(void) {
 		if ( !strncmp(cmd, cliBuf, LEF_CLI_BUF_LENGTH) ) {
 			DEBUGPRINT("Found command: %s\n", cmd);
 			ptr = (handler)pgm_read_word(&Cmds[i].function);
-			ptr();
+			ptr(args);
 			goto cli_cleanup;
 		}
 		i++;

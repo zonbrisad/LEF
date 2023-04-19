@@ -56,20 +56,20 @@ typedef enum {
 
 void hw_init(void);
 
-void cmdBrp(void);
-void cmdDBeep(void);
-void cmdTBeep(void);
-void cmdBuzon(void);
-void cmdBuzoff(void);
-void cmdBeep(void);
-void cmdSBeep(void);
-void cmdLBeep(void);
-void cmdBlink(void);
-void cmdLedOn(void);
-void cmdLedOff(void);
-void cmdEvOn(void);
-void cmdEvOff(void);
-void cmdHelp(void);
+void cmdBrp(char *args);
+void cmdDBeep(char *args);
+void cmdTBeep(char *args);
+void cmdBuzon(char *args);
+void cmdBuzoff(char *args);
+void cmdBeep(char *args);
+void cmdSBeep(char *args);
+void cmdLBeep(char *args);
+void cmdBlink(char *args);
+void cmdLedOn(char *args);
+void cmdLedOff(char *args);
+void cmdEvOn(char *args);
+void cmdEvOff(char *args);
+void cmdHelp(char *args);
 
 
 
@@ -105,59 +105,60 @@ const PROGMEM LEF_CliCmd cmdTable[] = {
 };
 
 
-void cmdBrp(void) {
+void cmdBrp(char *args) {
+	printf("Brp args = %s\n", args);
 	LEF_Buzzer_set(LEF_BUZZER_BRP);
 }
 
-void cmdTBeep(void) {
+void cmdTBeep(char *args) {
 	LEF_Buzzer_set(LEF_BUZZER_TRIPPLE_BEEP);
 }
 
-void cmdDBeep(void) {
+void cmdDBeep(char *args) {
 	LEF_Buzzer_set(LEF_BUZZER_DOUBLE_BEEP);
 }
 
-void cmdBuzon(void) {
+void cmdBuzon(char *args) {
 	LEF_Buzzer_set(LEF_BUZZER_ON);
 }
 
-void cmdBuzoff(void) {
+void cmdBuzoff(char *args) {
 	LEF_Buzzer_set(LEF_BUZZER_OFF);
 }
 
-void cmdBeep(void) {
+void cmdBeep(char *args) {
 	LEF_Buzzer_set(LEF_BUZZER_BEEP);
 }
 
-void cmdSBeep(void) {
+void cmdSBeep(char *args) {
 	LEF_Buzzer_set(LEF_BUZZER_SHORT_BEEP);
 }
 
-void cmdLBeep(void) {
+void cmdLBeep(char *args) {
 	LEF_Buzzer_set(LEF_BUZZER_LONG_BEEP);
 }
 
-void cmdBlink(void) {
+void cmdBlink(char *args) {
   LEF_LedSetState(&led, LED_SINGLE_BLINK);
 }
 
-void cmdLedOn(void) {
+void cmdLedOn(char *args) {
   LEF_LedSetState(&led, LED_ON);
 }
 
-void cmdLedOff(void) {
+void cmdLedOff(char *args) {
   LEF_LedSetState(&led, LED_OFF);
 }
 
-void cmdEvOn(void) {
+void cmdEvOn(char *args) {
 	evOn = 1;
 }
 
-void cmdEvOff(void) {
+void cmdEvOff(char *args) {
 	evOn = 0;
 }
 
-void cmdHelp(void) {
+void cmdHelp(char *args) {
 	LEF_CliPrintCommands(cmdTable);
 }
 
@@ -267,10 +268,7 @@ int main() {
 	LEF_TimerStartRepeat(&timer2, 10);
 
 	LEF_LedInit(&led, LED_FAST_BLINK);
-//	LEF_LedSetState(&led, LED_FAST_BLINK);
-
 	LEF_LedRGInit(&ledrg, LEDRG_RED_DOUBLE_BLINK);
-//	LEF_LedRGSetState(&ledrg, LEDRG_RED_DOUBLE_BLINK);
 
 	LEF_Button_init(&button, EVENT_Button);
 	LEF_Rotary_init(&rotary, EVENT_Rotary);
