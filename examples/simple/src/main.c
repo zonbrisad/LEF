@@ -344,6 +344,7 @@ int main() {
 		
 		 case LEF_EVENT_CLI:
 			LEF_CliExec();
+			break;
 		 case LEF_EVENT_TEST:
 			printf("Testevent\n");
 			break;
