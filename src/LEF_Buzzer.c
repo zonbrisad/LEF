@@ -121,6 +121,11 @@ bool LEF_Buzzer_update() {
 		return LEF_Beep(LEF_BUZZER_BEEP_DURATION, 0, 1);
 		break;
 
+	 case LEF_BUZZER_BLIP:
+		return LEF_Beep(LEF_BUZZER_BLIP_DURATION, 0, 1);
+		break;
+
+		
 	 case LEF_BUZZER_LONG_BEEP:
 		return LEF_Beep(LEF_BUZZER_LONG_BEEP_DURATION, 0, 1);
 		break;

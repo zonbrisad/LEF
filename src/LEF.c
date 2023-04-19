@@ -31,6 +31,8 @@
 
 // Variables --------------------------------------------------------------
 
+LEF_EventQueue StdQueue;
+
 // Prototypes -------------------------------------------------------------
 
 // Code -------------------------------------------------------------------
@@ -41,6 +43,24 @@ void LEF_Init(void) {
 	// initiate LEF standard queue
 	LEF_QueueInit(&StdQueue);
 }
+
+
+void LEF_Send(LEF_Event *event) {
+	return LEF_QueueSend(&StdQueue, event);
+}
+
+void LEF_Wait(LEF_Event *event) {
+	return LEF_QueueWait(&StdQueue, event);
+}
+
+void LEF_Clear(void) {
+	return LEF_QueueClear(&StdQueue);
+}
+
+uint16_t LEF_Count(void) {
+  return LEF_QueueCnt(&StdQueue);
+}
+
 
 
 void LEF_Print_event(LEF_queue_element *event) {

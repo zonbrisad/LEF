@@ -43,6 +43,17 @@
 #define LED_GREEN_ON() PORTB |= (0x01 << PB3)
 #define LED_GREEN_OFF() PORTB &= ~(0x01 << PB3)
 
+#define ROT_CLK()  PINC | (1 << PC0)
+#define ROT_DATA() PINC | (1 << PC1)
+
+
+typedef enum {
+	EVENT_Timer1 = 0,
+	EVENT_Timer2,
+	EVENT_Button,
+	EVENT_Rotary
+} Events;
+
 void hw_init(void);
 
 void cmdBrp(void);
@@ -73,16 +84,15 @@ char evOn = 0;
 
 static FILE mystdout = FDEV_SETUP_STREAM((void*)uart_putc, NULL, _FDEV_SETUP_WRITE);
 
-
 const PROGMEM LEF_CliCmd cmdTable[] = {
-	{cmdBuzon,   "buzon",     "Buzzer on"},
-	{cmdBuzoff,  "buzoff",    "Buzzer off"},
-	{cmdBeep,    "beep",      "Make a beep"},	
-	{cmdSBeep,   "sbeep",     "Make a short beep"},
-	{cmdLBeep,   "lbeep",     "Make a long beep"},
-	{cmdDBeep,   "dbeep",     "Make a double beep"},
-	{cmdTBeep,   "tbeep",     "Make a tripple beep"},
-	{cmdBrp,     "brp",       "BRP sound"},
+	{cmdBuzon,   "buzon",    "Buzzer on"},
+	{cmdBuzoff,  "buzoff",   "Buzzer off"},
+	{cmdBeep,    "beep",     "Make a beep"},	
+	{cmdSBeep,   "sbeep",    "Make a short beep"},
+	{cmdLBeep,   "lbeep",    "Make a long beep"},
+	{cmdDBeep,   "dbeep",    "Make a double beep"},
+	{cmdTBeep,   "tbeep",    "Make a tripple beep"},
+	{cmdBrp,     "brp",      "BRP sound"},
 
 	{cmdLedOn,  "ledon",     "Turn led on"},
 	{cmdLedOff, "ledoff",    "Turn led off"}, 
@@ -152,12 +162,27 @@ void cmdHelp(void) {
 }
 
 
+ISR(PCINT1_vect) {
+//	LEF_Event event;
+	char ch;
+	
+	ch = PINC;
+	LEF_Rotary_update(&rotary, (ch & (1<<PC0)), (ch & (1<<PC1)));
+
+	//event.id = LEF_EVENT_TEST;
+	//LEF_Send(&event);
+}
+
 ISR(TIMER1_COMPA_vect) {
 	char ch;
-	LEF_queue_element event;
+//	LEF_Event event;
 	
   TIMER1_RELOAD(0);
 
+	//	event.id = LEF_SYSTICK_EVENT;
+	//	LEF_QueueWait(&StdQueue, &event);
+	
+	
 	LEF_TimerUpdate(&timer1);
 	LEF_TimerUpdate(&timer2);
 	
@@ -181,19 +206,15 @@ ISR(TIMER1_COMPA_vect) {
 	
 	LEF_Button_update(&button, (PIND & (1<<PIN7))==0  );
 
-	ch = PINC;
-	LEF_Rotary_update(&rotary, (ch & (1<<PC0)), (ch & (1<<PC1)));
+//	ch = PINC;
+//	LEF_Rotary_update(&rotary, (ch & (1<<PC0)), (ch & (1<<PC1)));
 	
-	ch = LEF_Buzzer_update();
- if (ch > 0) {
-//	if (LEF_Buzzer_update() > 0) {
+	if (LEF_Buzzer_update() > 0) {
 		BUZZER_ON();
 	} else {
 		BUZZER_OFF();
 	}
 
-//	event.id = LEF_SYSTICK_EVENT;
-//	LEF_QueueWait(&StdQueue, &event);
 }
 
 void hw_init(void) {
@@ -222,21 +243,27 @@ void hw_init(void) {
 
 	// Rotary encoder input pullup activation
 	PORTC |= (1<<PC0) | (1<<PC1);
+
+	// Pin Change Mask Register 1 
+	PCMSK1 |= (1<<PCINT8);
+
+	// Enable Pin change interruåt
+	PCICR |= (1<<PCIE1);
 	
 	sei();
 }
 
 int main() {
-	LEF_queue_element event;
+	LEF_Event event;
   uint8_t ls;
 	ls = LEDRG_OFF;
 	uint16_t ch;
 	 
 	LEF_Init();
 
-	LEF_TimerInit(&timer1, 1);
+	LEF_TimerInit(&timer1, EVENT_Timer1);
 	LEF_TimerStartRepeat(&timer1, 100);
-	LEF_TimerInit(&timer2, 2);
+	LEF_TimerInit(&timer2, EVENT_Timer2);
 	LEF_TimerStartRepeat(&timer2, 10);
 
 	LEF_LedInit(&led);
@@ -245,8 +272,8 @@ int main() {
 	LEF_LedRGInit(&ledrg);
 	LEF_LedRGSetState(&ledrg, LEDRG_RED_DOUBLE_BLINK);
 
-	LEF_Button_init(&button, 10);
-	LEF_Rotary_init(&rotary, 11);
+	LEF_Button_init(&button, EVENT_Button);
+	LEF_Rotary_init(&rotary, EVENT_Rotary);
 
 	LEF_Buzzer_init();
 	
@@ -260,7 +287,7 @@ int main() {
 
 	while(1) {
 
-		LEF_QueueWait(&StdQueue, &event);
+		LEF_Wait(&event);
 
 		if (evOn)
 			LEF_Print_event(&event);
@@ -280,7 +307,7 @@ int main() {
 
 			break;
 */
-		 case 10:           // Handle button press event
+		 case EVENT_Button:           // Handle button press event
 			LEF_Print_event(&event);
 			if  (event.func==1) {
 				ls++;
@@ -295,13 +322,19 @@ int main() {
 			if (event.func==3) {
 				LEF_Buzzer_set(LEF_BUZZER_BRP);
 			}
+
 			printf("Port C: %x  Clk = %d   Dt = %d\n", PINC, (PINC & (1<<PC0)), (PINC & (1<<PC1)));
+
+			//event.id = LEF_EVENT_TEST;
+		//	LEF_Send(&event);
 		break;
-		 case 11:           // Handle rotary event
+		 case EVENT_Rotary:           // Handle rotary event
+			LEF_Buzzer_set(LEF_BUZZER_BLIP);
 			LEF_Print_event(&event);
+			
 			break;
 			
-	 case 2:                  // Handle data from uart to Cli
+	 case EVENT_Timer2:                  // Handle data from uart to Cli
 			ch = uart_getc();
 			while ((ch & 0xff00) != UART_NO_DATA ) {
 				LEF_CliPutChar(ch);
@@ -311,6 +344,8 @@ int main() {
 		
 		 case LEF_EVENT_CLI:
 			LEF_CliExec();
+		 case LEF_EVENT_TEST:
+			printf("Testevent\n");
 			break;
 		}
 		//sleep_cpu();

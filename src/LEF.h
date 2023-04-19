@@ -46,9 +46,9 @@ extern "C" {
 #include "LEF_Led.h"
 #include "LEF_LedRG.h"
 #include "LEF_Buzzer.h"
-#include "LEF_Cli.h"
 #include "LEF_Button.h"
-#include "LEF_RotaryE.h"
+#include "LEF_Rotary.h"
+#include "LEF_Cli.h"
 	
 // Controls --------------------------------------------------------------
 
@@ -58,20 +58,14 @@ extern "C" {
 	
 // Events ----------------------------------------------------------------
 
-
-
 #define LEF_EVENT_CLI     250
+#define LEF_EVENT_TEST    254
 #define LEF_SYSTICK_EVENT 255
 
 	
 // Macros -----------------------------------------------------------------
 	
-#define LEF_ATOMIC_BLOCK() ATOMIC_BLOCK(ATOMIC_FORCEON)
-
-
-	
-//#define LEF_ATOMIC_BLOCK()
-
+#define LEF_ATOMIC_BLOCK()
 	
 // 
 #define lefprintf(...)   printf( __VA_ARGS__)
@@ -81,13 +75,24 @@ extern "C" {
 // if avr GCC use printf_P to store format strings in flash instead of RAM
 #ifdef __AVR__   
 
+#undef LEF_ATOMIC_BLOCK
+#define LEF_ATOMIC_BLOCK() ATOMIC_BLOCK(ATOMIC_FORCEON)
+	
 //#undef lefprintf
-#undef lefstrcpy
-
 //#define lefprintf(fmt, ...)  printf_P(PSTR(fmt), ##__VA_ARGS__)
+
+#undef lefstrcpy
 #define lefstrcpy(d, s)  strcpy_P(d,s)
 	
 #endif
+
+ 
+// For compability with older code, remove in future
+#define LEF_QueueStdSend(event) LEF_Send(event)
+#define LEF_QueueStdWait(event) LEF_Wait(event)
+#define LEF_QueueStdClear()     LEF_Clear()
+#define LEF_QueueStdCnt()       LEF_Count()
+
 
 	
 // Critical Section -------------------------------------------------------
@@ -113,16 +118,52 @@ extern "C" {
 	
 // Variables --------------------------------------------------------------
 
+extern LEF_EventQueue StdQueue;
 	
 // Functions --------------------------------------------------------------
 
 
-
-	
 void LEF_Init(void);
 
 void LEF_Print_event(LEF_queue_element *event);
 
+
+
+/**
+ *
+ */
+//void LEF_QueueStdSend(LEF_Event *event);
+
+/**
+ * Wait for
+ * @param event
+ */
+//void LEF_QueueStdWait(LEF_Event *event);
+
+	
+//void LEF_QueueStdClear(void);
+
+//uint16_t LEF_QueueStdCnt(void);
+
+	
+void LEF_Send(LEF_Event *event);
+
+/**
+ * Wait for
+ * @param event
+ */
+void LEF_Wait(LEF_Event *event);
+
+	
+void LEF_Clear(void);
+
+uint16_t LEF_Count(void);
+
+	
+
+
+
+	
 #ifdef __cplusplus
 } //end brace for extern "C"
 #endif

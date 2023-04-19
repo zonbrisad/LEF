@@ -50,6 +50,7 @@ extern "C" {
 
 #define LEF_BUZZER_BEEP_DURATION       40  // (cycles)
 #define LEF_BUZZER_SHORT_BEEP_DURATION 10  // (cycles)
+#define LEF_BUZZER_BLIP_DURATION        2  // (cycles)
 #define LEF_BUZZER_LONG_BEEP_DURATION  80  // (cycles)
 #define LEF_BUZZER_PAUSE               15  // (cycles)
 

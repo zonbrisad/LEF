@@ -30,13 +30,14 @@
 // Macros -----------------------------------------------------------------
 
 // Variables --------------------------------------------------------------
-LEF_EventQueue StdQueue;
+//LEF_EventQueue StdQueue;
 
 // Prototypes -------------------------------------------------------------
-void LEF_element_cpy(LEF_queue_element *dst, LEF_queue_element *src);
-uint8_t queue_ptr_inc(uint8_t ptr);
-// Code -------------------------------------------------------------------
 
+void LEF_element_cpy(LEF_Event *dst, LEF_Event *src);
+uint8_t queue_ptr_inc(uint8_t ptr);
+
+// Code -------------------------------------------------------------------
 
 
 void LEF_QueueClear(LEF_EventQueue *queue) {
@@ -44,9 +45,9 @@ void LEF_QueueClear(LEF_EventQueue *queue) {
   queue->cnt  = 0;
 }
 
-void LEF_element_cpy(LEF_queue_element *dst, LEF_queue_element *src) {
+void LEF_element_cpy(LEF_Event *dst, LEF_Event *src) {
   dst->id = src->id;
-  dst->func   = src->func;
+  dst->func = src->func;
 }
 
 void LEF_QueueInit(LEF_EventQueue *queue) {
@@ -57,7 +58,7 @@ uint8_t queue_ptr_inc(uint8_t ptr) {
   return ptr % LEF_QUEUE_LENGTH;
 }
 
-void LEF_QueueSend(LEF_EventQueue *queue,  LEF_queue_element *qe) {
+void LEF_QueueSend(LEF_EventQueue *queue,  LEF_Event *event) {
 
 //
 //  if (queue->tail==255)         // detect initial condition and set to zero
@@ -71,7 +72,7 @@ void LEF_QueueSend(LEF_EventQueue *queue,  LEF_queue_element *qe) {
 
   LEF_ATOMIC_BLOCK() {
   //LEF_EnterCritical();
-	  LEF_element_cpy(&queue->que[queue->head], qe);
+	  LEF_element_cpy(&queue->que[queue->head], event);
 
     queue->cnt++;
     queue->head++;
@@ -81,13 +82,13 @@ void LEF_QueueSend(LEF_EventQueue *queue,  LEF_queue_element *qe) {
    //LEF_ExitCritical();
 }
 
-void LEF_QueueWait(LEF_EventQueue *queue, LEF_queue_element *qe) {
+void LEF_QueueWait(LEF_EventQueue *queue, LEF_Event *event) {
 
   while(queue->cnt==0) {               // wait until queue has an element
   }
 
   LEF_ATOMIC_BLOCK() {
-	  LEF_element_cpy(qe, &queue->que[(queue->head+(LEF_QUEUE_LENGTH-queue->cnt))%LEF_QUEUE_LENGTH]);
+	  LEF_element_cpy(event, &queue->que[(queue->head+(LEF_QUEUE_LENGTH-queue->cnt))%LEF_QUEUE_LENGTH]);
     queue->cnt--;
   }
 
@@ -97,10 +98,10 @@ void LEF_QueueWait(LEF_EventQueue *queue, LEF_queue_element *qe) {
  * @todo add support for extra data
  */
 void LEF_QueueSendEvent(LEF_EventQueue *queue, LEF_EventId ev, void *data) {
-  LEF_queue_element qe;
+  LEF_Event event;
   (void) data;
-  qe.id = ev;
-  LEF_QueueSend(queue, &qe);
+  event.id = ev;
+  LEF_QueueSend(queue, &event);
 }
 
 
@@ -108,13 +109,13 @@ uint16_t LEF_QueueCnt(LEF_EventQueue *queue) {
   return queue->cnt;
 }
 
-
-void LEF_QueueStdSend(LEF_queue_element *qe) {
-	return LEF_QueueSend(&StdQueue, qe);
+/*
+void LEF_QueueStdSend(LEF_Event *event) {
+	return LEF_QueueSend(&StdQueue, event);
 }
 
-void LEF_QueueStdWait(LEF_queue_element *qe) {
-	return LEF_QueueWait(&StdQueue, qe);
+void LEF_QueueStdWait(LEF_Event *event) {
+	return LEF_QueueWait(&StdQueue, event);
 }
 
 void LEF_QueueStdClear(void) {
@@ -124,4 +125,4 @@ void LEF_QueueStdClear(void) {
 uint16_t LEF_QueueStdCnt(void) {
   return LEF_QueueCnt(&StdQueue);
 }
-
+*/

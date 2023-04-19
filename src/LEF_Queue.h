@@ -36,6 +36,9 @@ extern "C" {
 
 // Macros -----------------------------------------------------------------
 
+
+#define LEF_queue_element LEF_Event // Temporary macro until all instances changed
+	
 // Typedefs ---------------------------------------------------------------
 
 typedef uint8_t LEF_EventId;
@@ -43,17 +46,19 @@ typedef uint8_t LEF_EventId;
 typedef struct {
 	LEF_EventId id;
 	uint8_t func;
-} LEF_queue_element;
+} LEF_Event;
 
+
+	
 typedef struct {
-	LEF_queue_element que[LEF_QUEUE_LENGTH];            // queue it self
+	LEF_Event que[LEF_QUEUE_LENGTH];            // queue it self
 	uint8_t head;
 	volatile uint8_t cnt;                     // nr of elements in queue (i.e. not the size if the queue)
 } LEF_EventQueue;
 
 // Variables --------------------------------------------------------------
 
-extern LEF_EventQueue StdQueue;
+//extern LEF_EventQueue StdQueue;
 
 // Functions --------------------------------------------------------------
 
@@ -62,33 +67,29 @@ void LEF_QueueClear(LEF_EventQueue *queue);
 
 void LEF_QueueInit(LEF_EventQueue *queue);
 
-void LEF_QueueSend(LEF_EventQueue *queue,  LEF_queue_element *qe);
+void LEF_QueueSend(LEF_EventQueue *queue,  LEF_Event *event);
 
 void LEF_QueueSendEvent(LEF_EventQueue *queue, LEF_EventId ev, void *data);
 
-void LEF_QueueWait(LEF_EventQueue *queue, LEF_queue_element *qe);
+void LEF_QueueWait(LEF_EventQueue *queue, LEF_Event *event);
 
 /**
  * Returns the number of events in the queue.
  */
 uint16_t LEF_QueueCnt(LEF_EventQueue *queue);
 
-/**
- *
- */
-void LEF_QueueStdSend(LEF_queue_element *qe);
+/*
+void LEF_QueueStdSend(LEF_Event *event);
 
-/**
- * Wait for
- * @param qe
- */
-void LEF_QueueStdWait(LEF_queue_element *qe);
+
+void LEF_QueueStdWait(LEF_Event *event);
 
 	
 void LEF_QueueStdClear(void);
 
 uint16_t LEF_QueueStdCnt(void);
 
+*/
 
 #ifdef __cplusplus
 } //end brace for extern "C"
