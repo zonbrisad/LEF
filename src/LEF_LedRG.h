@@ -69,7 +69,7 @@ typedef struct {
 
 // Functions --------------------------------------------------------------
 
-void LEF_LedRGInit(LEF_LedRG *led);
+void LEF_LedRGInit(LEF_LedRG *led, LEDRG_STATES state);
 
 uint8_t LEF_LedRGUpdate(LEF_LedRG *led);
 

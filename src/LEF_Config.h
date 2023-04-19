@@ -57,19 +57,18 @@ extern "C" {
 
 // Led settings -----------------------------------------------------------
 
-#define LED_BLINK_LIMIT                40
-#define LED_FAST_BLINK_LIMIT            5
-#define LED_SINGLE_BLINK                5
+#define LED_BLINK_DURATION             40  // (cycles)
+#define LED_FAST_BLINK_DURATION         5  // (cycles)
+#define LED_SINGLE_BLINK_DURATION       5  // (cycles)
 
 	
 // LedRG settings ---------------------------------------------------------
 
-#define LEDRG_BLINK_PERIOD             30
-#define LEDRG_FAST_BLINK_PERIOD         5
-#define LEDRG_SINGLE_BLINK_PERIOD       5
+#define LEDRG_BLINK_PERIOD             30  // (cycles)
+#define LEDRG_FAST_BLINK_PERIOD         5  // (cycles)
+#define LEDRG_SINGLE_BLINK_PERIOD       5  // (cycles)
 
 
-	
 #ifdef __cplusplus
 } //end brace for extern "C"
 #endif

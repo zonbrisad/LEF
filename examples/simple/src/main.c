@@ -138,15 +138,15 @@ void cmdLBeep(void) {
 }
 
 void cmdBlink(void) {
-  LEF_LedSetState(&led, LED_STATE_SINGLE_BLINK);
+  LEF_LedSetState(&led, LED_SINGLE_BLINK);
 }
 
 void cmdLedOn(void) {
-  LEF_LedSetState(&led, LED_STATE_ON);
+  LEF_LedSetState(&led, LED_ON);
 }
 
 void cmdLedOff(void) {
-  LEF_LedSetState(&led, LED_STATE_OFF);
+  LEF_LedSetState(&led, LED_OFF);
 }
 
 void cmdEvOn(void) {
@@ -266,11 +266,11 @@ int main() {
 	LEF_TimerInit(&timer2, EVENT_Timer2);
 	LEF_TimerStartRepeat(&timer2, 10);
 
-	LEF_LedInit(&led);
-	LEF_LedSetState(&led, LED_STATE_FAST_BLINK);
+	LEF_LedInit(&led, LED_FAST_BLINK);
+//	LEF_LedSetState(&led, LED_FAST_BLINK);
 
-	LEF_LedRGInit(&ledrg);
-	LEF_LedRGSetState(&ledrg, LEDRG_RED_DOUBLE_BLINK);
+	LEF_LedRGInit(&ledrg, LEDRG_RED_DOUBLE_BLINK);
+//	LEF_LedRGSetState(&ledrg, LEDRG_RED_DOUBLE_BLINK);
 
 	LEF_Button_init(&button, EVENT_Button);
 	LEF_Rotary_init(&rotary, EVENT_Rotary);
@@ -314,7 +314,7 @@ int main() {
 				if (ls >= LEDRG_LAST)
 					ls = LEDRG_OFF;
 
-				LEF_LedSetState(&led, LED_STATE_SINGLE_BLINK);
+				LEF_LedSetState(&led, LED_SINGLE_BLINK);
 				LEF_LedRGSetState(&ledrg, ls);
 				
 				LEF_Buzzer_set(LEF_BUZZER_SHORT_BEEP);
@@ -345,6 +345,7 @@ int main() {
 		 case LEF_EVENT_CLI:
 			LEF_CliExec();
 			break;
+			
 		 case LEF_EVENT_TEST:
 			printf("Testevent\n");
 			break;

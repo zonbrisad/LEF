@@ -37,16 +37,16 @@ extern "C" {
 // Typedefs ---------------------------------------------------------------
 
 typedef enum {
-	LED_STATE_OFF = 0, 
-	LED_STATE_ON,
-	LED_STATE_BLINK,
-	LED_STATE_FAST_BLINK,
+	LED_OFF = 0, 
+	LED_ON,
+	LED_BLINK,
+	LED_FAST_BLINK,
 
-	LED_STATE_SINGLE_BLINK,
-	LED_STATE_DOUBLE_BLINK,
-	LED_STATE_TRIPPLE_BLINK,
+	LED_SINGLE_BLINK,
+	LED_DOUBLE_BLINK,
+	LED_TRIPPLE_BLINK,
 
-	LED_STATE_LAST           // This state must always be the last in the enum
+	LED_LAST               // This state must always be the last in the enum
 } LED_STATES;
 
 typedef struct {
@@ -58,7 +58,8 @@ typedef struct {
 
 // Functions --------------------------------------------------------------
 
-void LEF_LedInit(LEF_Led *led);
+void LEF_LedInit(LEF_Led *led, LED_STATES mode);
+//void LEF_LedInit(LEF_Led *led);
 
 uint8_t LEF_LedUpdate(LEF_Led *led);
 

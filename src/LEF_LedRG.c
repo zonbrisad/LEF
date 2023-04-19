@@ -40,11 +40,12 @@ char LEF_LedRGBlink(LEF_LedRG *led);
 
 // Code -------------------------------------------------------------------
 
-void LEF_LedRGInit(LEF_LedRG *led) {
-	led->mode = LEDRG_OFF;
+void LEF_LedRGInit(LEF_LedRG *led, LEDRG_STATES state) {
+//	led->mode = LEDRG_OFF;
 	led->cnt = 0;
 	led->rep = 0;
 	led->period = 0;
+	LEF_LedRGSetState(led, state);
 }
 
 char LEF_LedRGBlink(LEF_LedRG *led) {

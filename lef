@@ -44,96 +44,26 @@ bpUserSettings() {
 # User defined functions
 #---------------------------------------------------------------------
 
-##-
-
-# Create a new Makeplate project
-#
-# $1 Create text
-# $2 source directory
-# $3 tools directory
-# $4 language c/cpp
-# $5 template
-#
-createProject() {
-  #echo -e "${1}"
-
-  #target=$5
-
-  while true; do
-    pn=$(bpRead "LEF project name>" "")
-
-    if ! bpReadY "Create subdirectory?"; then
-      dst=.
-      break
-    fi
-
-    dst="$(pwd)/${pn}"
-
-    if [ -e "$dst" ]; then
-      bpWarning "Directory ${dst} already exists."
-      if ! bpReadN "Use existing directory?"; then
-        continue
-      fi
-      break
-    fi
-
-    bpMkDir "$dst"
-    break
-  done
-
-  brief=$(bpRead "Brief description>" "")
-
-  # MKF=${dst}/Makefile
-
-  #  bpCp "${2}/Makefile" "${dst}/Makefile"
-
-  srcDst="${dst}/src"
-
-  bpMkDir "${dst}/src"
-  bpCp "${BP_SELF_DIR}"/src/LEF_* "${srcDst}/."
-  bpCp "${BP_SELF_DIR}/Makefile.linux" "${dst}/Makefile"
-
-  # # Check tool dir is present then full project otherwise simple
-  # if [ -e "${2}/tools" ]; then
-  #   # bpRm "${dst}/tools"
-  #   bpCp "${BP_SELF_DIR}/tools" "${dst}"
-  #   srcDst="${dst}/src"
-  #   bpMkDir "$srcDst"
-  # fi
-
-  # Replace keywords with data
-  # bpReplace "$MKF" "__NAME__" "${pn}"
-  # bpReplace "$MKF" "__AUTHOR__" "${BP_NAME} <${BP_EMAIL}>"
-  # bpReplace "$MKF" "__DATE__" "${DATE}"
-  # bpReplace "$MKF" "__DESCRIPTION__" "${brief}"
-  # bpReplace "$MKF" "__LICENSE__" "${BP_LICENSE}"
-  # bpReplace "$MKF" "__ORG__" "${BP_ORG}"
-
-  # mpReplaceSection "$MKF" "SETTINGS" "$target"
-  # mpReplaceSection "$MKF" "UTILS" "$target"
-  # mpReplaceSection "$MKF" "TARGETS" "$target"
-  # mpReplaceSection "$MKF" "INSTALL" "$target"
-  # mpReplaceSection "$MKF" "PLATFORM-SPECIFIC" "$target"
-
-}
-
 ##- LEF
-new() { ##D Create new LEF project
-  createProject
+
+clef() { ##D Copy LEF source files
+	bpCpM ${BP_SELF_DIR}/src/*.[ch] ${2:-.}/LEF
 }
 
-
-csf() { ##D Copy LEF source files
-#  FILES=$(ls ${BP_SELF_DIR}/src/*.{c,h})
-  #DST=${2:-.}
-	#echo $DST
-	#bpExit
-	bpCp ${BP_SELF_DIR}/src ${2:-.}/LEF
-#	for F in $(ls ${BP_SELF_DIR}/src/*.{c,h}); do
-#	  bpCp "$F" LEF/${2:-.}
-#	done
-
+ex() { ##D Show simple example
+  bpCat ${BP_SELF_DIR}/doc/example.c
 }
+
+bpCat() {
+  
+	if bpHasCmd batcat; then # Use batcat, if available, to view function
+    batcat --decorations never $1
+	else
+	  cat $1
+	fi
+    
+}
+
 
 ##- Misc
 install() { ##D Install
@@ -607,10 +537,33 @@ bpLn() { ##I Create symbolic link
 }
 
 #
+# $? file(s) to be copied
+# $# destination
+#
+bpCpM() { ##I Copy file(s)
+
+  dst="${@: -1}"
+	if [ ! -d $dst ]; then
+	  bpMkDir $dst
+	fi
+
+  for ((x=1; x<$#; x++)); do
+		src="${!x}"
+		if cp -rf "${src}" "${dst}" &2>/dev/null; then
+      bpOk "Copying $(bpColorizeFile "${src}") to $(bpColorizeFile "${dst}")"
+    else
+      bpError "Failed copying $(bpColorizeFile "${src}") to $(bpColorizeFile "${dst}")"
+    fi	
+	done
+	
+  return 0
+}
+	
+#
 # $1 file(s) to be copied
 # $2 destination
 #
-bpCp() { ##I Copy file(s)
+bpCp() { ##I Copy file
   if cp -rf "$@"; then
     bpOk "Copying $(bpColorizeFile "${1}") to $(bpColorizeFile "${2}")"
     return 0
