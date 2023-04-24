@@ -25,6 +25,7 @@
 
 // Includes ---------------------------------------------------------------
 #include <stdio.h>
+#include <string.h>
 
 #include "LEF.h"
 #include "LEF_Cli.h"

@@ -70,7 +70,7 @@ void cmdLedOff(char *args);
 void cmdEvOn(char *args);
 void cmdEvOff(char *args);
 void cmdHelp(char *args);
-
+void cmdDisk(char *args);
 
 
 LEF_Timer  timer1;
@@ -92,6 +92,7 @@ const PROGMEM LEF_CliCmd cmdTable[] = {
 	{cmdLBeep,   "lbeep",    "Make a long beep"},
 	{cmdDBeep,   "dbeep",    "Make a double beep"},
 	{cmdTBeep,   "tbeep",    "Make a tripple beep"},
+	{cmdDisk,    "disk",     "Sound as dishwasher"},
 	{cmdBrp,     "brp",      "BRP sound"},
 
 	{cmdLedOn,  "ledon",     "Turn led on"},
@@ -104,61 +105,78 @@ const PROGMEM LEF_CliCmd cmdTable[] = {
 	{cmdHelp,   "help",      "Show help"},
 };
 
-
 void cmdBrp(char *args) {
 	printf("Brp args = %s\n", args);
 	LEF_Buzzer_set(LEF_BUZZER_BRP);
 }
 
+void cmdDisk(char *args) {
+	UNUSED(args);
+	LEF_Buzzer_beep(100,10,3);
+}
+
 void cmdTBeep(char *args) {
+	UNUSED(args);
 	LEF_Buzzer_set(LEF_BUZZER_TRIPPLE_BEEP);
 }
 
 void cmdDBeep(char *args) {
+	UNUSED(args);
 	LEF_Buzzer_set(LEF_BUZZER_DOUBLE_BEEP);
 }
 
 void cmdBuzon(char *args) {
+	UNUSED(args);
 	LEF_Buzzer_set(LEF_BUZZER_ON);
 }
 
 void cmdBuzoff(char *args) {
+	UNUSED(args);
 	LEF_Buzzer_set(LEF_BUZZER_OFF);
 }
 
 void cmdBeep(char *args) {
+	UNUSED(args);
 	LEF_Buzzer_set(LEF_BUZZER_BEEP);
 }
 
 void cmdSBeep(char *args) {
+	UNUSED(args);
 	LEF_Buzzer_set(LEF_BUZZER_SHORT_BEEP);
 }
 
 void cmdLBeep(char *args) {
+	UNUSED(args);
 	LEF_Buzzer_set(LEF_BUZZER_LONG_BEEP);
 }
 
 void cmdBlink(char *args) {
+	UNUSED(args);
   LEF_LedSetState(&led, LED_SINGLE_BLINK);
 }
 
 void cmdLedOn(char *args) {
+	UNUSED(args);
   LEF_LedSetState(&led, LED_ON);
 }
 
 void cmdLedOff(char *args) {
+	UNUSED(args);
   LEF_LedSetState(&led, LED_OFF);
 }
 
 void cmdEvOn(char *args) {
+	UNUSED(args);
 	evOn = 1;
 }
 
 void cmdEvOff(char *args) {
+	UNUSED(args);
 	evOn = 0;
 }
 
 void cmdHelp(char *args) {
+	UNUSED(args);
 	LEF_CliPrintCommands(cmdTable);
 }
 
@@ -328,8 +346,7 @@ int main() {
 		break;
 		 case EVENT_Rotary:           // Handle rotary event
 			LEF_Buzzer_set(LEF_BUZZER_BLIP);
-			LEF_Print_event(&event);
-			
+			LEF_Print_event(&event);			
 			break;
 			
 	 case EVENT_Timer2:                  // Handle data from uart to Cli
