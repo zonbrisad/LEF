@@ -30,7 +30,6 @@
 #include "LEF.h"
 
 
-
 #define UART_BAUD_RATE 57600
 
 #define BUZZER_PIN PD3
@@ -152,17 +151,17 @@ void cmdLBeep(char *args) {
 
 void cmdBlink(char *args) {
 	UNUSED(args);
-  LEF_LedSetState(&led, LED_SINGLE_BLINK);
+  LEF_Led_set(&led, LED_SINGLE_BLINK);
 }
 
 void cmdLedOn(char *args) {
 	UNUSED(args);
-  LEF_LedSetState(&led, LED_ON);
+  LEF_Led_set(&led, LED_ON);
 }
 
 void cmdLedOff(char *args) {
 	UNUSED(args);
-  LEF_LedSetState(&led, LED_OFF);
+  LEF_Led_set(&led, LED_OFF);
 }
 
 void cmdEvOn(char *args) {
@@ -177,7 +176,7 @@ void cmdEvOff(char *args) {
 
 void cmdHelp(char *args) {
 	UNUSED(args);
-	LEF_CliPrintCommands(cmdTable);
+	LEF_Cli_printcommands(cmdTable);
 }
 
 
@@ -202,16 +201,16 @@ ISR(TIMER1_COMPA_vect) {
 	//	LEF_QueueWait(&StdQueue, &event);
 	
 	
-	LEF_TimerUpdate(&timer1);
-	LEF_TimerUpdate(&timer2);
+	LEF_Timer_update(&timer1);
+	LEF_Timer_update(&timer2);
 	
-	if (LEF_LedUpdate(&led)) {
+	if (LEF_Led_update(&led)) {
 		ARDUINO_LED_ON();
 	} else {
 		ARDUINO_LED_OFF();
 	}
 
-	ch = LEF_LedRGUpdate(&ledrg);
+	ch = LEF_LedRG_update(&ledrg);
 	if (ch & 0x01) 
 		LED_RED_ON();
 	else
@@ -278,15 +277,15 @@ int main() {
 	ls = LEDRG_OFF;
 	uint16_t ch;
 	 
-	LEF_Init();
+	LEF_init();
 
-	LEF_TimerInit(&timer1, EVENT_Timer1);
-	LEF_TimerStartRepeat(&timer1, 100);
-	LEF_TimerInit(&timer2, EVENT_Timer2);
-	LEF_TimerStartRepeat(&timer2, 10);
+	LEF_Timer_init(&timer1, EVENT_Timer1);
+	LEF_Timer_start_repeat(&timer1, 100);
+	LEF_Timer_init(&timer2, EVENT_Timer2);
+	LEF_Timer_start_repeat(&timer2, 10);
 
-	LEF_LedInit(&led, LED_FAST_BLINK);
-	LEF_LedRGInit(&ledrg, LEDRG_RED_DOUBLE_BLINK);
+	LEF_Led_init(&led, LED_FAST_BLINK);
+	LEF_LedRG_init(&ledrg, LEDRG_RED_DOUBLE_BLINK);
 
 	LEF_Button_init(&button, EVENT_Button);
 	LEF_Rotary_init(&rotary, EVENT_Rotary);
@@ -296,7 +295,7 @@ int main() {
 	hw_init();
 
 	LEF_Buzzer_set(LEF_BUZZER_BEEP);
-	LEF_CliInit(cmdTable, sizeof(cmdTable) / sizeof((cmdTable)[0]) );
+	LEF_Cli_init(cmdTable, sizeof(cmdTable) / sizeof((cmdTable)[0]) );
 		
 	//_delay_ms(1000);
 	printf("\n\nStarting LEF simple test\n\n");
@@ -330,8 +329,8 @@ int main() {
 				if (ls >= LEDRG_LAST)
 					ls = LEDRG_OFF;
 
-				LEF_LedSetState(&led, LED_SINGLE_BLINK);
-				LEF_LedRGSetState(&ledrg, ls);
+				LEF_Led_set(&led, LED_SINGLE_BLINK);
+				LEF_LedRG_set(&ledrg, ls);
 				
 				LEF_Buzzer_set(LEF_BUZZER_SHORT_BEEP);
 			}
@@ -352,13 +351,13 @@ int main() {
 	 case EVENT_Timer2:                  // Handle data from uart to Cli
 			ch = uart_getc();
 			while ((ch & 0xff00) != UART_NO_DATA ) {
-				LEF_CliPutChar(ch);
+				LEF_Cli_putc(ch);
 				ch = uart_getc();
 			}
 			break;
 		
 		 case LEF_EVENT_CLI:
-			LEF_CliExec();
+			LEF_Cli_exec();
 			break;
 			
 		 case LEF_EVENT_TEST:

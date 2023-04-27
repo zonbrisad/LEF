@@ -36,13 +36,13 @@
 
 // Code -------------------------------------------------------------------
 
-void LEF_LedInit(LEF_Led *led, LED_STATES mode) {
+void LEF_Led_init(LEF_Led *led, LED_STATES mode) {
 //	led->mode = LED_OFF;
 	led->cnt = 0;
-	LEF_LedSetState(led, mode);
+	LEF_Led_set(led, mode);
 }
 
-uint8_t LEF_LedUpdate(LEF_Led *led) {
+uint8_t LEF_Led_update(LEF_Led *led) {
 	uint8_t limit;
 	limit = 0;
 	switch (led->mode) {
@@ -76,7 +76,7 @@ uint8_t LEF_LedUpdate(LEF_Led *led) {
 	}
 }
 
-void LEF_LedSetState(LEF_Led *led, LED_STATES state) {
+void LEF_Led_set(LEF_Led *led, LED_STATES state) {
 	led->mode = state;
 	switch (state) {
 	 case LED_BLINK:

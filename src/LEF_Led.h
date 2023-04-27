@@ -58,12 +58,11 @@ typedef struct {
 
 // Functions --------------------------------------------------------------
 
-void LEF_LedInit(LEF_Led *led, LED_STATES mode);
-//void LEF_LedInit(LEF_Led *led);
+void LEF_Led_init(LEF_Led *led, LED_STATES mode);
 
-uint8_t LEF_LedUpdate(LEF_Led *led);
+uint8_t LEF_Led_update(LEF_Led *led);
 
-void LEF_LedSetState(LEF_Led *led, LED_STATES state);
+void LEF_Led_set(LEF_Led *led, LED_STATES state);
 
 
 

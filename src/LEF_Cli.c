@@ -49,7 +49,7 @@ const LEF_CliCmd *Cmds;
 
 // Code -------------------------------------------------------------------
 
-void LEF_CliInit(const LEF_CliCmd *cmds, uint8_t size) {
+void LEF_Cli_init(const LEF_CliCmd *cmds, uint8_t size) {
   cliCnt  = 0;
   cliLock = 0;
   Cmds = cmds;
@@ -59,7 +59,7 @@ void LEF_CliInit(const LEF_CliCmd *cmds, uint8_t size) {
 }
 
 
-void LEF_CliPutChar(char ch) {
+void LEF_Cli_putc(char ch) {
 	LEF_queue_element event;
 	
 	// handle backspace
@@ -97,7 +97,7 @@ void LEF_CliPutChar(char ch) {
 }
 
 
-void LEF_CliPrintCommands(const LEF_CliCmd *cmdTable) {
+void LEF_Cli_printcommands(const LEF_CliCmd *cmdTable) {
   int i;
 	char cBuf[LEF_CLI_BUF_LENGTH];
 
@@ -112,7 +112,7 @@ void LEF_CliPrintCommands(const LEF_CliCmd *cmdTable) {
   }
 }
 
-void LEF_CliExec(void) {
+void LEF_Cli_exec(void) {
 	handler ptr;
 	char *args;
 	char cmd[LEF_CLI_BUF_LENGTH];

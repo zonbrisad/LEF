@@ -123,7 +123,7 @@ extern LEF_EventQueue StdQueue;
 // Functions --------------------------------------------------------------
 
 
-void LEF_Init(void);
+void LEF_init(void);
 
 void LEF_Print_event(LEF_queue_element *event);
 

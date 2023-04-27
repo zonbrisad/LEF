@@ -40,11 +40,11 @@ char LEF_LedRGBlink(LEF_LedRG *led);
 
 // Code -------------------------------------------------------------------
 
-void LEF_LedRGInit(LEF_LedRG *led, LEDRG_STATES state) {
+void LEF_LedRG_init(LEF_LedRG *led, LEDRG_STATES state) {
 	led->cnt = 0;
 	led->rep = 0;
 	led->period = 0;
-	LEF_LedRGSetState(led, state);
+	LEF_LedRG_set(led, state);
 }
 
 char LEF_LedRGBlink(LEF_LedRG *led) {
@@ -72,7 +72,7 @@ char LEF_LedRGBlink(LEF_LedRG *led) {
 		return 0;
 }
 
-uint8_t LEF_LedRGUpdate(LEF_LedRG *led) {
+uint8_t LEF_LedRG_update(LEF_LedRG *led) {
 	char x;
 	switch (led->mode) {
 		
@@ -107,7 +107,7 @@ uint8_t LEF_LedRGUpdate(LEF_LedRG *led) {
 	return x * LEF_LedRGBlink(led);
 }
 
-void LEF_LedRGSetState(LEF_LedRG *led, LEDRG_STATES state) {
+void LEF_LedRG_set(LEF_LedRG *led, LEDRG_STATES state) {
 	led->mode = state;
 	led->cnt = 0 - LEDRG_BLINK_PERIOD;
 	led->rep = 0;

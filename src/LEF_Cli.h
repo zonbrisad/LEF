@@ -51,13 +51,13 @@ typedef struct {
 
 // Prototypes -------------------------------------------------------------
 
-void LEF_CliInit(const LEF_CliCmd *cmds, uint8_t size);
+void LEF_Cli_init(const LEF_CliCmd *cmds, uint8_t size);
 
-void LEF_CliPutChar(char ch);
+void LEF_Cli_putc(char ch);
 
-void LEF_CliExec(void);
+void LEF_Cli_exec(void);
 
-void LEF_CliPrintCommands(const LEF_CliCmd *cmdTable);
+void LEF_Cli_printcommands(const LEF_CliCmd *cmdTable);
 	
 #ifdef __cplusplus
 } //end brace for extern "C"

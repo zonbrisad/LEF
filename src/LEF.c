@@ -38,7 +38,7 @@ LEF_EventQueue StdQueue;
 // Code -------------------------------------------------------------------
 
 
-void LEF_Init(void) {
+void LEF_init(void) {
 
 	// initiate LEF standard queue
 	LEF_QueueInit(&StdQueue);

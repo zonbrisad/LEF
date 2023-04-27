@@ -69,13 +69,11 @@ typedef struct {
 
 // Functions --------------------------------------------------------------
 
-void LEF_LedRGInit(LEF_LedRG *led, LEDRG_STATES state);
+void LEF_LedRG_init(LEF_LedRG *led, LEDRG_STATES state);
 
-uint8_t LEF_LedRGUpdate(LEF_LedRG *led);
+uint8_t LEF_LedRG_update(LEF_LedRG *led);
 
-void LEF_LedRGSetState(LEF_LedRG *led, LEDRG_STATES state);
-
-
+void LEF_LedRG_set(LEF_LedRG *led, LEDRG_STATES state);
 
 #ifdef __cplusplus
 } //end brace for extern "C"
