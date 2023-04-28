@@ -29,7 +29,6 @@
 
 #include "LEF.h"
 
-
 #define UART_BAUD_RATE 57600
 
 #define BUZZER_PIN PD3
@@ -44,7 +43,6 @@
 
 #define ROT_CLK()  PINC | (1 << PC0)
 #define ROT_DATA() PINC | (1 << PC1)
-
 
 typedef enum {
 	EVENT_Timer1 = 0,
@@ -82,8 +80,9 @@ LEF_Rotary rotary;
 char evOn = 0;
 
 static FILE mystdout = FDEV_SETUP_STREAM((void*)uart_putc, NULL, _FDEV_SETUP_WRITE);
-
+ 
 const PROGMEM LEF_CliCmd cmdTable[] = {
+	LEF_CLI_LABEL("Buzzer"),
 	{cmdBuzon,   "buzon",    "Buzzer on"},
 	{cmdBuzoff,  "buzoff",   "Buzzer off"},
 	{cmdBeep,    "beep",     "Make a beep"},	
@@ -93,14 +92,13 @@ const PROGMEM LEF_CliCmd cmdTable[] = {
 	{cmdTBeep,   "tbeep",    "Make a tripple beep"},
 	{cmdDisk,    "disk",     "Sound as dishwasher"},
 	{cmdBrp,     "brp",      "BRP sound"},
-
+	LEF_CLI_LABEL("Led"),
 	{cmdLedOn,  "ledon",     "Turn led on"},
 	{cmdLedOff, "ledoff",    "Turn led off"}, 
 	{cmdBlink,  "blink",     "Make led blink once"},
-
+	LEF_CLI_LABEL("Misc"),
 	{cmdEvOn,   "evon",      "Turn event on"},
 	{cmdEvOff,  "evoff",     "Turn event off"},
-	
 	{cmdHelp,   "help",      "Show help"},
 };
 
@@ -176,7 +174,7 @@ void cmdEvOff(char *args) {
 
 void cmdHelp(char *args) {
 	UNUSED(args);
-	LEF_Cli_printcommands(cmdTable);
+	LEF_Cli_printcommands();
 }
 
 
@@ -198,8 +196,7 @@ ISR(TIMER1_COMPA_vect) {
   TIMER1_RELOAD(0);
 
 	//	event.id = LEF_SYSTICK_EVENT;
-	//	LEF_QueueWait(&StdQueue, &event);
-	
+	//	LEF_QueueWait(&StdQueue, &event);	
 	
 	LEF_Timer_update(&timer1);
 	LEF_Timer_update(&timer2);

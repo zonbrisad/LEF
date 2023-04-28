@@ -36,6 +36,8 @@ extern "C" {
 
 // Macros -----------------------------------------------------------------
 
+#define LEF_CLI_LABEL(label)  {.function=NULL, .desc=label }
+	
 // Typedefs ---------------------------------------------------------------
 
 typedef void (*handler)(char *);
@@ -44,7 +46,6 @@ typedef struct {
   handler function;
   char name[LEF_CLI_CMD_LENGTH];
   char desc[LEF_CLI_DESC_LENGTH];
-
 } LEF_CliCmd;
 
 // Variables --------------------------------------------------------------
@@ -57,7 +58,7 @@ void LEF_Cli_putc(char ch);
 
 void LEF_Cli_exec(void);
 
-void LEF_Cli_printcommands(const LEF_CliCmd *cmdTable);
+void LEF_Cli_printcommands();
 	
 #ifdef __cplusplus
 } //end brace for extern "C"

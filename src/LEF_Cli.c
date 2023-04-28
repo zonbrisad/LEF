@@ -31,7 +31,7 @@
 #include "LEF_Cli.h"
 
 //#define DEBUGALL
-#include "def.h"
+//#include "def.h"
 
 // Macros -----------------------------------------------------------------
 
@@ -43,7 +43,7 @@ uint8_t cliCnt;
 uint8_t cliLock;
 uint8_t lef_cmds_length;
 
-const LEF_CliCmd *Cmds;
+const LEF_CliCmd *lef_cmds; //*Cmds;
 
 // Prototypes -------------------------------------------------------------
 
@@ -52,7 +52,7 @@ const LEF_CliCmd *Cmds;
 void LEF_Cli_init(const LEF_CliCmd *cmds, uint8_t size) {
   cliCnt  = 0;
   cliLock = 0;
-  Cmds = cmds;
+  lef_cmds = cmds;
 
 	lef_cmds_length = size;
 	printf("\n%s", LEF_CLI_PROMPT);
@@ -64,7 +64,7 @@ void LEF_Cli_putc(char ch) {
 	
 	// handle backspace
 	if (ch=='\b') {
-		DEBUGPRINT("cliCnt = %d\n", cliCnt);
+//		LDEBUGPRINT("cliCnt = %d\n", cliCnt);
 		if (cliCnt > 0 ) {
 		  cliCnt--;
 			printf("\b \b");
@@ -97,18 +97,28 @@ void LEF_Cli_putc(char ch) {
 }
 
 
-void LEF_Cli_printcommands(const LEF_CliCmd *cmdTable) {
-  int i;
+void LEF_Cli_printcommands() {
 	char cBuf[LEF_CLI_BUF_LENGTH];
+	char dBuf[LEF_CLI_BUF_LENGTH];
+	handler ptr;
+  int i;
 
-	i = 0;
-  while (i < lef_cmds_length) {
-		lefstrcpy(cBuf, cmdTable[i].name);		
-		lefprintf("%-12s", cBuf);
-		lefstrcpy(cBuf, cmdTable[i].desc);
-    lefprintf(cBuf);
+  for(i=0; i<lef_cmds_length; i++) {
+
+//		lefstrcpy(cBuf, cmdTable[i].name);
+//		lefstrcpy(dBuf, cmdTable[i].desc);
+
+//		ptr = (handler)pgm_read_word(&cmdTable[i].function);
+
+		lefstrcpy(cBuf, lef_cmds[i].name);
+		lefstrcpy(dBuf, lef_cmds[i].desc);
+
+		ptr = (handler)pgm_read_word(&lef_cmds[i].function);
+		if (ptr != NULL)
+			lefprintf("  %-12s", cBuf);
+
+    lefprintf(dBuf);		
 		lefprintf("\n");
-    i++;
   }
 }
 
@@ -132,15 +142,15 @@ void LEF_Cli_exec(void) {
 	cliBuf[i] = '\0';
 	args=cliBuf;
 	args +=  (cliCnt > i) ? (i+1) : i;
-	DEBUGPRINT("Command = %s    args = %s\n", cliBuf, args);
+//	LDEBUGPRINT("Command = %s    args = %s\n", cliBuf, args);
 
 	i = 0;
   while (i < lef_cmds_length) {
 		
-		lefstrcpy(cmd, Cmds[i].name);
+		lefstrcpy(cmd, lef_cmds[i].name);
 		if ( !strncmp(cmd, cliBuf, LEF_CLI_BUF_LENGTH) ) {
-			DEBUGPRINT("Found command: %s\n", cmd);
-			ptr = (handler)pgm_read_word(&Cmds[i].function);
+//			LDEBUGPRINT("Found command: %s\n", cmd);
+			ptr = (handler)pgm_read_word(&lef_cmds[i].function);
 			ptr(args);
 			goto cli_cleanup;
 		}

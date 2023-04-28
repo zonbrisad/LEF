@@ -61,7 +61,6 @@ extern "C" {
 #define LEF_EVENT_CLI     250
 #define LEF_EVENT_TEST    254
 #define LEF_SYSTICK_EVENT 255
-
 	
 // Macros -----------------------------------------------------------------
 	
@@ -86,13 +85,14 @@ extern "C" {
 	
 #endif
 
+//#define LDEBUGPRINT()
+	
  
 // For compability with older code, remove in future
 #define LEF_QueueStdSend(event) LEF_Send(event)
 #define LEF_QueueStdWait(event) LEF_Wait(event)
 #define LEF_QueueStdClear()     LEF_Clear()
 #define LEF_QueueStdCnt()       LEF_Count()
-
 
 	
 // Critical Section -------------------------------------------------------
@@ -128,7 +128,6 @@ void LEF_init(void);
 void LEF_Print_event(LEF_queue_element *event);
 
 
-
 /**
  *
  */
@@ -158,10 +157,6 @@ void LEF_Wait(LEF_Event *event);
 void LEF_Clear(void);
 
 uint16_t LEF_Count(void);
-
-	
-
-
 
 	
 #ifdef __cplusplus

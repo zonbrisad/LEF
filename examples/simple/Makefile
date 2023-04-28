@@ -604,7 +604,7 @@ AVRDUDE_PORT = /dev/ttyUSB1
 
 flash: ##D Write program to MCU flash with avrdude
 	@mpterm.py --suspend
-	@$(MPUTILS) avrdude-arduino $(TARGET).hex $(MCU) $(AVRDUDE_PORT) 
+	@$(MPUTILS) avrdude-arduino $(OUTDIR)/$(TARGET).hex $(MCU) $(AVRDUDE_PORT) 
 
 ##- Utils
 
