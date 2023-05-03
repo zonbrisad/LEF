@@ -48,7 +48,8 @@ typedef enum {
 	EVENT_Timer1 = 0,
 	EVENT_Timer2,
 	EVENT_Button,
-	EVENT_Rotary
+	EVENT_Rotary,
+	EVENT_Pot
 } Events;
 
 void hw_init(void);
@@ -68,6 +69,7 @@ void cmdEvOn(char *args);
 void cmdEvOff(char *args);
 void cmdHelp(char *args);
 void cmdDisk(char *args);
+void cmdAdc(char *args);
 
 
 LEF_Timer  timer1;
@@ -76,6 +78,7 @@ LEF_Led    led;
 LEF_LedRG  ledrg;
 LEF_Button button;
 LEF_Rotary rotary;
+LEF_Pot    pot;
 
 char evOn = 0;
 
@@ -99,6 +102,7 @@ const PROGMEM LEF_CliCmd cmdTable[] = {
 	LEF_CLI_LABEL("Misc"),
 	{cmdEvOn,   "evon",      "Turn event on"},
 	{cmdEvOff,  "evoff",     "Turn event off"},
+	{cmdAdc,    "adc",       "Read adc inputs"},
 	{cmdHelp,   "help",      "Show help"},
 };
 
@@ -174,7 +178,31 @@ void cmdEvOff(char *args) {
 
 void cmdHelp(char *args) {
 	UNUSED(args);
-	LEF_Cli_printcommands();
+	LEF_Cli_print();
+}
+
+void cmdAdc(char *args) {
+	UNUSED(args);
+	int i;
+	uint16_t val;
+
+	ADC_ID();
+	ADC_ENABLE();
+	ADC_REF_AVCC();
+
+
+	printf("ADC:  ");
+	for (i=0; i<8; i++) {
+		ADC_MUX(i);
+		_delay_ms(1);
+		ADC_START();
+		//ADC_WAIT();
+		_delay_ms(1);
+		val = ADC_VALUE();
+		printf("%d  ", val);
+	}
+	printf("\n");
+  ADC_IE();
 }
 
 
@@ -230,7 +258,31 @@ ISR(TIMER1_COMPA_vect) {
 		BUZZER_OFF();
 	}
 
+	ADC_START();
 }
+
+ISR(ADC_vect) {
+	//uart_putc('a');
+	uint16_t val;
+	val = ADC_VALUE();
+	LEF_Pot_update(&pot, val);
+	
+}
+
+
+
+/*
+ * PD7 = Button 
+ * PD3 = Buzzer
+ *
+ * PB3 = LED a
+ * PB4 = LED b
+ *
+ * PC0 = Rotary
+ * PC1 = Rotary
+ *
+ * 
+ */
 
 void hw_init(void) {
 	stdout = &mystdout;
@@ -264,7 +316,13 @@ void hw_init(void) {
 
 	// Enable Pin change interruåt
 	PCICR |= (1<<PCIE1);
-	
+
+	ADC_ENABLE();
+	ADC_REF_AVCC();
+	ADC_PRESCALER_128();
+	ADC_MUX(4);
+	ADC_IE();
+
 	sei();
 }
 
@@ -286,6 +344,7 @@ int main() {
 
 	LEF_Button_init(&button, EVENT_Button);
 	LEF_Rotary_init(&rotary, EVENT_Rotary);
+	LEF_Pot_init(&pot, EVENT_Pot);
 
 	LEF_Buzzer_init();
 	
@@ -356,11 +415,16 @@ int main() {
 		 case LEF_EVENT_CLI:
 			LEF_Cli_exec();
 			break;
+
+		 case EVENT_Pot:
+			printf("Pot changed %d\n", LEF_Pot_state(&pot));
+			break;
 			
 		 case LEF_EVENT_TEST:
 			printf("Testevent\n");
 			break;
 		}
+		
 		//sleep_cpu();
 	}
 	return 0;

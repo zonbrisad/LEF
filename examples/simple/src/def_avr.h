@@ -14,19 +14,37 @@
 
 // Atmel AVR specific -------------------------------------------------------
 
-// Reset causes -------------------------------------------------------------
+// AVR Reset causes ---------------------------------------------------------
 #define IS_POWER_ON_RESET()            (MCUSR & (1<<PORF))
 #define IS_BROWN_OUT_RESET()           (MCUSR & (1<<BORF))
 #define IS_WATCH_DOG_RESET()           (MCUSR & (1<<WDRF))
 #define IS_JTAG_RESET_RESET()          (MCUSR & (1<<JTRF))
 #define IS_EXTERNAL_RESET()            (MCUSR & (1<<EXTRF))
-#define CLEAR_RESETS()                 MCUSR  &= ~31              /* clearing all resets */
+#define CLEAR_RESETS()                 MCUSR  &= ~31          // clearing all resets 
 
 
 // Reset MCU with watchdog --------------------------------------------------
 
 #define RESET()                     wdt_enable(WDTO_500MS); while(1) {}
 
+// AVR ADC ------------------------------------------------------------------
+
+#define ADC_ENABLE()     ADCSRA |= (1<<ADEN)   // Enable continuous conversion
+#define ADC_DISSABLE()   ADCSRA &= ~(1<<ADEN)  // Dissable continuous conversion
+#define ADC_START()      ADCSRA |= (1<<ADSC)   // Start single conversion
+#define ADC_IE()         ADCSRA |= (1<<ADIE)   // Enable ADC interrupt
+#define ADC_ID()         ADCSRA &= ~(1<<ADIE)   // Enable ADC interrupt
+
+//#define ADC_PRESCALER_2() ADCSRA = (ADCSRA & ~7) | 0
+#define ADC_PRESCALER_2()   ADCSRA = (ADCSRA & ~7) | 1
+#define ADC_PRESCALER_4()   ADCSRA = (ADCSRA & ~7) | 2
+#define ADC_PRESCALER_8()   ADCSRA = (ADCSRA & ~7) | 3
+#define ADC_PRESCALER_16()  ADCSRA = (ADCSRA & ~7) | 4
+#define ADC_PRESCALER_32()  ADCSRA = (ADCSRA & ~7) | 5
+#define ADC_PRESCALER_64()  ADCSRA = (ADCSRA & ~7) | 6
+#define ADC_PRESCALER_128() ADCSRA = (ADCSRA & ~7) | 7
+
+#define ADC_VALUE()  (ADCL + (ADCH << 8))
 
 // AVR Timer 0 (8 bit) ------------------------------------------------------
 
@@ -56,18 +74,18 @@
 // AVR Timer 1 (16 bit) -----------------------------------------------------
 
 // Clock source
-#define TIMER1_CLK_NONE()         TCCR1B &= 0xF8               // Disable timer
-#define TIMER1_CLK_PRES_1()       TCCR1B |= 1                  /* Select prescaler 1/1           */
-#define TIMER1_CLK_PRES_8()       TCCR1B |= 2                  /* Select prescaler 1/8           */
-#define TIMER1_CLK_PRES_64()      TCCR1B |= 3                  /* Select prescaler 1/64          */
-#define TIMER1_CLK_PRES_256()     TCCR1B |= 4                  /* Select prescaler 1/256         */
-#define TIMER1_CLK_PRES_1024()    TCCR1B |= 5                  /* Select prescaler 1/1024        */
-#define TIMER1_CLK_EXT_FE()       TCCR1B |= 6                  /* External T0 falling edge       */
-#define TIMER1_CLK_EXT_RE()       TCCR1B |= 7                  /* External T0 rising edge        */
+#define TIMER1_CLK_NONE()         TCCR1B &= 0xF8              // Disable timer
+#define TIMER1_CLK_PRES_1()       TCCR1B |= 1                 // Select prescaler 1/1            
+#define TIMER1_CLK_PRES_8()       TCCR1B |= 2                 // Select prescaler 1/8           
+#define TIMER1_CLK_PRES_64()      TCCR1B |= 3                 // Select prescaler 1/64          
+#define TIMER1_CLK_PRES_256()     TCCR1B |= 4                 // Select prescaler 1/256         
+#define TIMER1_CLK_PRES_1024()    TCCR1B |= 5                 // Select prescaler 1/1024        
+#define TIMER1_CLK_EXT_FE()       TCCR1B |= 6                 // External T0 falling edge       
+#define TIMER1_CLK_EXT_RE()       TCCR1B |= 7                 // External T0 rising edge        
 
 // Interrupt control
-#define TIMER1_OVF_IE()           TIMSK1 |= (1<<TOIE1)         /* Enable overflow interrupt      */
-#define TIMER1_OVF_ID()           TIMSK1 &= ~(1<<TOIE1)        /* Disable overflow interrupt     */
+#define TIMER1_OVF_IE()           TIMSK1 |= (1<<TOIE1)        // Enable overflow interrupt      
+#define TIMER1_OVF_ID()           TIMSK1 &= ~(1<<TOIE1)       // Disable overflow interrupt     
 #define TIMER1_OCA_IE()           TIMSK1 |= (1<<OCIE1A)       // Enable output compare A interrupt
 #define TIMER1_OCA_ID()           TIMSK1 &= ~(1<<OCIE1A)      // Disable output compare A interrupt
 #define TIMER1_OCB_IE()           TIMSK1 |= (1<<OCIE1B)       // Enable output compare B interrupt
@@ -77,8 +95,9 @@
 #define TIMER1_OCA_SET(x)         OCR1AH = (uint8_t) ((uint16_t)x>>8); OCR1AL = (uint8_t) ((uint16_t)x & 0xff)
                                                               // Set output compare B register
 #define TIMER1_OCB_SET(x)         OCR1BH = (uint8_t) ((uint16_t)x>>8); OCR1BL = (uint8_t) ((uint16_t)x & 0xff)
-
-#define TIMER1_RELOAD(x)          TCNT1H = (uint8_t) ((uint16_t)x>>8); TCNT1L = (uint8_t)((uint16_t)x & 0xff)  /* Reload timer register          */
+                                                              // Reload timer register
+#define TIMER1_RELOAD(x)          TCNT1H = (uint8_t) ((uint16_t)x>>8); TCNT1L = (uint8_t)((uint16_t)x & 0xff)
+                                                              
 
 
 // AVR Timer 2 (8 bit) ------------------------------------------------------

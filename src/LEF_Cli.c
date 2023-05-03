@@ -97,7 +97,7 @@ void LEF_Cli_putc(char ch) {
 }
 
 
-void LEF_Cli_printcommands() {
+void LEF_Cli_print(void) {
 	char cBuf[LEF_CLI_BUF_LENGTH];
 	char dBuf[LEF_CLI_BUF_LENGTH];
 	handler ptr;

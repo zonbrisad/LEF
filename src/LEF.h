@@ -49,6 +49,7 @@ extern "C" {
 #include "LEF_Button.h"
 #include "LEF_Rotary.h"
 #include "LEF_Cli.h"
+#include "LEF_Pot.h"
 	
 // Controls --------------------------------------------------------------
 

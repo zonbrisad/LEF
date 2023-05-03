@@ -58,7 +58,7 @@ void LEF_Cli_putc(char ch);
 
 void LEF_Cli_exec(void);
 
-void LEF_Cli_printcommands();
+void LEF_Cli_print(void);
 	
 #ifdef __cplusplus
 } //end brace for extern "C"
