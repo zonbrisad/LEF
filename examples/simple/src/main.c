@@ -44,6 +44,9 @@
 #define ROT_CLK()  PINC | (1 << PC0)
 #define ROT_DATA() PINC | (1 << PC1)
 
+#define POT_ADC 5
+
+
 typedef enum {
 	EVENT_Timer1 = 0,
 	EVENT_Timer2,
@@ -76,6 +79,7 @@ LEF_Timer  timer1;
 LEF_Timer  timer2;
 LEF_Led    led;
 LEF_LedRG  ledrg;
+LEF_LedA   leda;
 LEF_Button button;
 LEF_Rotary rotary;
 LEF_Pot    pot;
@@ -196,12 +200,13 @@ void cmdAdc(char *args) {
 		ADC_MUX(i);
 		_delay_ms(1);
 		ADC_START();
-		//ADC_WAIT();
-		_delay_ms(1);
+		ADC_WAIT();
+		//_delay_ms(1);
 		val = ADC_VALUE();
 		printf("%d  ", val);
 	}
 	printf("\n");
+	ADC_MUX(POT_ADC);
   ADC_IE();
 }
 
@@ -245,7 +250,8 @@ ISR(TIMER1_COMPA_vect) {
 		LED_GREEN_ON();
 	else
 		LED_GREEN_OFF();
-	
+
+	TIMER0_OCA_SET(255 - LEF_LedA_update(&leda));
 	
 	LEF_Button_update(&button, (PIND & (1<<PIN7))==0  );
 
@@ -308,6 +314,9 @@ void hw_init(void) {
 	// Red Green LED
 	DDRB |= (0x01 << PB4) | (0x01 << PB3);
 
+  // 5mm Green LED
+	DDRD |= (0x01 << PD6);
+	
 	// Rotary encoder input pullup activation
 	PORTC |= (1<<PC0) | (1<<PC1);
 
@@ -320,9 +329,14 @@ void hw_init(void) {
 	ADC_ENABLE();
 	ADC_REF_AVCC();
 	ADC_PRESCALER_128();
-	ADC_MUX(4);
+	ADC_MUX(POT_ADC);
 	ADC_IE();
 
+	TIMER0_CLK_PRES_1();
+	TIMER0_OCA_SET(250);
+//	TIMER0_WGM_PWM();
+	TIMER0_WGM_FAST_PWM();
+	TIMER0_OM_CLEAR();
 	sei();
 }
 
@@ -330,7 +344,8 @@ int main() {
 	LEF_Event event;
   uint8_t ls;
 	ls = LEDRG_OFF;
-	uint16_t ch;
+	uint16_t ch, val;
+	
 	 
 	LEF_init();
 
@@ -341,6 +356,8 @@ int main() {
 
 	LEF_Led_init(&led, LED_FAST_BLINK);
 	LEF_LedRG_init(&ledrg, LEDRG_RED_DOUBLE_BLINK);
+//	LEF_LedA_init(&leda, LEDA_OFF);
+	LEF_LedA_init(&leda, LEDA_SOFT);
 
 	LEF_Button_init(&button, EVENT_Button);
 	LEF_Rotary_init(&rotary, EVENT_Rotary);
@@ -417,7 +434,9 @@ int main() {
 			break;
 
 		 case EVENT_Pot:
-			printf("Pot changed %d\n", LEF_Pot_state(&pot));
+			val = LEF_Pot_state(&pot);
+			printf("Pot changed %d\n", val); 
+			TIMER0_OCA_SET(val/4);
 			break;
 			
 		 case LEF_EVENT_TEST:

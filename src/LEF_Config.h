@@ -61,6 +61,15 @@ extern "C" {
 #define LED_FAST_BLINK_DURATION         5  // (cycles)
 #define LED_SINGLE_BLINK_DURATION       5  // (cycles)
 
+
+
+// Analog Led settings ----------------------------------------------------
+
+#define LEDA_BLINK_DURATION             40  // (cycles)
+#define LEDA_FAST_BLINK_DURATION         5  // (cycles)
+#define LEDA_SINGLE_BLINK_DURATION       5  // (cycles)
+
+	
 	
 // LedRG settings ---------------------------------------------------------
 

@@ -29,11 +29,12 @@ SRC = src/main.c \
       src/LEF/LEF.c \
 			src/LEF/LEF_Queue.c \
 			src/LEF/LEF_Led.c \
+			src/LEF/LEF_LedA.c \
+			src/LEF/LEF_LedRG.c \
 			src/LEF/LEF_Timer.c \
 			src/LEF/LEF_Button.c \
 			src/LEF/LEF_Buzzer.c \
 			src/LEF/LEF_Cli.c \
-			src/LEF/LEF_LedRG.c \
 			src/LEF/LEF_Rotary.c \
 			src/LEF/LEF_Pot.c
 

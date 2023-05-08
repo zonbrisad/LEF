@@ -108,6 +108,20 @@
 #define TIMER0_OCB_SET(x)         OCR0B = x                   // Set output compare B register
 #define TIMER0_RELOAD(x)          TCNT0 = x                   // Reload timer register
 
+// Waveform generation mode
+#define TIMER0_WGM_NORMAL()       TCCR0A = (TCCR0A & 0x11111100) | 0x00000000
+#define TIMER0_WGM_PWM()          TCCR0A = (TCCR0A & 0x11111100) | 0x00000001 // PWM, phase correct
+#define TIMER0_WGM_FAST_PWM()     TCCR0A = (TCCR0A & 0x11111100) | 0x00000011 // Fast PWM
+
+// Output modes
+#define TIMER0_OM_NORMAL() TCCR0A &= 0b00111111                        // OC0A disconnected
+#define TIMER0_OM_TOGGLE() TCCR0A = (TCCR0A & 0b00111111) | 0b01000000 // Toggle OC0A on compare match
+#define TIMER0_OM_CLEAR()  TCCR0A = (TCCR0A & 0b00111111) | 0b10000000 // Clear OC0A on compare match
+#define TIMER0_OM_SET()    TCCR0A = (TCCR0A & 0b00111111) | 0b11000000 // Set OC0A on compare match
+
+
+
+
 
 // AVR Timer 1 (16 bit) -----------------------------------------------------
 
