@@ -41,11 +41,15 @@ typedef enum {
 	LEDA_ON,
 	LEDA_BLINK,
 	LEDA_FAST_BLINK,
-
+	
 	LEDA_SINGLE_BLINK,
 	LEDA_DOUBLE_BLINK,
 	LEDA_TRIPPLE_BLINK,
 	LEDA_SOFT,
+
+	LEDA_ON_SOFT,
+	LEDA_OFF_SOFT,
+	
 	LEDA_LAST               // This state must always be the last in the enum
 } LEDA_STATES;
 
@@ -63,7 +67,6 @@ void LEF_LedA_init(LEF_LedA *led, LEDA_STATES mode);
 uint8_t LEF_LedA_update(LEF_LedA *led);
 
 void LEF_LedA_set(LEF_LedA *led, LEDA_STATES state);
-
 
 
 #ifdef __cplusplus

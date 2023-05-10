@@ -33,3 +33,30 @@
 2023-04-21 11:44:13 [Warn] Device /dev/ttyUSB1 does not exist!
 2023-04-21 12:37:48 [Warn] Device /dev/ttyACM0 does not exist!
 2023-05-03 21:17:03 [Warn] Device /dev/ttyUSB1 does not exist!
+2023-05-10 13:27:38 [Erro] Device  does not exist!
+2023-05-10 13:27:41 [Erro] Device  does not exist!
+2023-05-10 13:48:08 [Info] Waiting for USR2 signal to initiate write to Arduino flash...(657666)
+2023-05-10 13:49:53 [Info] Waiting for USR2 signal to initiate write to Arduino flash...(657997)
+2023-05-10 13:50:34 [Info] Waiting for USR2 signal to initiate write to Arduino flash...(658172)
+2023-05-10 15:19:19 [Info] Waiting for USR2 signal to initiate write to Arduino flash...(664324)
+2023-05-10 15:21:00 [Info] Waiting for USR2 signal to initiate write to Arduino flash...(664680)
+2023-05-10 15:21:20 [Info] Waiting for USR2 signal to initiate write to Arduino flash...(664680)
+2023-05-10 15:28:40 [Info] Waiting for USR2 signal to initiate write to Arduino flash...(666017)
+2023-05-10 15:29:06 [Info] Waiting for USR2 signal to initiate write to Arduino flash...(666183)
+2023-05-10 16:24:53 [Info] Waiting for USR2 signal to initiate write to Arduino flash...(675965)
+2023-05-10 16:25:27 [Info] Waiting for USR2 signal to initiate write to Arduino flash...(676246)
+2023-05-10 17:00:59 [Info] Waiting for USR2 signal to initiate write to Arduino flash...(682082)
+2023-05-10 17:16:10 [Info] Waiting for USR2 signal to initiate write to Arduino flash...(684808)
+2023-05-10 17:17:47 [Info] Waiting for USR2 signal to initiate write to Arduino flash...(685297)
+2023-05-10 17:17:49 [Info] Waiting for USR2 signal to initiate write to Arduino flash...(685362)
+2023-05-10 17:18:30 [Info] Waiting for USR2 signal to initiate write to Arduino flash...(685538)
+2023-05-10 17:19:13 [Info] Waiting for USR2 signal to initiate write to Arduino flash...(685538)
+2023-05-10 17:23:13 [Info] Waiting for USR2 signal to initiate write to Arduino flash...(685538)
+2023-05-10 17:25:38 [Info] Waiting for USR2 signal to initiate write to Arduino flash...(685538)
+2023-05-10 17:34:59 [Info] Waiting for USR2 signal to initiate write to Arduino flash...(687824)
+2023-05-10 18:48:59 [Info] Waiting for USR2 signal to initiate write to Arduino flash...(687824)
+2023-05-10 18:49:16 [Info] Waiting for USR2 signal to initiate write to Arduino flash...(687824)
+2023-05-10 18:50:19 [Info] Waiting for USR2 signal to initiate write to Arduino flash...(700266)
+2023-05-10 18:50:33 [Info] Waiting for USR2 signal to initiate write to Arduino flash...(700266)
+2023-05-10 18:50:49 [Info] Waiting for USR2 signal to initiate write to Arduino flash...(700266)
+2023-05-10 18:53:02 [Info] Waiting for USR2 signal to initiate write to Arduino flash...(700266)

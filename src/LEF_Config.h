@@ -69,7 +69,8 @@ extern "C" {
 #define LEDA_FAST_BLINK_DURATION         5  // (cycles)
 #define LEDA_SINGLE_BLINK_DURATION       5  // (cycles)
 
-	
+#define LEDA_STEP                        5
+#define LEDA_MAX                       180
 	
 // LedRG settings ---------------------------------------------------------
 

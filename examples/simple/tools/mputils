@@ -231,19 +231,71 @@ bpSetDefault() {
 
 ##- AVR utilities
 
+bpWritePID() {
+  echo $$ >"${BP_PID_FILE}"
+}
+
+bpRemovePID() {
+  rm -f "${BP_PID_FILE}"
+}
+
+bpLoadPID() {
+  if [ -e "${BP_PID_FILE}" ]; then
+    cat "${BP_PID_FILE}"
+  fi
+}
+
+bpPIDExist() {
+
+  if [ -e "${BP_PID_FILE}" ]; then
+    return 0
+  else
+    return 1
+  fi
+}
 
 write_arduino_bootloader() {
   MCU=$1
-	BOOTLOADER=$2
-	avrdude -v -c jtag2isp -p ${MCU} -U flash:w:${BOOTLOADER}:i -U hfuse:w:0xD6:m -U lfuse:w:0xFF:m
-	}
-			
-			
+  BOOTLOADER=$2
+  avrdude -v -c jtag2isp -p ${MCU} -U flash:w:${BOOTLOADER}:i -U hfuse:w:0xD6:m -U lfuse:w:0xFF:m
+}
+
 wprg() { ##D Write program with JTAG ICE mkII
   #write_arduino_bootloader "m328p" "${BP_SELF_DIR}/arduino/optiboot/optiboot_atmega328.hex"
   write_arduino_bootloader "m328" "$2"
 }
-					
+
+arduino_write_flash() { ## Write firmware to Arduino via bootloader
+  FILE=${1}
+  MCU=${2}
+  PORT=${3}
+
+  if [ ! -e "${PORT}" ]; then
+    echo
+    bpError "Device ${PORT} does not exist!"
+    return
+  fi
+
+  # Suspend mpterm terminal program if available
+  if bpHasCmd "mpterm.py"; then
+    mpterm.py --suspend
+    sleep 0.4
+  fi
+
+  # Write to flash
+  avrdude -v -v -p "${MCU}" -b 57600 -c arduino -P "${PORT}" -U flash:w:"${FILE}":i
+}
+
+get_serial_port() {
+
+  PORT=$1
+  bpPrintLine "Available USB->serial ports"
+  ls --width 1 /dev/ttyUSB* 2>/dev/null
+  ls --width 1 /dev/ttyACM* 2>/dev/null
+  bpPrintLine
+
+  bpReturn=$(bpReadStrR "Enter Port >" "PORT" "${PORT}")
+}
 
 #
 # $2 file
@@ -254,20 +306,51 @@ avrdude-arduino() { ##D Write firmware to arduino with avrdude
   FILE=${2}
   MCU=${3}
   PORT=${4}
-  bpPrintLine "Available USB->serial ports"
-  ls --width 1 /dev/ttyUSB* 2>/dev/null
-  ls --width 1 /dev/ttyACM* 2>/dev/null
-	
-  bpPrintLine
 
-  PORT=$(bpReadStrR "Enter Port >" "PORT" "${PORT}")
-
-  if [ ! -e "${PORT}" ]; then
-    echo
-    bpWarning "Device ${PORT} does not exist!"
+  if bpPIDExist; then
+    pid=$(bpLoadPID)
+    kill -s SIGUSR2 "$pid"
+    return
   fi
 
-  avrdude -v -v -p "${MCU}" -b 57600 -c arduino -P "${PORT}" -U flash:w:"${FILE}":i
+  get_serial_port "$PORT"
+  PORT="$bpReturn"
+
+  arduino_write_flash "${FILE}" "${MCU}" "${PORT}"
+}
+
+wait_write() {
+  FILE=${1}
+  MCU=${2}
+  PORT=${3}
+
+  arduino_write_flash "${FILE}" "${MCU}" "${PORT}"
+
+  bpInfo "Waiting for USR2 signal to initiate write to Arduino flash...($$)"
+}
+
+flash_cleanup() {
+  bpCleanUp
+  bpRemovePID
+  exit "$BP_OK"
+}
+
+arduino_flash_wait() { ##D  Wait for signal to write to Arduino flash
+  FILE=${2}
+  MCU=${3}
+  PORT=${4}
+
+  get_serial_port "$PORT"
+  PORT="$bpReturn"
+  bpWritePID
+  echo
+  bpInfo "Waiting for USR2 signal to initiate write to Arduino flash...($$)"
+  trap "wait_write ${FILE} ${MCU} ${PORT}" SIGUSR2
+  trap "flash_cleanup" SIGINT
+  quit=0
+  while [ "$quit" -ne 1 ]; do
+    sleep 0.5
+  done
 }
 
 #
@@ -311,6 +394,8 @@ command style shellscripts"
 
   ##V Lock file (uncomment to use lock file feature )
   #BP_LOCK_FILE=/tmp/${BP_SELF}.lock
+
+  BP_PID_FILE=/tmp/${BP_SELF}_${USER}.pid
 
   ##V Logging options (uncomment to activate logging parameters)
   BP_LOG_OK=1
@@ -402,6 +487,7 @@ bpCallStack() { ##I Print out BASH call stack
 
 bpCleanUp() {           ##I Cleanup function
   rm -f "$BP_LOCK_FILE" # remove Lock file
+  #bpRemovePID
   #  echo -e "${E_SHOW}"     # Turn on cursor if turned of
 }
 

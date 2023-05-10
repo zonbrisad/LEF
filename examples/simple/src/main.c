@@ -357,7 +357,9 @@ int main() {
 	LEF_Led_init(&led, LED_FAST_BLINK);
 	LEF_LedRG_init(&ledrg, LEDRG_RED_DOUBLE_BLINK);
 //	LEF_LedA_init(&leda, LEDA_OFF);
-	LEF_LedA_init(&leda, LEDA_SOFT);
+//	LEF_LedA_init(&leda, LEDA_SOFT);
+	LEF_LedA_init(&leda, LEDA_ON);
+	LEF_LedA_init(&leda, LEDA_OFF_SOFT);
 
 	LEF_Button_init(&button, EVENT_Button);
 	LEF_Rotary_init(&rotary, EVENT_Rotary);

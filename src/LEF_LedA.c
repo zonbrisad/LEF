@@ -4,7 +4,7 @@
  * This file is part of LEF distribution
  *
  *---------------------------------------------------------------------------
- * @brief   LED controll library.
+ * @brief   Analog LED control library.
  *
  * @file    LEF_Led.c
  * @author  Peter Malmberg <peter.malmberg@gmail.com>
@@ -46,8 +46,8 @@ uint8_t LEF_LedA_update(LEF_LedA *led) {
 	uint8_t limit;
 	limit = 0;
 	switch (led->mode) {
-		case LEDA_OFF: return 0; break;
-		case LEDA_ON:  return 255; break;
+		case LEDA_OFF: led->cnt = 0; return 0; break;
+		case LEDA_ON:  led->cnt = LEDA_MAX; return LEDA_MAX; break;
 		case LEDA_FAST_BLINK:
 			limit = LEDA_FAST_BLINK_DURATION - LEDA_BLINK_DURATION;
 		case LEDA_BLINK:
@@ -71,19 +71,33 @@ uint8_t LEF_LedA_update(LEF_LedA *led) {
 		  return 255;
 
 	 case LEDA_SOFT:
-//		led->cnt++;
-		led->cnt += 3;
-//	if (led->cnt>0) {
-		if (led->cnt > 255)
-			led->cnt=-255;
-//		}
+		led->cnt += LEDA_STEP;
+		if (led->cnt > LEDA_MAX)
+			led->cnt=-LEDA_MAX;
 		if (led->cnt >=0)
 			return led->cnt;
 		else
 			return -led->cnt;
 		break;
 
-				
+	 case LEDA_ON_SOFT:
+		if (led->cnt >= LEDA_MAX) {
+			led->cnt = LEDA_MAX;
+			led->mode = LEDA_ON;
+			break;
+		}
+		led->cnt += LEDA_STEP;
+		break;
+
+	 case LEDA_OFF_SOFT:
+		if (led->cnt <= 0) {
+			led->cnt = 0;
+			led->mode = LEDA_OFF;
+			break;
+		}
+		led->cnt -= LEDA_STEP;
+		break;
+
 		default: return 0;
 	}
 }
