@@ -349,7 +349,7 @@ arduino_flash_wait() { ##D  Wait for signal to write to Arduino flash
   trap "flash_cleanup" SIGINT
   quit=0
   while [ "$quit" -ne 1 ]; do
-    sleep 0.5
+    sleep 0.2
   done
 }
 
