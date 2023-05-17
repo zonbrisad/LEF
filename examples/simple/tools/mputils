@@ -231,22 +231,21 @@ bpSetDefault() {
 
 ##- AVR utilities
 
-bpWritePID() {
+bpPIDWrite() {
   echo $$ >"${BP_PID_FILE}"
 }
 
-bpRemovePID() {
+bpPIDRemove() {
   rm -f "${BP_PID_FILE}"
 }
 
-bpLoadPID() {
+bpPIDLoad() {
   if [ -e "${BP_PID_FILE}" ]; then
     cat "${BP_PID_FILE}"
   fi
 }
 
 bpPIDExist() {
-
   if [ -e "${BP_PID_FILE}" ]; then
     return 0
   else
@@ -286,8 +285,15 @@ arduino_write_flash() { ## Write firmware to Arduino via bootloader
   avrdude -v -v -p "${MCU}" -b 57600 -c arduino -P "${PORT}" -U flash:w:"${FILE}":i
 }
 
-get_serial_port() {
+start_mpterm() { ## Open 
+  FILE=${2}
+  MCU=${3}
+  PORT=${4}
 
+  mpterm --ext_program "avrdude -v -v -p ${MCU} -b 57600 -c arduino -P __PORT__ -U flash:w:${FILE}:i" #--debug
+}
+
+get_serial_port() {
   PORT=$1
   bpPrintLine "Available USB->serial ports"
   ls --width 1 /dev/ttyUSB* 2>/dev/null
@@ -302,13 +308,13 @@ get_serial_port() {
 # $3 MCU type
 # $4 port
 #
-avrdude-arduino() { ##D Write firmware to arduino with avrdude
+arduino-flash() { ##D Write firmware to arduino with avrdude
   FILE=${2}
   MCU=${3}
   PORT=${4}
 
   if bpPIDExist; then
-    pid=$(bpLoadPID)
+    pid=$(bpPIDLoad)
     kill -s SIGUSR2 "$pid"
     return
   fi
@@ -326,23 +332,29 @@ wait_write() {
 
   arduino_write_flash "${FILE}" "${MCU}" "${PORT}"
 
+  echo
   bpInfo "Waiting for USR2 signal to initiate write to Arduino flash...($$)"
 }
 
 flash_cleanup() {
   bpCleanUp
-  bpRemovePID
+  bpPIDRemove
   exit "$BP_OK"
 }
 
-arduino_flash_wait() { ##D  Wait for signal to write to Arduino flash
+#
+# $2 file
+# $3 MCU type
+# $4 port
+#
+arduino-flash-wait() { ##D  Loop waiting for signal to program
   FILE=${2}
   MCU=${3}
   PORT=${4}
 
   get_serial_port "$PORT"
   PORT="$bpReturn"
-  bpWritePID
+  bpPIDWrite
   echo
   bpInfo "Waiting for USR2 signal to initiate write to Arduino flash...($$)"
   trap "wait_write ${FILE} ${MCU} ${PORT}" SIGUSR2
@@ -487,7 +499,6 @@ bpCallStack() { ##I Print out BASH call stack
 
 bpCleanUp() {           ##I Cleanup function
   rm -f "$BP_LOCK_FILE" # remove Lock file
-  #bpRemovePID
   #  echo -e "${E_SHOW}"     # Turn on cursor if turned of
 }
 
