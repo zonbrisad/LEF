@@ -118,7 +118,7 @@ void LEF_Cli_print(void) {
 			lefprintf("  %-12s", cBuf);
 
     lefprintf(dBuf);		
-		lefprintf("\n");
+    lefprintf("\n");
   }
 }
 
