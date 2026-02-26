@@ -200,7 +200,7 @@ void cmdAdc(char *args) {
 		ADC_MUX(i);
 		_delay_ms(1);
 		ADC_START();
-		ADC_WAIT();
+		ADC_WAIT_COMPLETION();
 		//_delay_ms(1);
 		val = ADC_VALUE();
 		printf("%d  ", val);

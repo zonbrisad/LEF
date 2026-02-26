@@ -75,7 +75,7 @@ CSTANDARD   = gnu99
 CPPSTANDARD = c++11
 
 # C Macro definitions
-CDEFS = 
+CDEFS = ARDUINO
 
 # C++ Macro definitions
 CPPDEFS = 
@@ -88,7 +88,7 @@ CPPDEFS =
 DEBUG=0
 
 # MCU name
-MCU = atmega328
+MCU = atmega328p
 
 # MCU frequency. (1000000  1843200  2000000 3686400 4000000 7372800 8000000 11059200 14745600)
 F_CPU = 16000000
