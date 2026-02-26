@@ -342,7 +342,7 @@ void hw_init(void) {
 
 int main() {
 	LEF_Event event;
-  uint8_t ls;
+    uint8_t ls;
 	ls = LEDRG_OFF;
 	uint16_t ch, val;
 	

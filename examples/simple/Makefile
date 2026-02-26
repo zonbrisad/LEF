@@ -75,7 +75,7 @@ CSTANDARD   = gnu99
 CPPSTANDARD = c++11
 
 # C Macro definitions
-CDEFS = ARDUINO
+CDEFS = 
 
 # C++ Macro definitions
 CPPDEFS = 

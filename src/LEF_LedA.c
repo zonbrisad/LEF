@@ -50,6 +50,7 @@ uint8_t LEF_LedA_update(LEF_LedA *led) {
 		case LEDA_ON:  led->cnt = LEDA_MAX; return LEDA_MAX; break;
 		case LEDA_FAST_BLINK:
 			limit = LEDA_FAST_BLINK_DURATION - LEDA_BLINK_DURATION;
+			__attribute__((fallthrough)); // supress warning about missing break statement
 		case LEDA_BLINK:
 			limit += LEDA_BLINK_DURATION;
 			led->cnt++;
@@ -100,6 +101,7 @@ uint8_t LEF_LedA_update(LEF_LedA *led) {
 
 		default: return 0;
 	}
+	return 0;
 }
 
 void LEF_LedA_set(LEF_LedA *led, LEDA_STATES state) {

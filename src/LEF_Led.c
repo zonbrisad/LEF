@@ -49,7 +49,8 @@ uint8_t LEF_Led_update(LEF_Led *led) {
 		case LED_OFF: return 0; break;
 		case LED_ON:  return 1; break;
 		case LED_FAST_BLINK:
-			limit = LED_FAST_BLINK_DURATION - LED_BLINK_DURATION;
+			limit = (LED_FAST_BLINK_DURATION - LED_BLINK_DURATION);
+			__attribute__((fallthrough)); // supress warning about missing break statement
 		case LED_BLINK:
 			limit += LED_BLINK_DURATION;
 			led->cnt++;
@@ -70,10 +71,9 @@ uint8_t LEF_Led_update(LEF_Led *led) {
 			  led->mode = LED_OFF;
 		  return 1;
 		break;
-
-				
 		default: return 0;
 	}
+	return 0;
 }
 
 void LEF_Led_set(LEF_Led *led, LED_STATES state) {

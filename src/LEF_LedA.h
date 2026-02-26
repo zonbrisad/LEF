@@ -64,6 +64,11 @@ typedef struct {
 
 void LEF_LedA_init(LEF_LedA *led, LEDA_STATES mode);
 
+/**
+ * Update the LED state. This function should be called periodically, e.g. in a timer interrupt or main loop.
+ * @param led Pointer to the LED structure.
+ * @return The current brightness level of the LED (0-255).
+ */
 uint8_t LEF_LedA_update(LEF_LedA *led);
 
 void LEF_LedA_set(LEF_LedA *led, LEDA_STATES state);
