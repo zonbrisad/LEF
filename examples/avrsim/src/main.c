@@ -223,7 +223,7 @@ int main(void) {
 	printf("\x1B[2J");  // clear screen
 
 
-	LEF_Init();
+	LEF_init();
 //	LEF_TimerInit(&Timer1);
 //	LEF_TimerInit(&Timer2);
 //	LEF_TimerInit(&Timer3);

@@ -101,6 +101,7 @@ void LEF_QueueSendEvent(LEF_EventQueue *queue, LEF_EventId ev, void *data) {
   LEF_Event event;
   (void) data;
   event.id = ev;
+  event.func = 0;
   LEF_QueueSend(queue, &event);
 }
 
