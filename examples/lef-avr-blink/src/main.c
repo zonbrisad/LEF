@@ -77,10 +77,11 @@ void hw_init(void) {
   TIMER1_OCA_SET(625);
   TIMER1_OCA_IE();        // enable output compare A interrupt
   sei();  // Enable all interrupts
+  
 } 
 int main() {
   LEF_Event event;
-  
+
   hw_init();
 	printf("\n\nLEF AVR blink LED demo\n\n");
   

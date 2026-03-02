@@ -25,7 +25,7 @@
 
 // Reset MCU with watchdog --------------------------------------------------
 
-#define RESET()                     wdt_enable(WDTO_500MS); while(1) {}
+#define RESET()                     wdt_enable(WDTO_500MS); cli(); while(1) {}
 
 // AVR ADC ------------------------------------------------------------------
 

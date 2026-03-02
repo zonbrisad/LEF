@@ -22,7 +22,6 @@
 #include <util/atomic.h>
 #include <stdio.h>
 #include <stdlib.h>
-
 #include "main.h"
 #include "uart.h"
 #include "def.h"
@@ -48,11 +47,11 @@
 
 
 typedef enum {
-	EVENT_Timer1 = 0,
-	EVENT_Timer2,
-	EVENT_Button,
-	EVENT_Rotary,
-	EVENT_Pot
+  EVENT_Timer1 = 0,
+  EVENT_Timer2,
+  EVENT_Button,
+  EVENT_Rotary,
+  EVENT_Pot
 } Events;
 
 void hw_init(void);
@@ -111,168 +110,167 @@ const PROGMEM LEF_CliCmd cmdTable[] = {
 };
 
 void cmdBrp(char *args) {
-	printf("Brp args = %s\n", args);
-	LEF_Buzzer_set(LEF_BUZZER_BRP);
+  printf("Brp args = %s\n", args);
+  LEF_Buzzer_set(LEF_BUZZER_BRP);
 }
 
 void cmdDisk(char *args) {
-	UNUSED(args);
-	LEF_Buzzer_beep(100,10,3);
+  UNUSED(args);
+  LEF_Buzzer_beep(100,10,3);
 }
 
 void cmdTBeep(char *args) {
-	UNUSED(args);
-	LEF_Buzzer_set(LEF_BUZZER_TRIPPLE_BEEP);
+  UNUSED(args);
+  LEF_Buzzer_set(LEF_BUZZER_TRIPPLE_BEEP);
 }
 
 void cmdDBeep(char *args) {
-	UNUSED(args);
-	LEF_Buzzer_set(LEF_BUZZER_DOUBLE_BEEP);
+  UNUSED(args);
+  LEF_Buzzer_set(LEF_BUZZER_DOUBLE_BEEP);
 }
 
 void cmdBuzon(char *args) {
-	UNUSED(args);
-	LEF_Buzzer_set(LEF_BUZZER_ON);
+  UNUSED(args);
+  LEF_Buzzer_set(LEF_BUZZER_ON);
 }
 
 void cmdBuzoff(char *args) {
-	UNUSED(args);
-	LEF_Buzzer_set(LEF_BUZZER_OFF);
+  UNUSED(args);
+  LEF_Buzzer_set(LEF_BUZZER_OFF);
 }
 
 void cmdBeep(char *args) {
-	UNUSED(args);
-	LEF_Buzzer_set(LEF_BUZZER_BEEP);
+  UNUSED(args);
+  LEF_Buzzer_set(LEF_BUZZER_BEEP);
 }
 
 void cmdSBeep(char *args) {
-	UNUSED(args);
-	LEF_Buzzer_set(LEF_BUZZER_SHORT_BEEP);
+  UNUSED(args);
+  LEF_Buzzer_set(LEF_BUZZER_SHORT_BEEP);
 }
 
 void cmdLBeep(char *args) {
-	UNUSED(args);
-	LEF_Buzzer_set(LEF_BUZZER_LONG_BEEP);
+  UNUSED(args);
+  LEF_Buzzer_set(LEF_BUZZER_LONG_BEEP);
 }
 
 void cmdBlink(char *args) {
-	UNUSED(args);
+  UNUSED(args);
   LEF_Led_set(&led, LED_SINGLE_BLINK);
 }
 
 void cmdLedOn(char *args) {
-	UNUSED(args);
+  UNUSED(args);
   LEF_Led_set(&led, LED_ON);
 }
 
 void cmdLedOff(char *args) {
-	UNUSED(args);
+  UNUSED(args);
   LEF_Led_set(&led, LED_OFF);
 }
 
 void cmdEvOn(char *args) {
-	UNUSED(args);
-	evOn = 1;
+  UNUSED(args);
+  evOn = 1;
 }
 
 void cmdEvOff(char *args) {
-	UNUSED(args);
-	evOn = 0;
+  UNUSED(args);
+  evOn = 0;
 }
 
 void cmdHelp(char *args) {
-	UNUSED(args);
-	LEF_Cli_print();
+  UNUSED(args);
+  LEF_Cli_print();
 }
 
 void cmdAdc(char *args) {
-	UNUSED(args);
-	int i;
-	uint16_t val;
+  UNUSED(args);
+  int i;
+  uint16_t val;
 
-	ADC_ID();
-	ADC_ENABLE();
-	ADC_REF_AVCC();
+  ADC_ID();
+  ADC_ENABLE();
+  ADC_REF_AVCC();
 
 
-	printf("ADC:  ");
-	for (i=0; i<8; i++) {
-		ADC_MUX(i);
-		_delay_ms(1);
-		ADC_START();
-		ADC_WAIT_COMPLETION();
-		//_delay_ms(1);
-		val = ADC_VALUE();
-		printf("%d  ", val);
-	}
-	printf("\n");
-	ADC_MUX(POT_ADC);
+  printf("ADC:  ");
+  for (i=0; i<8; i++) {
+    ADC_MUX(i);
+    _delay_ms(1);
+    ADC_START();
+    ADC_WAIT_COMPLETION();
+    //_delay_ms(1);
+    val = ADC_VALUE();
+    printf("%d  ", val);
+  }
+  printf("\n");
+  ADC_MUX(POT_ADC);
   ADC_IE();
 }
 
 
 ISR(PCINT1_vect) {
 //	LEF_Event event;
-	char ch;
+  char ch;
 	
-	ch = PINC;
-	LEF_Rotary_update(&rotary, (ch & (1<<PC0)), (ch & (1<<PC1)));
+  ch = PINC;
+  LEF_Rotary_update(&rotary, (ch & (1<<PC0)), (ch & (1<<PC1)));
 
-	//event.id = LEF_EVENT_TEST;
-	//LEF_Send(&event);
+  //event.id = LEF_EVENT_TEST;
+  //LEF_Send(&event);
 }
 
 ISR(TIMER1_COMPA_vect) {
-	char ch;
+  char ch;
 //	LEF_Event event;
 	
   TIMER1_RELOAD(0);
 
-	//	event.id = LEF_SYSTICK_EVENT;
-	//	LEF_QueueWait(&StdQueue, &event);	
+  //	event.id = LEF_SYSTICK_EVENT;
+  //	LEF_QueueWait(&StdQueue, &event);	
 	
-	LEF_Timer_update(&timer1);
-	LEF_Timer_update(&timer2);
+  LEF_Timer_update(&timer1);
+  LEF_Timer_update(&timer2);
 	
-	if (LEF_Led_update(&led)) {
-		ARDUINO_LED_ON();
-	} else {
-		ARDUINO_LED_OFF();
-	}
+  if (LEF_Led_update(&led)) {
+    ARDUINO_LED_ON();
+  } else {
+    ARDUINO_LED_OFF();
+  }
 
-	ch = LEF_LedRG_update(&ledrg);
-	if (ch & 0x01) 
-		LED_RED_ON();
-	else
-		LED_RED_OFF();
+  ch = LEF_LedRG_update(&ledrg);
+  if (ch & 0x01) 
+    LED_RED_ON();
+  else
+    LED_RED_OFF();
 
-	if (ch & 0x02) 
-		LED_GREEN_ON();
-	else
-		LED_GREEN_OFF();
+  if (ch & 0x02) 
+    LED_GREEN_ON();
+  else
+    LED_GREEN_OFF();
 
-	TIMER0_OCA_SET(255 - LEF_LedA_update(&leda));
+  TIMER0_OCA_SET(255 - LEF_LedA_update(&leda));
 	
-	LEF_Button_update(&button, (PIND & (1<<PIN7))==0  );
+  LEF_Button_update(&button, (PIND & (1<<PIN7))==0  );
 
 //	ch = PINC;
 //	LEF_Rotary_update(&rotary, (ch & (1<<PC0)), (ch & (1<<PC1)));
 	
-	if (LEF_Buzzer_update() > 0) {
-		BUZZER_ON();
-	} else {
-		BUZZER_OFF();
-	}
+  if (LEF_Buzzer_update() > 0) {
+    BUZZER_ON();
+  } else {
+    BUZZER_OFF();
+  }
 
-	ADC_START();
+  ADC_START();
 }
 
 ISR(ADC_vect) {
-	//uart_putc('a');
-	uint16_t val;
-	val = ADC_VALUE();
-	LEF_Pot_update(&pot, val);
-	
+  //uart_putc('a');
+  uint16_t val;
+  val = ADC_VALUE();
+  LEF_Pot_update(&pot, val);
 }
 
 
@@ -291,98 +289,97 @@ ISR(ADC_vect) {
  */
 
 void hw_init(void) {
-	stdout = &mystdout;
-	uart_init(UART_BAUD_SELECT(UART_BAUD_RATE, F_CPU));
+  stdout = &mystdout;
+  uart_init(UART_BAUD_SELECT(UART_BAUD_RATE, F_CPU));
 
-	ARDUINO_LED_INIT();
+  ARDUINO_LED_INIT();
 	
-	// Timer 1 (16 bit)
-	TIMER1_CLK_PRES_256(); // set prescaler to 1/1024
-	TIMER1_OCA_SET(625);
-	TIMER1_OCA_IE();        // enable output compare A interrupt
-	
-	//set_sleep_mode(SLEEP_MODE_IDLE);
-	//sleep_enable();
+  // Timer 1 (16 bit)
+  TIMER1_CLK_PRES_256(); // set prescaler to 1/1024
+  TIMER1_OCA_SET(625);
+  TIMER1_OCA_IE();        // enable output compare A interrupt
+  
+  //set_sleep_mode(SLEEP_MODE_IDLE);
+  //sleep_enable();
 
-	// Activate pullup for click button
-	PORTD = (0x01 << PIN7);
+  // Activate pullup for click button
+  PORTD = (0x01 << PIN7);
 
-	// Configure buzzer port
-	DDRD |= (0x01 << BUZZER_PIN);
-	PORTD |= (0x01 << BUZZER_PIN);
+  // Configure buzzer port
+  DDRD |= (0x01 << BUZZER_PIN);
+  PORTD |= (0x01 << BUZZER_PIN);
 
-	// Red Green LED
-	DDRB |= (0x01 << PB4) | (0x01 << PB3);
+  // Red Green LED
+  DDRB |= (0x01 << PB4) | (0x01 << PB3);
 
   // 5mm Green LED
-	DDRD |= (0x01 << PD6);
+  DDRD |= (0x01 << PD6);
 	
-	// Rotary encoder input pullup activation
-	PORTC |= (1<<PC0) | (1<<PC1);
+  // Rotary encoder input pullup activation
+  PORTC |= (1<<PC0) | (1<<PC1);
 
-	// Pin Change Mask Register 1 
-	PCMSK1 |= (1<<PCINT8);
+  // Pin Change Mask Register 1 
+  PCMSK1 |= (1<<PCINT8);
 
-	// Enable Pin change interruåt
-	PCICR |= (1<<PCIE1);
+  // Enable Pin change interruåt
+  PCICR |= (1<<PCIE1);
 
-	ADC_ENABLE();
-	ADC_REF_AVCC();
-	ADC_PRESCALER_128();
-	ADC_MUX(POT_ADC);
-	ADC_IE();
+  ADC_ENABLE();
+  ADC_REF_AVCC();
+  ADC_PRESCALER_128();
+  ADC_MUX(POT_ADC);
+  ADC_IE();
 
-	TIMER0_CLK_PRES_1();
-	TIMER0_OCA_SET(250);
+  TIMER0_CLK_PRES_1();
+  TIMER0_OCA_SET(250);
 //	TIMER0_WGM_PWM();
-	TIMER0_WGM_FAST_PWM();
-	TIMER0_OM_CLEAR();
-	sei();
+  TIMER0_WGM_FAST_PWM();
+  TIMER0_OM_CLEAR();
+  sei();
 }
 
 int main() {
-	LEF_Event event;
-    uint8_t ls;
-	ls = LEDRG_OFF;
-	uint16_t ch, val;
+  LEF_Event event;
+  uint8_t ls;
+  ls = LEDRG_OFF;
+  uint16_t ch, val;
 	
-	 
-	LEF_init();
+  LEF_init();
 
-	LEF_Timer_init(&timer1, EVENT_Timer1);
-	LEF_Timer_start_repeat(&timer1, 100);
-	LEF_Timer_init(&timer2, EVENT_Timer2);
-	LEF_Timer_start_repeat(&timer2, 10);
+  LEF_Timer_init(&timer1, EVENT_Timer1);
+  LEF_Timer_start_repeat(&timer1, 100);
+  LEF_Timer_init(&timer2, EVENT_Timer2);
+  LEF_Timer_start_repeat(&timer2, 10);
 
-	LEF_Led_init(&led, LED_FAST_BLINK);
-	LEF_LedRG_init(&ledrg, LEDRG_RED_DOUBLE_BLINK);
+  LEF_Led_init(&led, LED_FAST_BLINK);
+  LEF_LedRG_init(&ledrg, LEDRG_RED_DOUBLE_BLINK);
 //	LEF_LedA_init(&leda, LEDA_OFF);
 //	LEF_LedA_init(&leda, LEDA_SOFT);
-	LEF_LedA_init(&leda, LEDA_ON);
-	LEF_LedA_init(&leda, LEDA_OFF_SOFT);
+  LEF_LedA_init(&leda, LEDA_ON);
+  LEF_LedA_init(&leda, LEDA_OFF_SOFT);
 
-	LEF_Button_init(&button, EVENT_Button);
-	LEF_Rotary_init(&rotary, EVENT_Rotary);
-	LEF_Pot_init(&pot, EVENT_Pot);
+  LEF_Button_init(&button, EVENT_Button);
+  LEF_Rotary_init(&rotary, EVENT_Rotary);
+  LEF_Pot_init(&pot, EVENT_Pot);
 
-	LEF_Buzzer_init();
+  LEF_Buzzer_init();
 	
-	hw_init();
+  hw_init();
 
-	LEF_Buzzer_set(LEF_BUZZER_BEEP);
-	LEF_Cli_init(cmdTable, sizeof(cmdTable) / sizeof((cmdTable)[0]) );
+  LEF_Buzzer_set(LEF_BUZZER_BEEP);
+  LEF_Cli_init(cmdTable, sizeof(cmdTable) / sizeof((cmdTable)[0]) );
 		
-	//_delay_ms(1000);
-	printf("\n\nStarting LEF simple test\n\n");
+  //_delay_ms(1000);
+  printf("\n\nStarting LEF simple test\n\n");
 
-	while(1) {
+  while(1) {
 
-		LEF_Wait(&event);
+  LEF_Wait(&event);
 
-		if (evOn)
-			LEF_Print_event(&event);
+  if (evOn)
+    LEF_Print_event(&event);
 
-		switch (event.id) {
+	switch (event.id) {
 /*		 case LEF_SYSTICK_EVENT:
 				ch = LEF_LedRGUpdate(&ledrg);
 			if (ch & 0x01) 
@@ -397,9 +394,9 @@ int main() {
 
 			break;
 */
-		 case EVENT_Button:           // Handle button press event
-			LEF_Print_event(&event);
-			if  (event.func==1) {
+      case EVENT_Button:           // Handle button press event
+        LEF_Print_event(&event);
+        if  (event.func==1) {
 				ls++;
 				if (ls >= LEDRG_LAST)
 					ls = LEDRG_OFF;

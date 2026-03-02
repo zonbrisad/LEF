@@ -64,6 +64,7 @@
 #define ADC_TRG_TIMER1_OVF()   ADCSRB = (ADCSRB & 0b00000111) | 0b110
 #define ADC_TRG_TIMER1_CPT()   ADCSRB = (ADCSRB & 0b00000111) | 0b111
 
+
 // AVR Timer 0 (8 bit) ------------------------------------------------------
 
 // Clock source
