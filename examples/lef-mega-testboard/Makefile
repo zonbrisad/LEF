@@ -28,10 +28,17 @@ SRC = src/main.c \
       src/uart.c \
 			src/LEF/LEF.c \
 			src/LEF/LEF_Queue.c \
+			src/LEF/LEF_Timer.c \
+			src/LEF/LEF_Cli.c \
 			src/LEF/LEF_Button.c \
 			src/LEF/LEF_Led.c \
+			src/LEF/LEF_LedRG.c \
+			src/LEF/LEF_LedA.c \
 			src/LEF/LEF_Pot.c \
-			src/LEF/LEF_Cli.c
+			src/LEF/LEF_Rotary.c \
+			src/LEF/LEF_Buzzer.c 
+
+			
 
 # List C, C++ and assembler library/3rd party source files here. (C/C++ dependencies are automatically generated.)
 LSRC =	
