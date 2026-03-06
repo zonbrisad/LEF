@@ -189,7 +189,7 @@ sei();
 inline void ARDUINO_LED_INIT(void) { DDRB |= (1 << ARDUINO_LED_PIN); }
 inline void ARDUINO_LED_ON(void) { PORTB |= (1 << ARDUINO_LED_PIN); }
 inline void ARDUINO_LED_OFF(void) { PORTB &= ~(1 << ARDUINO_LED_PIN); }
-inline void ARDUINO_LED_TOGGLE(void) { PORTB ^= (1 << ARDUINO_LED_PIN); }
+inline void ARDUINO_LED_TOGGLE(void) { PINB = (1 << ARDUINO_LED_PIN); }
 inline bool ARDUINO_LED_IS_ON(void) { return PINB & (1 << ARDUINO_LED_PIN); }
 
 /*

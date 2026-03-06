@@ -56,7 +56,7 @@ typedef enum {
 
 void hw_init(void);
 
-void cmdBrp(char *args);
+void cmd_brp(char *args);
 void cmdDBeep(char *args);
 void cmdTBeep(char *args);
 void cmdBuzon(char *args);
@@ -76,7 +76,7 @@ void cmdAdc(char *args);
 
 LEF_Timer  timer1;
 LEF_Timer  timer2;
-LEF_Led    led;
+LEF_Led    led1;
 LEF_LedRG  ledrg;
 LEF_LedA   leda;
 LEF_Button button;
@@ -109,7 +109,7 @@ const PROGMEM LEF_CliCmd cmdTable[] = {
 	{cmdHelp,   "help",      "Show help"},
 };
 
-void cmdBrp(char *args) {
+void cmd_brp(char *args) {
   printf("Brp args = %s\n", args);
   LEF_Buzzer_set(LEF_BUZZER_BRP);
 }
@@ -156,17 +156,17 @@ void cmdLBeep(char *args) {
 
 void cmdBlink(char *args) {
   UNUSED(args);
-  LEF_Led_set(&led, LED_SINGLE_BLINK);
+  LEF_Led_set(&led1, LED_SINGLE_BLINK);
 }
 
 void cmdLedOn(char *args) {
   UNUSED(args);
-  LEF_Led_set(&led, LED_ON);
+  LEF_Led_set(&led1, LED_ON);
 }
 
 void cmdLedOff(char *args) {
   UNUSED(args);
-  LEF_Led_set(&led, LED_OFF);
+  LEF_Led_set(&led1, LED_OFF);
 }
 
 void cmdEvOn(char *args) {
@@ -233,7 +233,7 @@ ISR(TIMER1_COMPA_vect) {
   LEF_Timer_update(&timer1);
   LEF_Timer_update(&timer2);
 	
-  if (LEF_Led_update(&led)) {
+  if (LEF_Led_update(&led1)) {
     ARDUINO_LED_ON();
   } else {
     ARDUINO_LED_OFF();
@@ -351,7 +351,7 @@ int main() {
   LEF_Timer_init(&timer2, EVENT_Timer2);
   LEF_Timer_start_repeat(&timer2, 10);
 
-  LEF_Led_init(&led, LED_FAST_BLINK);
+  LEF_Led_init(&led1, LED_FAST_BLINK);
   LEF_LedRG_init(&ledrg, LEDRG_RED_DOUBLE_BLINK);
 //	LEF_LedA_init(&leda, LEDA_OFF);
 //	LEF_LedA_init(&leda, LEDA_SOFT);
@@ -401,7 +401,7 @@ int main() {
 				if (ls >= LEDRG_LAST)
 					ls = LEDRG_OFF;
 
-				LEF_Led_set(&led, LED_SINGLE_BLINK);
+				LEF_Led_set(&led1, LED_SINGLE_BLINK);
 				LEF_LedRG_set(&ledrg, ls);
 				
 				LEF_Buzzer_set(LEF_BUZZER_SHORT_BEEP);

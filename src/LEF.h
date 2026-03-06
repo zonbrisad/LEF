@@ -70,6 +70,10 @@ extern "C" {
 	
 // 
 #define lefprintf(...)   printf( __VA_ARGS__)
+// #define lefprintf(...)   printf("%s" __VA_ARGS__)
+// #define lefprintf(str)   printf("%s" (str))
+// #define lefprintf(_fmt, ...)   printf(_fmt, ##__VA_ARGS__)
+
 #define lefstrcpy(d, s)  strcpy(d,s)
  
 

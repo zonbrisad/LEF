@@ -13,6 +13,13 @@
  *
  */
 
+/*
+ Hardware description:
+  - Arduino Mega 1280
+  - 4x LEDs (connected to PK4, PK5, PK6, PK7)
+*/
+
+
 // Include ------------------------------------------------------------------
 
 #include <avr/io.h>
@@ -27,8 +34,8 @@
 #include "uart.h"
 #include "main.h"
 #include "LEF.h"
-#include "def_avr.h"
 #include "def.h"
+#include "def_avr.h"
 
 // Macros -------------------------------------------------------------------
 
@@ -43,6 +50,22 @@ inline void LED_RED_ON(void) { PORTB |= (0x01 << PB4); }
 inline void LED_RED_OFF(void) { PORTB &= ~(0x01 << PB4); }
 inline void LED_GREEN_ON(void) { PORTB |= (0x01 << PB3); }
 inline void LED_GREEN_OFF(void) { PORTB &= ~(0x01 << PB3); }
+
+
+inline void LED1_INIT(void) { DDRK |= (0x01 << PK7); }
+inline void LED2_INIT(void) { DDRK |= (0x01 << PK6); }
+inline void LED3_INIT(void) { DDRK |= (0x01 << PK5); }
+inline void LED4_INIT(void) { DDRK |= (0x01 << PK4); }
+ 
+
+inline void LED1_ON(void) { PORTK |= (0x01 << PK7); }
+inline void LED1_OFF(void) { PORTK &= ~(0x01 << PK7); }
+inline void LED2_ON(void) { PORTK |= (0x01 << PK6); }
+inline void LED2_OFF(void) { PORTK &= ~(0x01 << PK6); }
+inline void LED3_ON(void) { PORTK |= (0x01 << PK5); }
+inline void LED3_OFF(void) { PORTK &= ~(0x01 << PK5); }
+inline void LED4_ON(void) { PORTK |= (0x01 << PK4); }
+inline void LED4_OFF(void) { PORTK &= ~(0x01 << PK4); }
 
 inline uint8_t ROT_CLK(void)  { return PINC & (1 << PC0); }
 inline uint8_t ROT_DATA(void) { return PINC & (1 << PC1); }
@@ -60,7 +83,7 @@ typedef enum {
 
 void hw_init(void);
 
-void cmdBrp(char *args);
+void cmd_brp(char *args);
 void cmdDBeep(char *args);
 void cmdTBeep(char *args);
 void cmdBuzon(char *args);
@@ -74,13 +97,16 @@ void cmdLedOff(char *args);
 void cmdEvOn(char *args);
 void cmdEvOff(char *args);
 void cmdHelp(char *args);
-void cmdDisk(char *args);
+void cmd_disk(char *args);
 void cmdAdc(char *args);
 
 
 LEF_Timer  timer1;
 LEF_Timer  timer2;
-LEF_Led    led;
+LEF_Led    led1;
+LEF_Led    led2;
+LEF_Led    led3;
+LEF_Led    led4;
 LEF_LedRG  ledrg;
 LEF_LedA   leda;
 LEF_Button button;
@@ -100,8 +126,8 @@ const PROGMEM LEF_CliCmd cmdTable[] = {
 	{cmdLBeep,   "lbeep",    "Make a long beep"},
 	{cmdDBeep,   "dbeep",    "Make a double beep"},
 	{cmdTBeep,   "tbeep",    "Make a tripple beep"},
-	{cmdDisk,    "disk",     "Sound as dishwasher"},
-	{cmdBrp,     "brp",      "BRP sound"},
+	{cmd_disk,    "disk",     "Sound as dishwasher"},
+	{cmd_brp,     "brp",      "BRP sound"},
 	LEF_CLI_LABEL("Led"),
 	{cmdLedOn,  "ledon",     "Turn led on"},
 	{cmdLedOff, "ledoff",    "Turn led off"}, 
@@ -113,12 +139,12 @@ const PROGMEM LEF_CliCmd cmdTable[] = {
 	{cmdHelp,   "help",      "Show help"},
 };
 
-void cmdBrp(char *args) {
+void cmd_brp(char *args) {
   printf("Brp args = %s\n", args);
   LEF_Buzzer_set(LEF_BUZZER_BRP);
 }
 
-void cmdDisk(char *args) {
+void cmd_disk(char *args) {
   UNUSED(args);
   LEF_Buzzer_beep(100,10,3);
 }
@@ -160,17 +186,17 @@ void cmdLBeep(char *args) {
 
 void cmdBlink(char *args) {
   UNUSED(args);
-  LEF_Led_set(&led, LED_SINGLE_BLINK);
+  LEF_Led_set(&led1, LED_SINGLE_BLINK);
 }
 
 void cmdLedOn(char *args) {
   UNUSED(args);
-  LEF_Led_set(&led, LED_ON);
+  LEF_Led_set(&led1, LED_ON);
 }
 
 void cmdLedOff(char *args) {
   UNUSED(args);
-  LEF_Led_set(&led, LED_OFF);
+  LEF_Led_set(&led1, LED_OFF);
 }
 
 void cmdEvOn(char *args) {
@@ -231,28 +257,21 @@ ISR(TIMER1_COMPA_vect) {
 	
   TIMER1_RELOAD(0);
 
+  //ARDUINO_LED_TOGGLE();
   //	event.id = LEF_SYSTICK_EVENT;
   //	LEF_QueueWait(&StdQueue, &event);	
 	
   LEF_Timer_update(&timer1);
   LEF_Timer_update(&timer2);
 	
-  if (LEF_Led_update(&led)) {
-    ARDUINO_LED_ON();
-  } else {
-    ARDUINO_LED_OFF();
-  }
-
+  LEF_Led_update(&led1) ? LED1_ON() : LED1_OFF();
+  LEF_Led_update(&led2) ? LED2_ON() : LED2_OFF();
+  LEF_Led_update(&led3) ? LED3_ON() : LED3_OFF();
+  LEF_Led_update(&led4) ? LED4_ON() : LED4_OFF();
+  
   ch = LEF_LedRG_update(&ledrg);
-  if (ch & 0x01) 
-    LED_RED_ON();
-  else
-    LED_RED_OFF();
-
-  if (ch & 0x02) 
-    LED_GREEN_ON();
-  else
-    LED_GREEN_OFF();
+  (ch & 0x01) ? LED_RED_ON() : LED_RED_OFF();  
+  (ch & 0x02) ? LED_GREEN_ON() : LED_GREEN_OFF();
 
   TIMER0_OCA_SET(255 - LEF_LedA_update(&leda));
 	
@@ -261,11 +280,7 @@ ISR(TIMER1_COMPA_vect) {
 //	ch = PINC;
 //	LEF_Rotary_update(&rotary, (ch & (1<<PC0)), (ch & (1<<PC1)));
 	
-  if (LEF_Buzzer_update() > 0) {
-    BUZZER_ON();
-  } else {
-    BUZZER_OFF();
-  }
+  LEF_Buzzer_update() ? BUZZER_ON() : BUZZER_OFF();
 
   ADC_START();
 }
@@ -297,85 +312,93 @@ void hw_init(void) {
   uart_init(UART_BAUD_SELECT(UART_BAUD_RATE, F_CPU));
 
   ARDUINO_LED_INIT();
-	
-  // Timer 1 (16 bit)
-  TIMER1_CLK_PRES_256(); // set prescaler to 1/1024
-  TIMER1_OCA_SET(625);
-  TIMER1_OCA_IE();        // enable output compare A interrupt
+
+  LED1_INIT();
+  LED2_INIT();
+  LED3_INIT();
+  LED4_INIT();
   
   //set_sleep_mode(SLEEP_MODE_IDLE);
   //sleep_enable();
-
+  
   // Activate pullup for click button
   PORTD = (0x01 << PIN7);
 
   // Configure buzzer port
   DDRD |= (0x01 << BUZZER_PIN);
   PORTD |= (0x01 << BUZZER_PIN);
-
+  
   // Red Green LED
   DDRB |= (0x01 << PB4) | (0x01 << PB3);
-
+  
   // 5mm Green LED
   DDRD |= (0x01 << PD6);
 	
   // Rotary encoder input pullup activation
   PORTC |= (1<<PC0) | (1<<PC1);
-
+  
   // Pin Change Mask Register 1 
   PCMSK1 |= (1<<PCINT8);
-
+  
   // Enable Pin change interruåt
   PCICR |= (1<<PCIE1);
-
+  
   ADC_ENABLE();
   ADC_REF_AVCC();
   ADC_PRESCALER_128();
   ADC_MUX(POT_ADC);
   ADC_IE();
+  
+  // Timer 1 (16 bit) (used for LEF timing)
+  TIMER1_CLK_PRES_256(); // set prescaler to 1/1024
+  TIMER1_OCA_SET(625);
+  TIMER1_OCA_IE();        // enable output compare A interrupt
 
-  TIMER0_CLK_PRES_1();
-  TIMER0_OCA_SET(250);
-//	TIMER0_WGM_PWM();
-  TIMER0_WGM_FAST_PWM();
-  TIMER0_OM_CLEAR();
+  //   TIMER0_CLK_PRES_1();
+//   TIMER0_OCA_SET(250);
+// //	TIMER0_WGM_PWM();
+//   TIMER0_WGM_FAST_PWM();
+//   TIMER0_OM_CLEAR();
   sei();
 }
 
-int main() {
+int main(void) {
   LEF_Event event;
   uint8_t ls;
   ls = LEDRG_OFF;
   uint16_t ch, val;
-	
+  
   LEF_init();
-
+  
   LEF_Timer_init(&timer1, EVENT_Timer1);
   LEF_Timer_start_repeat(&timer1, 100);
   LEF_Timer_init(&timer2, EVENT_Timer2);
   LEF_Timer_start_repeat(&timer2, 10);
-
-  LEF_Led_init(&led, LED_FAST_BLINK);
+  
+  LEF_Led_init(&led1, LED_ON);
+  LEF_Led_init(&led2, LED_BLINK);
+  LEF_Led_init(&led3, LED_FAST_BLINK);
+  LEF_Led_init(&led4, LED_TRIPPLE_BLINK);
+  
   LEF_LedRG_init(&ledrg, LEDRG_RED_DOUBLE_BLINK);
-//	LEF_LedA_init(&leda, LEDA_OFF);
-//	LEF_LedA_init(&leda, LEDA_SOFT);
+  //	LEF_LedA_init(&leda, LEDA_OFF);
+  //	LEF_LedA_init(&leda, LEDA_SOFT);
   LEF_LedA_init(&leda, LEDA_ON);
   LEF_LedA_init(&leda, LEDA_OFF_SOFT);
-
+  
   LEF_Button_init(&button, EVENT_Button);
   LEF_Rotary_init(&rotary, EVENT_Rotary);
   
   //LEF_Pot_init(&pot, EVENT_Pot);
-
+  
   LEF_Buzzer_init();
 	
   hw_init();
-
+  
+  printf("\n\nStarting LEF Arduino mega test\n\n");
   LEF_Buzzer_set(LEF_BUZZER_BEEP);
   LEF_Cli_init(cmdTable, sizeof(cmdTable) / sizeof((cmdTable)[0]) );
 		
-  //_delay_ms(1000);
-  printf("\n\nStarting LEF simple test\n\n");
 
   while(1) {
 
@@ -406,7 +429,7 @@ int main() {
 				if (ls >= LEDRG_LAST)
 					ls = LEDRG_OFF;
 
-				LEF_Led_set(&led, LED_SINGLE_BLINK);
+				LEF_Led_set(&led1, LED_SINGLE_BLINK);
 				LEF_LedRG_set(&ledrg, ls);
 				
 				LEF_Buzzer_set(LEF_BUZZER_SHORT_BEEP);

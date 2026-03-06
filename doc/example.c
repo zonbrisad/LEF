@@ -8,7 +8,7 @@ typedef enum {            // declare events
 } Events;
 
 LEF_Timer  timer;    // declare resources
-LEF_Led    led;
+LEF_Led    led1;
 LEF_Button button;
 LEF_Rotary rotary;
 
@@ -24,7 +24,7 @@ ISR(TIMER1_COMPA_vect) {
 	
 	LEF_TimerUpdate(&timer1);
 	
-	if (LEF_LedUpdate(&led)) {
+	if (LEF_LedUpdate(&led1)) {
 		ARDUINO_LED_ON();
 	} else {
 		ARDUINO_LED_OFF();
@@ -46,8 +46,8 @@ int main() {
 
 	LEF_TimerInit(&timer1, EVENT_Timer1);
 	LEF_TimerStartRepeat(&timer1, 100);
-	L7EF_LedInit(&led);
-	LEF_LedSetState(&led, LED_STATE_FAST_BLINK);
+	L7EF_LedInit(&led1);
+	LEF_LedSetState(&led1, LED_STATE_FAST_BLINK);
 
 	LEF_LedRGInit(&ledrg);
 	LEF_LedRGSetState(&ledrg, LEDRG_RED_DOUBLE_BLINK);
@@ -75,7 +75,7 @@ int main() {
 				if (ls >= LEDRG_LAST)
 					ls = LEDRG_OFF;
 
-				LEF_LedSetState(&led, LED_STATE_SINGLE_BLINK);
+				LEF_LedSetState(&led1, LED_STATE_SINGLE_BLINK);
 				LEF_LedRGSetState(&ledrg, ls);
 				
 				LEF_Buzzer_set(LEF_BUZZER_SHORT_BEEP);

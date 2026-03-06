@@ -48,7 +48,7 @@ void hw_init(void);
 static FILE mystdout = FDEV_SETUP_STREAM((void*)uart_putc, NULL, _FDEV_SETUP_WRITE);
 
 LEF_Timer  timer;
-LEF_Led    led;
+LEF_Led    led1;
 
 // Code ---------------------------------------------------------------------
 
@@ -56,7 +56,7 @@ ISR(TIMER1_COMPA_vect) {
 
   TIMER1_RELOAD(0);
 
-  if (LEF_Led_update(&led)) {
+  if (LEF_Led_update(&led1)) {
 		ARDUINO_LED_ON();
 	} else {
 		ARDUINO_LED_OFF();
@@ -86,7 +86,7 @@ int main() {
 	printf("\n\nLEF AVR blink LED demo\n\n");
   
   LEF_init();
-  LEF_Led_init(&led, LED_FAST_BLINK);
+  LEF_Led_init(&led1, LED_FAST_BLINK);
   
 	while (1) {
     LEF_Wait(&event);
