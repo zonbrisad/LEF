@@ -37,55 +37,89 @@
 // Code -------------------------------------------------------------------
 
 void LEF_Led_init(LEF_Led *led, LED_STATES mode) {
-//	led->mode = LED_OFF;
 	led->cnt = 0;
 	LEF_Led_set(led, mode);
 }
 
 uint8_t LEF_Led_update(LEF_Led *led) {
-	uint8_t limit;
-	limit = 0;
+	led->cnt++;
 	switch (led->mode) {
-		case LED_OFF: return 0; break;
 		case LED_ON:  return 1; break;
-		case LED_FAST_BLINK:
-			limit = (LED_FAST_BLINK_DURATION - LED_BLINK_DURATION);
-			__attribute__((fallthrough)); // supress warning about missing break statement
-		case LED_BLINK:
-			limit += LED_BLINK_DURATION;
-			led->cnt++;
-
-			if (led->cnt>limit) {
-				led->cnt = - limit;
-			}
-
-			if (led->cnt<0)
-				return 1;
-			else
-				return 0;
-
-			break;
+		case LED_OFF: return 0; break;
 		case LED_SINGLE_BLINK:
-		  led->cnt++;
-		  if (led->cnt>LED_SINGLE_BLINK)
-			  led->mode = LED_OFF;
-		  return 1;
-		break;
+			if (led->cnt > 0)
+				led->mode = LED_OFF;
+			return 1;
+			break;
+		case LED_DOUBLE_BLINK:
+			if (led->cnt > LED_SINGLE_BLINK_DURATION) {
+				led->mode = LED_SINGLE_BLINK;
+				led->cnt = -LED_SINGLE_BLINK_DURATION;
+			}
+			return (led->cnt < 0) ? 1 : 0;
+			break;
+
+		case LED_TRIPPLE_BLINK:
+			if (led->cnt > LED_SINGLE_BLINK_DURATION) {
+				led->mode = LED_DOUBLE_BLINK;
+				led->cnt = -LED_SINGLE_BLINK_DURATION;
+			}
+			return (led->cnt < 0) ? 1 : 0;
+			break;
+		case LED_FAST_BLINK:
+			if (led->cnt > LED_FAST_BLINK_DURATION) {
+				led->cnt = -LED_FAST_BLINK_DURATION;
+			}
+			break;
+		case LED_BLINK:
+			if (led->cnt > LED_BLINK_DURATION) {
+				led->cnt = -LED_BLINK_DURATION;
+			}
+			break;
+
+		case LED_SLOW_BLINK:
+			if (led->cnt > LED_SLOW_BLINK_DURATION) {
+				led->cnt = -LED_SLOW_BLINK_DURATION;
+			}
+			break;
+		case LED_BLIP:
+			if (led->cnt > LED_BLIP_PAUSE)  // Blip is a very short blink
+				led->cnt = -LED_BLIP_DURATION; 
+			break;
+
+		case LED_SLOW_BLIP:
+			if (led->cnt > LED_SLOW_BLIP_PAUSE)  // Blip is a very short blink
+				led->cnt = -LED_SLOW_BLIP_DURATION; 
+			break;
+				
 		default: return 0;
 	}
-	return 0;
+	return (led->cnt<0) ? 1 : 0;
 }
 
 void LEF_Led_set(LEF_Led *led, LED_STATES state) {
 	led->mode = state;
 	switch (state) {
-	 case LED_BLINK:
-	 case LED_FAST_BLINK:
-		led->cnt = - LED_BLINK_DURATION;
-		break;
-	 case LED_SINGLE_BLINK:
-		led->cnt = 0;
-		break;
+		case LED_BLINK:
+	 	case LED_FAST_BLINK:
+			led->cnt = -LED_BLINK_DURATION;
+			break;
+	 	case LED_SINGLE_BLINK:
+			led->cnt = -LED_SINGLE_BLINK_DURATION;
+			break;
+		case LED_DOUBLE_BLINK:
+			led->cnt = -LED_SINGLE_BLINK_DURATION;
+			break;
+		case LED_TRIPPLE_BLINK:
+			led->cnt = -LED_SINGLE_BLINK_DURATION;
+			break;
+		case LED_BLIP:
+			led->cnt = -LED_BLIP_DURATION; // Blip is a very short blink
+			break;
+		case LED_SLOW_BLIP:
+			led->cnt = -LED_SLOW_BLIP_DURATION; // Blip is a very short blink
+			break;
+
 	 default:break;
 	}
 }

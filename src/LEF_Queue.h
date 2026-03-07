@@ -23,8 +23,7 @@
  * 1 tab = 2 spaces
  */
 
-#ifndef LEF_QUEUE_H
-#define LEF_QUEUE_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -94,5 +93,5 @@ uint16_t LEF_QueueStdCnt(void);
 #ifdef __cplusplus
 } //end brace for extern "C"
 #endif
-#endif
+
 

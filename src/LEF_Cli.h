@@ -23,8 +23,7 @@
  * 1 tab = 2 spaces
  */
 
-#ifndef LEF_CLI_H
-#define LEF_CLI_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -62,6 +61,5 @@ void LEF_Cli_print(void);
 	
 #ifdef __cplusplus
 } //end brace for extern "C"
-#endif
 #endif
 

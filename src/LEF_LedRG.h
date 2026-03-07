@@ -23,8 +23,7 @@
  * 1 tab = 2 spaces
  */
 
-#ifndef LEF_LEDRG_H
-#define LEF_LEDRG_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -77,6 +76,5 @@ void LEF_LedRG_set(LEF_LedRG *led, LEDRG_STATES state);
 
 #ifdef __cplusplus
 } //end brace for extern "C"
-#endif
 #endif
 

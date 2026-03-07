@@ -14,8 +14,7 @@
  */
 
         
-#ifndef _LEF_POT_H_
-#define _LEF_POT_H_
+#pragma once
 
 #include "LEF.h"
 
@@ -39,8 +38,6 @@ void LEF_Pot_update(LEF_Pot *pot, uint16_t newState);
 uint16_t LEF_Pot_state(LEF_Pot *pot);
 
 void LEF_Pot_free(LEF_Pot *pot);
-
-#endif // _LEF_BUTTON_H_ 
         
 #ifdef __cplusplus
 } //end brace for extern "C"

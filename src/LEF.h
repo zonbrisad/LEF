@@ -22,8 +22,7 @@
  * 1 tab = 2 spaces
  */
 
-#ifndef LEF_H
-#define LEF_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -148,7 +147,7 @@ void LEF_Print_event(LEF_queue_element *event);
 	
 //void LEF_QueueStdClear(void);
 
-//uint16_t LEF_QueueStdCnt(void);
+//uint16_t LEF_QueueStdCnt(void);   
 
 	
 void LEF_Send(LEF_Event *event);
@@ -158,7 +157,6 @@ void LEF_Send(LEF_Event *event);
  * @param event
  */
 void LEF_Wait(LEF_Event *event);
-
 	
 void LEF_Clear(void);
 
@@ -168,5 +166,5 @@ uint16_t LEF_Count(void);
 #ifdef __cplusplus
 } //end brace for extern "C"
 #endif
-#endif
+
 

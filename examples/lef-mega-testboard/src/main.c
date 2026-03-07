@@ -91,7 +91,9 @@ void cmdBuzoff(char *args);
 void cmdBeep(char *args);
 void cmdSBeep(char *args);
 void cmdLBeep(char *args);
-void cmdBlink(char *args);
+void cmd_blink(char *args);
+void cmd_dblink(char *args);
+void cmd_tblink(char *args);
 void cmdLedOn(char *args);
 void cmdLedOff(char *args);
 void cmdEvOn(char *args);
@@ -119,24 +121,26 @@ static FILE mystdout = FDEV_SETUP_STREAM((void*)uart_putc, NULL, _FDEV_SETUP_WRI
  
 const PROGMEM LEF_CliCmd cmdTable[] = {
 	LEF_CLI_LABEL("Buzzer"),
-	{cmdBuzon,   "buzon",    "Buzzer on"},
-	{cmdBuzoff,  "buzoff",   "Buzzer off"},
-	{cmdBeep,    "beep",     "Make a beep"},	
-	{cmdSBeep,   "sbeep",    "Make a short beep"},
-	{cmdLBeep,   "lbeep",    "Make a long beep"},
-	{cmdDBeep,   "dbeep",    "Make a double beep"},
-	{cmdTBeep,   "tbeep",    "Make a tripple beep"},
+	{cmdBuzon,    "buzon",    "Buzzer on"},
+	{cmdBuzoff,   "buzoff",   "Buzzer off"},
+	{cmdBeep,     "beep",     "Make a beep"},	
+	{cmdSBeep,    "sbeep",    "Make a short beep"},
+	{cmdLBeep,    "lbeep",    "Make a long beep"},
+	{cmdDBeep,    "dbeep",    "Make a double beep"},
+	{cmdTBeep,    "tbeep",    "Make a tripple beep"},
 	{cmd_disk,    "disk",     "Sound as dishwasher"},
 	{cmd_brp,     "brp",      "BRP sound"},
 	LEF_CLI_LABEL("Led"),
-	{cmdLedOn,  "ledon",     "Turn led on"},
-	{cmdLedOff, "ledoff",    "Turn led off"}, 
-	{cmdBlink,  "blink",     "Make led blink once"},
+	{cmdLedOn,    "ledon",    "Turn led on"},
+	{cmdLedOff,   "ledoff",   "Turn led off"}, 
+	{cmd_blink,   "blink",    "Make led blink once"},
+	{cmd_dblink,  "dblink",   "Make led blink twice"},
+	{cmd_tblink,  "tblink",   "Make led blink three times"},
 	LEF_CLI_LABEL("Misc"),
-	{cmdEvOn,   "evon",      "Turn event on"},
-	{cmdEvOff,  "evoff",     "Turn event off"},
-	{cmdAdc,    "adc",       "Read adc inputs"},
-	{cmdHelp,   "help",      "Show help"},
+	{cmdEvOn,     "evon",     "Turn event on"},
+	{cmdEvOff,    "evoff",    "Turn event off"},
+	{cmdAdc,      "adc",      "Read adc inputs"},
+	{cmdHelp,     "help",     "Show help"},
 };
 
 void cmd_brp(char *args) {
@@ -184,9 +188,19 @@ void cmdLBeep(char *args) {
   LEF_Buzzer_set(LEF_BUZZER_LONG_BEEP);
 }
 
-void cmdBlink(char *args) {
+void cmd_blink(char *args) {
   UNUSED(args);
   LEF_Led_set(&led1, LED_SINGLE_BLINK);
+}
+
+void cmd_dblink(char *args) {
+  UNUSED(args);
+  LEF_Led_set(&led1, LED_DOUBLE_BLINK);
+}
+
+void cmd_tblink(char *args) {
+  UNUSED(args);
+  LEF_Led_set(&led1, LED_TRIPPLE_BLINK);
 }
 
 void cmdLedOn(char *args) {
@@ -375,10 +389,10 @@ int main(void) {
   LEF_Timer_init(&timer2, EVENT_Timer2);
   LEF_Timer_start_repeat(&timer2, 10);
   
-  LEF_Led_init(&led1, LED_ON);
+  LEF_Led_init(&led1, LED_SLOW_BLINK);
   LEF_Led_init(&led2, LED_BLINK);
   LEF_Led_init(&led3, LED_FAST_BLINK);
-  LEF_Led_init(&led4, LED_TRIPPLE_BLINK);
+  LEF_Led_init(&led4, LED_BLIP);
   
   LEF_LedRG_init(&ledrg, LEDRG_RED_DOUBLE_BLINK);
   //	LEF_LedA_init(&leda, LEDA_OFF);
@@ -399,7 +413,6 @@ int main(void) {
   LEF_Buzzer_set(LEF_BUZZER_BEEP);
   LEF_Cli_init(cmdTable, sizeof(cmdTable) / sizeof((cmdTable)[0]) );
 		
-
   while(1) {
 
   LEF_Wait(&event);

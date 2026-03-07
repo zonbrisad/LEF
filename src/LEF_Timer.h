@@ -22,14 +22,14 @@
  * 1 tab = 2 spaces
  */
 
-#ifndef LEF_TIMER_H
-#define LEF_TIMER_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 // Includes ---------------------------------------------------------------
+#include "LEF.h"
 
 // Macros -----------------------------------------------------------------
 
@@ -66,10 +66,8 @@ void LEF_Timer_update(LEF_Timer *timer);
 
 //void LEF_Timer_reset(LEF_Timer *timer);
 
-
-
 #ifdef __cplusplus
 } //end brace for extern "C"
 #endif
-#endif
+
 

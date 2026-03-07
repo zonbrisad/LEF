@@ -22,14 +22,11 @@
  * 1 tab = 2 spaces
  */
 
-#ifndef LEF_CONFIG_H
-#define LEF_CONFIG_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-
 
 
 // StdQue settings --------------------------------------------------------
@@ -57,11 +54,17 @@ extern "C" {
 
 // Led settings -----------------------------------------------------------
 
+#define LED_SLOW_BLINK_DURATION       100  // (cycles)
 #define LED_BLINK_DURATION             40  // (cycles)
 #define LED_FAST_BLINK_DURATION         5  // (cycles)
-#define LED_SINGLE_BLINK_DURATION       5  // (cycles)
 
+#define LED_SINGLE_BLINK_DURATION      10  // (cycles)
 
+#define LED_BLIP_DURATION                1  // (cycles)
+#define LED_BLIP_PAUSE                 150  // (cycles)
+
+#define LED_SLOW_BLIP_DURATION           1  // (cycles)
+#define LED_SLOW_BLIP_PAUSE            300  // (cycles)
 
 // Analog Led settings ----------------------------------------------------
 
@@ -82,5 +85,5 @@ extern "C" {
 #ifdef __cplusplus
 } //end brace for extern "C"
 #endif
-#endif
+
 

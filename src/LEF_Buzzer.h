@@ -23,8 +23,7 @@
  * 1 tab = 2 spaces
  */
 
-#ifndef LEF_BUZZER_H
-#define LEF_BUZZER_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -69,6 +68,5 @@ bool LEF_Buzzer_update(void);
 	
 #ifdef __cplusplus
 } //end brace for extern "C"
-#endif
 #endif
 

@@ -64,7 +64,7 @@ void cmdBuzoff(char *args);
 void cmdBeep(char *args);
 void cmdSBeep(char *args);
 void cmdLBeep(char *args);
-void cmdBlink(char *args);
+void cmd_blink(char *args);
 void cmdLedOn(char *args);
 void cmdLedOff(char *args);
 void cmdEvOn(char *args);
@@ -154,7 +154,7 @@ void cmdLBeep(char *args) {
   LEF_Buzzer_set(LEF_BUZZER_LONG_BEEP);
 }
 
-void cmdBlink(char *args) {
+void cmd_blink(char *args) {
   UNUSED(args);
   LEF_Led_set(&led1, LED_SINGLE_BLINK);
 }
