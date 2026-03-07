@@ -17,55 +17,54 @@
 // Atmel AVR specific -------------------------------------------------------
 
 // AVR Reset causes ---------------------------------------------------------
-inline bool IS_POWER_ON_RESET(void)            { return MCUSR & (1<<PORF); }
-inline bool IS_BROWN_OUT_RESET(void)           { return MCUSR & (1<<BORF); }
-inline bool IS_WATCH_DOG_RESET(void)           { return MCUSR & (1<<WDRF); }
-inline bool IS_EXTERNAL_RESET(void)            { return MCUSR & (1<<EXTRF); }
-inline void CLEAR_RESETS(void)                 { MCUSR = 0; }
+inline bool IS_POWER_ON_RESET(void)       { return MCUSR & (1<<PORF); }
+inline bool IS_BROWN_OUT_RESET(void)      { return MCUSR & (1<<BORF); }
+inline bool IS_WATCH_DOG_RESET(void)      { return MCUSR & (1<<WDRF); }
+inline bool IS_EXTERNAL_RESET(void)       { return MCUSR & (1<<EXTRF); }
+inline void CLEAR_RESETS(void)            { MCUSR = 0; }
 
 // Reset MCU with watchdog --------------------------------------------------
 
-#define RESET()                    { cli(); wdt_enable(WDTO_500MS); while(1); }
+#define RESET()                           { cli(); wdt_enable(WDTO_500MS); while(1); }
 // inline void RESET(void)                    { cli(); wdt_enable(WDTO_15MS); while(1); }
 
 // AVR ADC ------------------------------------------------------------------
 
-inline void ADC_ENABLE(void)     { ADCSRA |= (1<<ADEN); }   // Enable continuous conversion
-inline void ADC_DISSABLE(void)   { ADCSRA &= ~(1<<ADEN); }  // Dissable continuous conversion
-inline void ADC_START(void)      { ADCSRA |= (1<<ADSC); }   // Start single conversion
-inline void ADC_IE(void)         { ADCSRA |= (1<<ADIE); }   // Enable ADC interrupt
-inline void ADC_ID(void)         { ADCSRA &= ~(1<<ADIE); }  // Disable ADC interrupt
+inline void ADC_ENABLE(void)              { ADCSRA |= (1<<ADEN); }   // Enable continuous conversion
+inline void ADC_DISSABLE(void)            { ADCSRA &= ~(1<<ADEN); }  // Dissable continuous conversion
+inline void ADC_START(void)               { ADCSRA |= (1<<ADSC); }   // Start single conversion
+inline void ADC_IE(void)                  { ADCSRA |= (1<<ADIE); }   // Enable ADC interrupt
+inline void ADC_ID(void)                  { ADCSRA &= ~(1<<ADIE); }  // Disable ADC interrupt
 
-inline void ADC_MUX(uint8_t mux) { ADMUX = (ADMUX & 0b11100000) | (mux); }
+inline void ADC_MUX(uint8_t mux)          { ADMUX = (ADMUX & 0b11100000) | (mux); }
 
-inline void ADC_REF_AREF(void) { ADMUX = (ADMUX & 0b00001111); }              // Set voltage reference to AREF
-inline void ADC_REF_AVCC(void) { ADMUX = (ADMUX & 0b00001111) | 0b01000000; } // Set voltage reference to AVcc 
-inline void ADC_REF_INT(void)  { ADMUX = (ADMUX & 0b00001111) | 0b11000000; } // Set voltage reference to 1.1 V internal reference
+inline void ADC_REF_AREF(void)            { ADMUX = (ADMUX & 0b00001111); }              // Set voltage reference to AREF
+inline void ADC_REF_AVCC(void)            { ADMUX = (ADMUX & 0b00001111) | 0b01000000; } // Set voltage reference to AVcc 
+inline void ADC_REF_INT(void)             { ADMUX = (ADMUX & 0b00001111) | 0b11000000; } // Set voltage reference to 1.1 V internal reference
 
 //#define ADC_PRESCALER_2() ADCSRA = (ADCSRA & ~7) | 0
-inline void ADC_PRESCALER_2(void)   { ADCSRA = (ADCSRA & 0b11111000) | 0b0001; }
-inline void ADC_PRESCALER_4(void)   { ADCSRA = (ADCSRA & 0b11111000) | 0b0010; }
-inline void ADC_PRESCALER_8(void)   { ADCSRA = (ADCSRA & 0b11111000) | 0b0011; }
-inline void ADC_PRESCALER_16(void)  { ADCSRA = (ADCSRA & 0b11111000) | 0b0100; }
-inline void ADC_PRESCALER_32(void)  { ADCSRA = (ADCSRA & 0b11111000) | 0b0101; }
-inline void ADC_PRESCALER_64(void)  { ADCSRA = (ADCSRA & 0b11111000) | 0b0110; }
-inline void ADC_PRESCALER_128(void) { ADCSRA = (ADCSRA & 0b11111000) | 0b0111; }
+inline void ADC_PRESCALER_2(void)         { ADCSRA = (ADCSRA & 0b11111000) | 0b0001; }
+inline void ADC_PRESCALER_4(void)         { ADCSRA = (ADCSRA & 0b11111000) | 0b0010; }
+inline void ADC_PRESCALER_8(void)         { ADCSRA = (ADCSRA & 0b11111000) | 0b0011; }
+inline void ADC_PRESCALER_16(void)        { ADCSRA = (ADCSRA & 0b11111000) | 0b0100; }
+inline void ADC_PRESCALER_32(void)        { ADCSRA = (ADCSRA & 0b11111000) | 0b0101; }
+inline void ADC_PRESCALER_64(void)        { ADCSRA = (ADCSRA & 0b11111000) | 0b0110; }
+inline void ADC_PRESCALER_128(void)       { ADCSRA = (ADCSRA & 0b11111000) | 0b0111; }
 
-inline uint16_t ADC_VALUE(void)  { return ADCL + (ADCH << 8); }
+inline uint16_t ADC_VALUE(void)           { return ADCL + (ADCH << 8); }
 
-inline bool ADC_IS_BUSY(void) { return (ADCSRA & (1<<ADIF)) ? false : true; }
-inline void ADC_WAIT_COMPLETION(void)  { while (ADC_IS_BUSY()) {}}  // Busy wait for completion
+inline bool ADC_IS_BUSY(void)             { return (ADCSRA & (1<<ADIF)) ? false : true; }
+inline void ADC_WAIT_COMPLETION(void)     { while (ADC_IS_BUSY()) {}}  // Busy wait for completion
 inline void ADC_AUTOTRIGGER_ENABLE(void)  { ADCSRA |= (1<<ADATE); }   // ADC auto trigger enable
 
-inline void ADC_TRG_FREE_RUNNING(void) { ADCSRB = (ADCSRB & 0b00000111) | 0b000; }
-inline void ADC_TRG_ANALOG_COMP(void)  { ADCSRB = (ADCSRB & 0b00000111) | 0b001; }
-inline void ADC_TRG_EXTERNAL_INT(void) { ADCSRB = (ADCSRB & 0b00000111) | 0b010; }
-inline void ADC_TRG_TIMER0_COMPA(void) { ADCSRB = (ADCSRB & 0b00000111) | 0b011; }
-inline void ADC_TRG_TIMER0_OVF(void)   { ADCSRB = (ADCSRB & 0b00000111) | 0b100; }
-inline void ADC_TRG_TIMER1_COMPB(void) { ADCSRB = (ADCSRB & 0b00000111) | 0b101; }
-inline void ADC_TRG_TIMER1_OVF(void)   { ADCSRB = (ADCSRB & 0b00000111) | 0b110; }
-inline void ADC_TRG_TIMER1_CPT(void)   { ADCSRB = (ADCSRB & 0b00000111) | 0b111; }
-
+inline void ADC_TRG_FREE_RUNNING(void)    { ADCSRB = (ADCSRB & 0b00000111) | 0b000; }
+inline void ADC_TRG_ANALOG_COMP(void)     { ADCSRB = (ADCSRB & 0b00000111) | 0b001; }
+inline void ADC_TRG_EXTERNAL_INT(void)    { ADCSRB = (ADCSRB & 0b00000111) | 0b010; }
+inline void ADC_TRG_TIMER0_COMPA(void)    { ADCSRB = (ADCSRB & 0b00000111) | 0b011; }
+inline void ADC_TRG_TIMER0_OVF(void)      { ADCSRB = (ADCSRB & 0b00000111) | 0b100; }
+inline void ADC_TRG_TIMER1_COMPB(void)    { ADCSRB = (ADCSRB & 0b00000111) | 0b101; }
+inline void ADC_TRG_TIMER1_OVF(void)      { ADCSRB = (ADCSRB & 0b00000111) | 0b110; }
+inline void ADC_TRG_TIMER1_CPT(void)      { ADCSRB = (ADCSRB & 0b00000111) | 0b111; }
 
 // AVR Timer 0 (8 bit) ------------------------------------------------------
 
@@ -87,9 +86,9 @@ inline void TIMER0_OCA_ID(void)           { TIMSK0 &= ~(1<<OCIE0A); }      // Di
 inline void TIMER0_OCB_IE(void)           { TIMSK0 |= (1<<OCIE0B); }       // Enable output compare B interrupt
 inline void TIMER0_OCB_ID(void)           { TIMSK0 &= ~(1<<OCIE0B); }      // Disable output compare B interrupt
 
-inline void  TIMER0_OCA_SET(uint8_t x) { OCR0A = x; }                  // Set output compare A register
-inline void  TIMER0_OCB_SET(uint8_t x) { OCR0B = x; }                  // Set output compare B register
-inline void  TIMER0_RELOAD(uint8_t x)  { TCNT0 = x; }                  // Reload timer register
+inline void  TIMER0_OCA_SET(uint8_t x)    { OCR0A = x; }                  // Set output compare A register
+inline void  TIMER0_OCB_SET(uint8_t x)    { OCR0B = x; }                  // Set output compare B register
+inline void  TIMER0_RELOAD(uint8_t x)     { TCNT0 = x; }                  // Reload timer register
     
 // Waveform generation mode
 inline void TIMER0_WGM_NORMAL(void)       { TCCR0A = (TCCR0A & 0x11111100) | 0x00000000; }
@@ -121,15 +120,11 @@ inline void TIMER1_OCA_IE(void)           { TIMSK1 |= (1<<OCIE1A); }       // En
 inline void TIMER1_OCA_ID(void)           { TIMSK1 &= ~(1<<OCIE1A); }      // Disable output compare A interrupt
 inline void TIMER1_OCB_IE(void)           { TIMSK1 |= (1<<OCIE1B); }       // Enable output compare B interrupt
 inline void TIMER1_OCB_ID(void)           { TIMSK1 &= ~(1<<OCIE1B); }      // Disable output compare B interrupt
-
-                                                              // Set output compare A register
-inline void TIMER1_OCA_SET(uint16_t x)         { OCR1AH = (uint8_t) ((uint16_t)x>>8); OCR1AL = (uint8_t) ((uint16_t)x & 0xff); }
-                                                              // Set output compare B register
-inline void TIMER1_OCB_SET(uint16_t x)         { OCR1BH = (uint8_t) ((uint16_t)x>>8); OCR1BL = (uint8_t) ((uint16_t)x & 0xff); }
-                                                              // Reload timer register
-inline void TIMER1_RELOAD(uint16_t x)          { TCNT1H = (uint8_t) ((uint16_t)x>>8); TCNT1L = (uint8_t)((uint16_t)x & 0xff); }
+                                                             
+inline void TIMER1_OCA_SET(uint16_t x)    { OCR1AH = (uint8_t) ((uint16_t)x>>8); OCR1AL = (uint8_t) ((uint16_t)x & 0xff); } // Set output compare A register
+inline void TIMER1_OCB_SET(uint16_t x)    { OCR1BH = (uint8_t) ((uint16_t)x>>8); OCR1BL = (uint8_t) ((uint16_t)x & 0xff); } // Set output compare B register                                                           
+inline void TIMER1_RELOAD(uint16_t x)     { TCNT1H = (uint8_t) ((uint16_t)x>>8); TCNT1L = (uint8_t)((uint16_t)x & 0xff); } // Reload timer register
                                                               
-
 // AVR Timer 2 (8 bit) ------------------------------------------------------
 
 // Clock source
@@ -150,9 +145,26 @@ inline void TIMER2_OCA_ID(void)           { TIMSK2 &= ~(1<<OCIE0A); } // Disable
 inline void TIMER2_OCB_IE(void)           { TIMSK2 |= (1<<OCIE0B); }  // Enable output compare B interrupt
 inline void TIMER2_OCB_ID(void)           { TIMSK2 &= ~(1<<OCIE0B); } // Disable output compare B interrupt
 
-inline void TIMER2_OCA_SET(uint8_t x) { OCR2A = x; }              // Set output compare A register
-inline void TIMER2_OCB_SET(uint8_t x) { OCR2B = x; }              // Set output compare B register
-inline void TIMER2_RELOAD(uint8_t x)  { TCNT2 = x; }              // Reload timer register
+inline void TIMER2_OCA_SET(uint8_t x)     { OCR2A = x; }              // Set output compare A register
+inline void TIMER2_OCB_SET(uint8_t x)     { OCR2B = x; }              // Set output compare B register
+inline void TIMER2_RELOAD(uint8_t x)      { TCNT2 = x; }              // Reload timer register
+
+// Arduino specific ---------------------------------------------------------
+
+#ifdef ARDUINO
+#define ARDUINO_LED_PIN PB5
+#endif
+
+#ifdef ARDUINO_MEGA
+#define ARDUINO_LED_PIN PB7
+#endif
+
+inline void ARDUINO_LED_INIT(void)   { DDRB |= (1 << ARDUINO_LED_PIN); }
+inline void ARDUINO_LED_ON(void)     { PORTB |= (1 << ARDUINO_LED_PIN); }
+inline void ARDUINO_LED_OFF(void)    { PORTB &= ~(1 << ARDUINO_LED_PIN); }
+inline void ARDUINO_LED_TOGGLE(void) { PINB = (1 << ARDUINO_LED_PIN); }
+inline bool ARDUINO_LED_IS_ON(void)  { return PINB & (1 << ARDUINO_LED_PIN); }
+
 
 
 /* Timer example code
@@ -175,22 +187,6 @@ TIMER0_OCA_SET(156);
 sei();
 
 */
-
-// Arduino specific ---------------------------------------------------------
-
-#ifdef ARDUINO
-#define ARDUINO_LED_PIN PB5
-#endif
-
-#ifdef ARDUINO_MEGA
-#define ARDUINO_LED_PIN PB7
-#endif
-
-inline void ARDUINO_LED_INIT(void) { DDRB |= (1 << ARDUINO_LED_PIN); }
-inline void ARDUINO_LED_ON(void) { PORTB |= (1 << ARDUINO_LED_PIN); }
-inline void ARDUINO_LED_OFF(void) { PORTB &= ~(1 << ARDUINO_LED_PIN); }
-inline void ARDUINO_LED_TOGGLE(void) { PINB = (1 << ARDUINO_LED_PIN); }
-inline bool ARDUINO_LED_IS_ON(void) { return PINB & (1 << ARDUINO_LED_PIN); }
 
 /*
          +----[PWR]-------------------| USB |--+

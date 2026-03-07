@@ -131,6 +131,7 @@ void cmdEvOff(char *args);
 void cmdHelp(char *args);
 void cmd_disk(char *args);
 void cmd_adc(char *args);
+void cmd_reset(char *args);
 
 
 LEF_Timer  timer1;
@@ -172,6 +173,7 @@ const PROGMEM LEF_CliCmd cmdTable[] = {
 	{cmdEvOn,     "evon",     "Turn event on"},
 	{cmdEvOff,    "evoff",    "Turn event off"},
 	{cmd_adc,      "adc",      "Read adc inputs"},
+	{cmd_reset,    "reset",    "Reset the system"},
 	// {cmdHelp,     "help",     "Show help"},
   LEF_CLI_CMD(cmdHelp, "help", "Show help")
 };
@@ -284,6 +286,10 @@ void cmd_adc(char *args) {
   ADC_IE();
 }
 
+void cmd_reset(char *args) {
+  UNUSED(args);
+  RESET();
+}
 
 ISR(PCINT1_vect) {
 //	LEF_Event event;

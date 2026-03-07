@@ -50,7 +50,6 @@ void LEF_Button_update(LEF_Button *button, uint8_t state) {
 	}
 
 	// detect long press event
-	// if (state) {
 	if ((button->state & 0b111) == 0b111) {
 		if (button->cnt < 252)
 			button->cnt++;
@@ -58,7 +57,6 @@ void LEF_Button_update(LEF_Button *button, uint8_t state) {
 	  	if (button->cnt == 250) {
 			qe.func = 3;
 	 	  	LEF_QueueStdSend(&qe);
-		  	//button->cnt=0;
 	  	}
 	} else {
 		button->cnt = 0;

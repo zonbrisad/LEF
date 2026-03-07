@@ -253,17 +253,6 @@ bpPIDExist() {
   fi
 }
 
-write_arduino_bootloader() {
-  MCU=$1
-  BOOTLOADER=$2
-  avrdude -v -c jtag2isp -p ${MCU} -U flash:w:${BOOTLOADER}:i -U hfuse:w:0xD6:m -U lfuse:w:0xFF:m
-}
-
-wprg() { ##D Write program with JTAG ICE mkII
-  #write_arduino_bootloader "m328p" "${BP_SELF_DIR}/arduino/optiboot/optiboot_atmega328.hex"
-  write_arduino_bootloader "m328" "$2"
-}
-
 arduino_write_flash() { ## Write firmware to Arduino via bootloader
   FILE=${1}
   MCU=${2}
@@ -276,21 +265,14 @@ arduino_write_flash() { ## Write firmware to Arduino via bootloader
   fi
 
   # Suspend mpterm terminal program if available
-  if bpHasCmd "mpterm.py"; then
-    mpterm.py --suspend
+  if bpHasCmd "mpterm"; then
+    mpterm --suspend
     sleep 0.4
   fi
 
   # Write to flash
-  avrdude -v -v -p "${MCU}" -b 57600 -c arduino -P "${PORT}" -U flash:w:"${FILE}":i
-}
-
-start_mpterm() { ## Open 
-  FILE=${2}
-  MCU=${3}
-  PORT=${4}
-
-  mpterm --ext_program "avrdude -v -v -p ${MCU} -b 57600 -c arduino -P __PORT__ -U flash:w:${FILE}:i" #--debug
+  #avrdude -v -v -V -p "${MCU}" -b 57600 -c arduino -P "${PORT}" -U flash:w:"${FILE}":i
+  avrdude -v -v -V -p "${MCU}" -c urclock -P "${PORT}" -U flash:w:"${FILE}":i
 }
 
 get_serial_port() {

@@ -28,22 +28,22 @@
 
 #include "LEF.h"
 
-#define UART_BAUD_RATE 57600
+static const uint32_t UART_BAUD_RATE = 57600;
 
+#define POT_ADC 5
 #define BUZZER_PIN PD3
 
-#define BUZZER_ON() PORTD &= ~(1<<BUZZER_PIN)
-#define BUZZER_OFF() PORTD |= (1<<BUZZER_PIN)
+inline void BUZZER_ON() { PORTD &= ~(1<<BUZZER_PIN); }
+inline void BUZZER_OFF() { PORTD |= (1<<BUZZER_PIN); }
 
-#define LED_RED_ON() PORTB |= (0x01 << PB4)
-#define LED_RED_OFF() PORTB &= ~(0x01 << PB4)
-#define LED_GREEN_ON() PORTB |= (0x01 << PB3)
-#define LED_GREEN_OFF() PORTB &= ~(0x01 << PB3)
+inline void LED_RED_ON() { PORTB |= (0x01 << PB4); }
+inline void LED_RED_OFF() { PORTB &= ~(0x01 << PB4); }
+inline void LED_GREEN_ON() { PORTB |= (0x01 << PB3); }
+inline void LED_GREEN_OFF() { PORTB &= ~(0x01 << PB3); }
 
 #define ROT_CLK()  PINC | (1 << PC0)
 #define ROT_DATA() PINC | (1 << PC1)
 
-#define POT_ADC 5
 
 
 typedef enum {
@@ -97,15 +97,15 @@ const PROGMEM LEF_CliCmd cmdTable[] = {
 	{cmdDBeep,   "dbeep",    "Make a double beep"},
 	{cmdTBeep,   "tbeep",    "Make a tripple beep"},
 	{cmdDisk,    "disk",     "Sound as dishwasher"},
-	{cmdBrp,     "brp",      "BRP sound"},
+	{cmd_brp,     "brp",      "BRP sound"},
 	LEF_CLI_LABEL("Led"),
 	{cmdLedOn,  "ledon",     "Turn led on"},
 	{cmdLedOff, "ledoff",    "Turn led off"}, 
-	{cmdBlink,  "blink",     "Make led blink once"},
+	{cmd_blink,  "blink",     "Make led blink once"},
 	LEF_CLI_LABEL("Misc"),
 	{cmdEvOn,   "evon",      "Turn event on"},
 	{cmdEvOff,  "evoff",     "Turn event off"},
-	{cmdAdc,    "adc",       "Read adc inputs"},
+	{cmd_adc,    "adc",       "Read adc inputs"},
 	{cmdHelp,   "help",      "Show help"},
 };
 
