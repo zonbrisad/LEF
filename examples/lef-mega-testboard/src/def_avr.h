@@ -36,7 +36,7 @@ inline void ADC_START(void)      { ADCSRA |= (1<<ADSC); }   // Start single conv
 inline void ADC_IE(void)         { ADCSRA |= (1<<ADIE); }   // Enable ADC interrupt
 inline void ADC_ID(void)         { ADCSRA &= ~(1<<ADIE); }  // Disable ADC interrupt
 
-inline void ADC_MUX(uint8_t mux) { ADMUX = (ADMUX & 0b11110000) | (mux); }
+inline void ADC_MUX(uint8_t mux) { ADMUX = (ADMUX & 0b11100000) | (mux); }
 
 inline void ADC_REF_AREF(void) { ADMUX = (ADMUX & 0b00001111); }              // Set voltage reference to AREF
 inline void ADC_REF_AVCC(void) { ADMUX = (ADMUX & 0b00001111) | 0b01000000; } // Set voltage reference to AVcc 

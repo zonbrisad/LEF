@@ -36,7 +36,9 @@ extern "C" {
 // Macros -----------------------------------------------------------------
 
 #define LEF_CLI_LABEL(label)  {.function=NULL, .desc=label }
-	
+#define LEF_CLI_CMD(func, name, desc)  {(cmd_handler)func, name, desc }
+// #define LEF_CLI_CMD(func, name, desc)  {.function=(cmd_handler)func, .name=name, .desc=desc }
+
 // Typedefs ---------------------------------------------------------------
 
 typedef void (*cmd_handler)(char *);
@@ -51,6 +53,10 @@ typedef struct {
 
 // Prototypes -------------------------------------------------------------
 
+/** Initialize the CLI 
+ * @param cmds Pointer to an array of LEF_CliCmd structs
+ * @param size Number of commands in the cmds array
+*/
 void LEF_Cli_init(const LEF_CliCmd *cmds, uint8_t size);
 
 void LEF_Cli_putc(const char ch);

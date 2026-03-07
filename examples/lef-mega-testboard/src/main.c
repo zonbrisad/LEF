@@ -42,6 +42,7 @@
 static const uint32_t UART_BAUD_RATE = 57600;
 
 #define BUZZER_PIN PD3
+#define POT_ADC 7
 
 inline void BUZZER_ON(void) { PORTD &= ~(1<<BUZZER_PIN); }
 inline void BUZZER_OFF(void) { PORTD |= (1<<BUZZER_PIN); }
@@ -70,7 +71,6 @@ inline void LED4_OFF(void) { PORTK &= ~(0x01 << PK4); }
 inline uint8_t ROT_CLK(void)  { return PINC & (1 << PC0); }
 inline uint8_t ROT_DATA(void) { return PINC & (1 << PC1); }
 
-#define POT_ADC 5
 
 typedef enum {
   EVENT_Timer1 = 0,
@@ -139,7 +139,8 @@ const PROGMEM LEF_CliCmd cmdTable[] = {
 	{cmdEvOn,     "evon",     "Turn event on"},
 	{cmdEvOff,    "evoff",    "Turn event off"},
 	{cmd_adc,      "adc",      "Read adc inputs"},
-	{cmdHelp,     "help",     "Show help"},
+	// {cmdHelp,     "help",     "Show help"},
+  LEF_CLI_CMD(cmdHelp, "help", "Show help")
 };
 
 void cmd_brp(char *args) {
@@ -237,12 +238,11 @@ void cmd_adc(char *args) {
 
 
   printf("ADC:  ");
-  for (int i=0; i<8; i++) {
+  for (int i=0; i<15; i++) {
     ADC_MUX(i);
     _delay_ms(1);
     ADC_START();
     ADC_WAIT_COMPLETION();
-    //_delay_ms(1);
     val = ADC_VALUE();
     printf("%d  ", val);
   }
@@ -296,10 +296,9 @@ ISR(TIMER1_COMPA_vect) {
 }
 
 ISR(ADC_vect) {
-  //uart_putc('a');
-  uint16_t val;
-  val = ADC_VALUE();
-  //LEF_Pot_update(&pot, val);
+  // uart_putc('a');
+  uint16_t val = ADC_VALUE();
+  LEF_Pot_update(&pot, val);
 }
 
 
@@ -399,7 +398,7 @@ int main(void) {
   LEF_Button_init(&button, EVENT_Button);
   LEF_Rotary_init(&rotary, EVENT_Rotary);
   
-  //LEF_Pot_init(&pot, EVENT_Pot);
+  LEF_Pot_init(&pot, EVENT_Pot);
   
   LEF_Buzzer_init();
 	
