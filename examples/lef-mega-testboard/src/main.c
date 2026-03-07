@@ -39,7 +39,7 @@
 
 // Macros -------------------------------------------------------------------
 
-#define UART_BAUD_RATE 57600
+static const uint32_t UART_BAUD_RATE = 57600;
 
 #define BUZZER_PIN PD3
 
@@ -71,7 +71,6 @@ inline uint8_t ROT_CLK(void)  { return PINC & (1 << PC0); }
 inline uint8_t ROT_DATA(void) { return PINC & (1 << PC1); }
 
 #define POT_ADC 5
-
 
 typedef enum {
   EVENT_Timer1 = 0,
@@ -230,7 +229,6 @@ void cmdHelp(char *args) {
 
 void cmdAdc(char *args) {
   UNUSED(args);
-  int i;
   uint16_t val;
 
   ADC_ID();
@@ -239,7 +237,7 @@ void cmdAdc(char *args) {
 
 
   printf("ADC:  ");
-  for (i=0; i<8; i++) {
+  for (int i=0; i<8; i++) {
     ADC_MUX(i);
     _delay_ms(1);
     ADC_START();
@@ -256,9 +254,7 @@ void cmdAdc(char *args) {
 
 ISR(PCINT1_vect) {
 //	LEF_Event event;
-  char ch;
-	
-  ch = PINC;
+  char ch = PINC;
   LEF_Rotary_update(&rotary, (ch & (1<<PC0)), (ch & (1<<PC1)));
 
   //event.id = LEF_EVENT_TEST;

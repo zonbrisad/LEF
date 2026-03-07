@@ -58,7 +58,6 @@ uint8_t LEF_Led_update(LEF_Led *led) {
 			}
 			return (led->cnt < 0) ? 1 : 0;
 			break;
-
 		case LED_TRIPPLE_BLINK:
 			if (led->cnt > LED_SINGLE_BLINK_DURATION) {
 				led->mode = LED_DOUBLE_BLINK;
@@ -67,26 +66,21 @@ uint8_t LEF_Led_update(LEF_Led *led) {
 			return (led->cnt < 0) ? 1 : 0;
 			break;
 		case LED_FAST_BLINK:
-			if (led->cnt > LED_FAST_BLINK_DURATION) {
+			if (led->cnt > LED_FAST_BLINK_DURATION) 
 				led->cnt = -LED_FAST_BLINK_DURATION;
-			}
 			break;
 		case LED_BLINK:
-			if (led->cnt > LED_BLINK_DURATION) {
+			if (led->cnt > LED_BLINK_DURATION) 
 				led->cnt = -LED_BLINK_DURATION;
-			}
 			break;
-
 		case LED_SLOW_BLINK:
-			if (led->cnt > LED_SLOW_BLINK_DURATION) {
+			if (led->cnt > LED_SLOW_BLINK_DURATION) 
 				led->cnt = -LED_SLOW_BLINK_DURATION;
-			}
 			break;
 		case LED_BLIP:
 			if (led->cnt > LED_BLIP_PAUSE)  // Blip is a very short blink
 				led->cnt = -LED_BLIP_DURATION; 
 			break;
-
 		case LED_SLOW_BLIP:
 			if (led->cnt > LED_SLOW_BLIP_PAUSE)  // Blip is a very short blink
 				led->cnt = -LED_SLOW_BLIP_DURATION; 

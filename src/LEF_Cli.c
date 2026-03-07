@@ -29,6 +29,7 @@
 
 #include "LEF.h"
 #include "LEF_Cli.h"
+#include "LEF_Config.h"
 
 //#define DEBUGALL
 //#include "def.h"
