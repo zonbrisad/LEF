@@ -20,6 +20,27 @@
 */
 
 
+/*
+ * Hardware connections:
+ *
+ * PG5 = Button1 
+ * PE5 = Button2 
+ * PE4 = Button3
+ * 
+ * PD3 = Buzzer
+ *
+ * PB3 = LED a
+ * PB4 = LED b
+ * PK7 = LED1
+ * PK6 = LED2
+ * PK5 = LED3
+ * PK4 = LED4
+ *
+ * PC0 = Rotary
+ * PC1 = Rotary
+ * 
+ */
+
 // Include ------------------------------------------------------------------
 
 #include <avr/io.h>
@@ -58,15 +79,23 @@ inline void LED2_INIT(void) { DDRK |= (0x01 << PK6); }
 inline void LED3_INIT(void) { DDRK |= (0x01 << PK5); }
 inline void LED4_INIT(void) { DDRK |= (0x01 << PK4); }
  
-
 inline void LED1_ON(void) { PORTK |= (0x01 << PK7); }
-inline void LED1_OFF(void) { PORTK &= ~(0x01 << PK7); }
 inline void LED2_ON(void) { PORTK |= (0x01 << PK6); }
-inline void LED2_OFF(void) { PORTK &= ~(0x01 << PK6); }
 inline void LED3_ON(void) { PORTK |= (0x01 << PK5); }
-inline void LED3_OFF(void) { PORTK &= ~(0x01 << PK5); }
 inline void LED4_ON(void) { PORTK |= (0x01 << PK4); }
+
+inline void LED1_OFF(void) { PORTK &= ~(0x01 << PK7); }
+inline void LED2_OFF(void) { PORTK &= ~(0x01 << PK6); }
+inline void LED3_OFF(void) { PORTK &= ~(0x01 << PK5); }
 inline void LED4_OFF(void) { PORTK &= ~(0x01 << PK4); }
+
+inline void BUTTON1_INIT(void) { DDRG &= ~(1<<PG5); PORTG |= (1<<PG5); }
+inline void BUTTON2_INIT(void) { DDRE &= ~(1<<PE5); PORTE |= (1<<PE5); }
+inline void BUTTON3_INIT(void) { DDRE &= ~(1<<PE4); PORTE |= (1<<PE4); }
+
+inline bool BUTTON1_PRESSED(void) { return (PING & (1<<PG5)) ? true : false; }
+inline bool BUTTON2_PRESSED(void) { return (PINE & (1<<PE5)) ? true : false; }
+inline bool BUTTON3_PRESSED(void) { return (PINE & (1<<PE4)) ? true : false; }
 
 inline uint8_t ROT_CLK(void)  { return PINC & (1 << PC0); }
 inline uint8_t ROT_DATA(void) { return PINC & (1 << PC1); }
@@ -75,7 +104,9 @@ inline uint8_t ROT_DATA(void) { return PINC & (1 << PC1); }
 typedef enum {
   EVENT_Timer1 = 0,
   EVENT_Timer2,
-  EVENT_Button,
+  EVENT_Button1,
+  EVENT_Button2,
+  EVENT_Button3,
   EVENT_Rotary,
   EVENT_Pot
 } Events;
@@ -110,7 +141,9 @@ LEF_Led    led3;
 LEF_Led    led4;
 LEF_LedRG  ledrg;
 LEF_LedA   leda;
-LEF_Button button;
+LEF_Button button1;
+LEF_Button button2;
+LEF_Button button3;
 LEF_Rotary rotary;
 LEF_Pot    pot;
 
@@ -285,7 +318,9 @@ ISR(TIMER1_COMPA_vect) {
 
   TIMER0_OCA_SET(255 - LEF_LedA_update(&leda));
 	
-  LEF_Button_update(&button, (PIND & (1<<PIN7))==0  );
+  LEF_Button_update(&button1, BUTTON1_PRESSED());
+  LEF_Button_update(&button2, BUTTON2_PRESSED());
+  LEF_Button_update(&button3, BUTTON3_PRESSED());
 
 //	ch = PINC;
 //	LEF_Rotary_update(&rotary, (ch & (1<<PC0)), (ch & (1<<PC1)));
@@ -302,20 +337,6 @@ ISR(ADC_vect) {
 }
 
 
-
-/*
- * PD7 = Button 
- * PD3 = Buzzer
- *
- * PB3 = LED a
- * PB4 = LED b
- *
- * PC0 = Rotary
- * PC1 = Rotary
- *
- * 
- */
-
 void hw_init(void) {
   stdout = &mystdout;
   uart_init(UART_BAUD_SELECT(UART_BAUD_RATE, F_CPU));
@@ -326,6 +347,10 @@ void hw_init(void) {
   LED2_INIT();
   LED3_INIT();
   LED4_INIT();
+
+  BUTTON1_INIT();
+  BUTTON2_INIT();
+  BUTTON3_INIT();
   
   //set_sleep_mode(SLEEP_MODE_IDLE);
   //sleep_enable();
@@ -371,6 +396,24 @@ void hw_init(void) {
   sei();
 }
 
+static inline char* int2bits8(uint8_t x) {
+  static char str[9];
+  for (int i=0; i<8; i++) {
+    str[7-i] = (x & (1<<i)) ? '1' : '0';
+  }
+  str[8] = '\0';
+  return str;
+}
+
+static inline char* int2bits16(uint16_t x) {
+  static char str[17];
+  for (int i=0; i<16; i++) {
+    str[15-i] = (x & (1<<i)) ? '1' : '0';
+  }
+  str[16] = '\0';
+  return str;
+}
+
 int main(void) {
   LEF_Event event;
   uint8_t ls;
@@ -390,14 +433,17 @@ int main(void) {
   LEF_Led_init(&led4, LED_BLIP);
   
   LEF_LedRG_init(&ledrg, LEDRG_RED_DOUBLE_BLINK);
+  
   //	LEF_LedA_init(&leda, LEDA_OFF);
   //	LEF_LedA_init(&leda, LEDA_SOFT);
   LEF_LedA_init(&leda, LEDA_ON);
   LEF_LedA_init(&leda, LEDA_OFF_SOFT);
   
-  LEF_Button_init(&button, EVENT_Button);
+  LEF_Button_init(&button1, EVENT_Button1);
+  LEF_Button_init(&button2, EVENT_Button2);
+  LEF_Button_init(&button3, EVENT_Button3);
+
   LEF_Rotary_init(&rotary, EVENT_Rotary);
-  
   LEF_Pot_init(&pot, EVENT_Pot);
   
   LEF_Buzzer_init();
@@ -430,8 +476,14 @@ int main(void) {
 
 			break;
 */
-      case EVENT_Button:           // Handle button press event
-        LEF_Print_event(&event);
+      case EVENT_Button1:           // Handle button press event
+          printf("Button 1 event: func = %d\n", event.func);
+          break;
+      case EVENT_Button2:           // Handle button press event
+          printf("Button 2 event: func = %d\n", event.func);
+          break;
+      case EVENT_Button3:           // Handle button press event
+        //LEF_Print_event(&event);
         if  (event.func==1) {
 				ls++;
 				if (ls >= LEDRG_LAST)
@@ -446,7 +498,8 @@ int main(void) {
 				LEF_Buzzer_set(LEF_BUZZER_BRP);
 			}
 
-			printf("Port C: %x  Clk = %d   Dt = %d\n", PINC, (PINC & (1<<PC0)), (PINC & (1<<PC1)));
+			// printf("Port C: %x  Clk = %d   Dt = %d\n", PINC, (PINC & (1<<PC0)), (PINC & (1<<PC1)));
+			printf("Port C: %s  Clk = %d   Dt = %d\n", int2bits8(PINE), (PINC & (1<<PC0)), (PINC & (1<<PC1)));
 
 			//event.id = LEF_EVENT_TEST;
 		//	LEF_Send(&event);

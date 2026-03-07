@@ -9,7 +9,7 @@ typedef enum {            // declare events
 
 LEF_Timer  timer;    // declare resources
 LEF_Led    led1;
-LEF_Button button;
+LEF_Button button1;
 LEF_Rotary rotary;
 
 const PROGMEM LEF_CliCmd cmdTable[] = {
@@ -30,7 +30,7 @@ ISR(TIMER1_COMPA_vect) {
 		ARDUINO_LED_OFF();
 	}
 	
-	LEF_Button_update(&button, (PIND & (1<<PIN7))==0  );
+	LEF_Button_update(&button1, (PIND & (1<<PIN7))==0  );
 
 	if (LEF_Buzzer_update() > 0) {
 		BUZZER_ON();
@@ -52,7 +52,7 @@ int main() {
 	LEF_LedRGInit(&ledrg);
 	LEF_LedRGSetState(&ledrg, LEDRG_RED_DOUBLE_BLINK);
 
-	LEF_Button_init(&button, EVENT_Button);
+	LEF_Button_init(&button1, EVENT_Button);
 	LEF_Rotary_init(&rotary, EVENT_Rotary);
 
 	LEF_Buzzer_init();

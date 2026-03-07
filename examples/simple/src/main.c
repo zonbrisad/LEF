@@ -79,7 +79,7 @@ LEF_Timer  timer2;
 LEF_Led    led1;
 LEF_LedRG  ledrg;
 LEF_LedA   leda;
-LEF_Button button;
+LEF_Button button1;
 LEF_Rotary rotary;
 LEF_Pot    pot;
 
@@ -252,7 +252,7 @@ ISR(TIMER1_COMPA_vect) {
 
   TIMER0_OCA_SET(255 - LEF_LedA_update(&leda));
 	
-  LEF_Button_update(&button, (PIND & (1<<PIN7))==0  );
+  LEF_Button_update(&button1, (PIND & (1<<PIN7))==0  );
 
 //	ch = PINC;
 //	LEF_Rotary_update(&rotary, (ch & (1<<PC0)), (ch & (1<<PC1)));
@@ -358,7 +358,7 @@ int main() {
   LEF_LedA_init(&leda, LEDA_ON);
   LEF_LedA_init(&leda, LEDA_OFF_SOFT);
 
-  LEF_Button_init(&button, EVENT_Button);
+  LEF_Button_init(&button1, EVENT_Button);
   LEF_Rotary_init(&rotary, EVENT_Rotary);
   LEF_Pot_init(&pot, EVENT_Pot);
 

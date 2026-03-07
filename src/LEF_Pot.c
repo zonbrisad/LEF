@@ -17,6 +17,7 @@
 
 #include "LEF_Pot.h"
 
+const uint16_t POT_THRESHOLD = 3;  // Minimum change in potentiometer value to trigger an event
 
 LEF_Pot *LEF_Pot_new(void) {
   return malloc(sizeof(LEF_Pot));
@@ -33,9 +34,8 @@ void LEF_Pot_update(LEF_Pot *pot, uint16_t newState) {
 	qe.id = pot->id;
 
 	diff = pot->state - newState;
-	
 
-	if ((((diff) < 0) ? -(diff) : (diff)) > 2) {
+	if ((((diff) < 0) ? -(diff) : (diff)) > POT_THRESHOLD) {
 		qe.func=1;
 		LEF_QueueStdSend(&qe);
 		pot->state = newState;

@@ -452,7 +452,7 @@ OBJS    = $(COBJS) $(CPPOBJS) $(AOBJS)
 LST = $(patsubst %.c, $(OBJDIR)/%.lst, $(CSRC)) $(patsubst %.cpp, $(OBJDIR)/%.lst, $(CPPSRC)) $(patsubst %.S, $(OBJDIR)/%.lst, $(ASRC))
 
 # Default target.
-all: begin build finished end ##D Build project (default)
+all: build finished ##D Build project (default)
 
 nc: C_FILTER:= 
 nc: all   ##D Build with no color filter on compiler output
