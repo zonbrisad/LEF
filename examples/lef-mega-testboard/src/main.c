@@ -93,9 +93,9 @@ inline void BUTTON1_INIT(void) { DDRG &= ~(1<<PG5); PORTG |= (1<<PG5); }
 inline void BUTTON2_INIT(void) { DDRE &= ~(1<<PE5); PORTE |= (1<<PE5); }
 inline void BUTTON3_INIT(void) { DDRE &= ~(1<<PE4); PORTE |= (1<<PE4); }
 
-inline bool BUTTON1_PRESSED(void) { return (PING & (1<<PG5)) ? true : false; }
-inline bool BUTTON2_PRESSED(void) { return (PINE & (1<<PE5)) ? true : false; }
-inline bool BUTTON3_PRESSED(void) { return (PINE & (1<<PE4)) ? true : false; }
+inline bool BUTTON1_PRESSED(void) { return (PING & (1<<PG5)) ? false : true; }
+inline bool BUTTON2_PRESSED(void) { return (PINE & (1<<PE5)) ? false : true; }
+inline bool BUTTON3_PRESSED(void) { return (PINE & (1<<PE4)) ? false : true; }
 
 inline uint8_t ROT_CLK(void)  { return PINC & (1 << PC0); }
 inline uint8_t ROT_DATA(void) { return PINC & (1 << PC1); }
