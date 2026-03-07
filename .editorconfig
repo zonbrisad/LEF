@@ -1,0 +1,18 @@
+# Top-most .editorconfig file (set this once at repo root)
+root = true
+
+# Default for all files — feel free to change if you want different defaults elsewhere
+[*]
+end_of_line = lf              # or crlf if you prefer Windows line endings
+insert_final_newline = true
+charset = utf-8
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+tab_width = 4                 # how wide a literal tab character appears
+
+# Force 4 spaces specifically for C/C++ header & source files
+[*.{c,h,cc,cpp,hpp,cxx,hxx}]
+indent_style = space
+indent_size = 4
+tab_width = 4
