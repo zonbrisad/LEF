@@ -13,29 +13,26 @@
  *
  */
 
-#include <stdlib.h>
-
 #include "LEF_Button.h"
-
 
 LEF_Button *LEF_Button_new(void) {
   return malloc(sizeof(LEF_Button));
 }
 
 void LEF_Button_init(LEF_Button *button, LEF_EventId id) {
-	button->id = id;
-	button->state = 0;
-	button->cnt = 0;
+    button->id = id;
+    button->state = 0;
+    button->cnt = 0;
 }
 
 void LEF_Button_update(LEF_Button *button, uint8_t state) {
-	LEF_queue_element qe;
-	qe.id = button->id;
+    LEF_queue_element qe;
+    qe.id = button->id;
 	
 	// store button state
-	button->state = (button->state << 1);
-	if (state)
-		button->state |= 1;
+    button->state = (button->state << 1);
+    if (state)
+	    button->state |= 1;
 	else
 		button->state &= ~1;
 	
@@ -57,18 +54,17 @@ void LEF_Button_update(LEF_Button *button, uint8_t state) {
 		if (button->cnt < 252)
 			button->cnt++;
 		
-	  if (button->cnt==250) {
+	  	if (button->cnt==250) {
 			qe.func = 3;
-	 	  LEF_QueueStdSend(&qe);
-		  //button->cnt=0;
-	  }
-
-	} else
+	 	  	LEF_QueueStdSend(&qe);
+		  	//button->cnt=0;
+	  	}
+	} else {
 		button->cnt = 0;
-
+	}
 }
  
 void LEF_Button_free(LEF_Button *button) {  
-  free(button);
+    free(button);
 }
 

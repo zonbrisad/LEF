@@ -30,6 +30,7 @@ extern "C" {
 
 // Includes ---------------------------------------------------------------	
 #include <stdint.h>
+#include <stdlib.h>
 #include <stdbool.h>
 	
 // AVR specific includes
