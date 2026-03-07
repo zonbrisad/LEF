@@ -60,7 +60,7 @@ void LEF_Cli_init(const LEF_CliCmd *cmds, uint8_t size) {
 }
 
 
-void LEF_Cli_putc(char ch) {
+void LEF_Cli_putc(const char ch) {
 	LEF_queue_element event;
 	
 	// handle backspace
@@ -101,7 +101,7 @@ void LEF_Cli_putc(char ch) {
 void LEF_Cli_print(void) {
 	char cBuf[LEF_CLI_BUF_LENGTH];
 	char dBuf[LEF_CLI_BUF_LENGTH];
-	handler ptr;
+	cmd_handler ptr;
   int i;
 
   for(i=0; i<lef_cmds_length; i++) {
@@ -114,7 +114,7 @@ void LEF_Cli_print(void) {
 		lefstrcpy(cBuf, lef_cmds[i].name);
 		lefstrcpy(dBuf, lef_cmds[i].desc);
 
-		ptr = (handler)pgm_read_word(&lef_cmds[i].function);
+		ptr = (cmd_handler)pgm_read_word(&lef_cmds[i].function);
 		if (ptr != NULL)
 			lefprintf("  %-12s", cBuf);
 
@@ -124,7 +124,7 @@ void LEF_Cli_print(void) {
 }
 
 void LEF_Cli_exec(void) {
-	handler ptr;
+	cmd_handler ptr;
 	char *args;
 	char cmd[LEF_CLI_BUF_LENGTH];
 	int i;
@@ -151,7 +151,7 @@ void LEF_Cli_exec(void) {
 		lefstrcpy(cmd, lef_cmds[i].name);
 		if ( !strncmp(cmd, cliBuf, LEF_CLI_BUF_LENGTH) ) {
 //			LDEBUGPRINT("Found command: %s\n", cmd);
-			ptr = (handler)pgm_read_word(&lef_cmds[i].function);
+			ptr = (cmd_handler)pgm_read_word(&lef_cmds[i].function);
 			ptr(args);
 			goto cli_cleanup;
 		}

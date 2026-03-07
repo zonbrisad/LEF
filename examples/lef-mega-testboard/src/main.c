@@ -99,7 +99,7 @@ void cmdEvOn(char *args);
 void cmdEvOff(char *args);
 void cmdHelp(char *args);
 void cmd_disk(char *args);
-void cmdAdc(char *args);
+void cmd_adc(char *args);
 
 
 LEF_Timer  timer1;
@@ -138,7 +138,7 @@ const PROGMEM LEF_CliCmd cmdTable[] = {
 	LEF_CLI_LABEL("Misc"),
 	{cmdEvOn,     "evon",     "Turn event on"},
 	{cmdEvOff,    "evoff",    "Turn event off"},
-	{cmdAdc,      "adc",      "Read adc inputs"},
+	{cmd_adc,      "adc",      "Read adc inputs"},
 	{cmdHelp,     "help",     "Show help"},
 };
 
@@ -227,7 +227,7 @@ void cmdHelp(char *args) {
   LEF_Cli_print();
 }
 
-void cmdAdc(char *args) {
+void cmd_adc(char *args) {
   UNUSED(args);
   uint16_t val;
 

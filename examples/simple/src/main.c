@@ -71,7 +71,7 @@ void cmdEvOn(char *args);
 void cmdEvOff(char *args);
 void cmdHelp(char *args);
 void cmdDisk(char *args);
-void cmdAdc(char *args);
+void cmd_adc(char *args);
 
 
 LEF_Timer  timer1;
@@ -184,7 +184,7 @@ void cmdHelp(char *args) {
   LEF_Cli_print();
 }
 
-void cmdAdc(char *args) {
+void cmd_adc(char *args) {
   UNUSED(args);
   int i;
   uint16_t val;

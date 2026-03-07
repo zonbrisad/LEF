@@ -39,10 +39,10 @@ extern "C" {
 	
 // Typedefs ---------------------------------------------------------------
 
-typedef void (*handler)(char *);
+typedef void (*cmd_handler)(char *);
 
 typedef struct {
-  handler function;
+  cmd_handler function;
   char name[LEF_CLI_CMD_LENGTH];
   char desc[LEF_CLI_DESC_LENGTH];
 } LEF_CliCmd;
@@ -53,7 +53,7 @@ typedef struct {
 
 void LEF_Cli_init(const LEF_CliCmd *cmds, uint8_t size);
 
-void LEF_Cli_putc(char ch);
+void LEF_Cli_putc(const char ch);
 
 void LEF_Cli_exec(void);
 
