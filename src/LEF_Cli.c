@@ -26,6 +26,7 @@
 // Includes ---------------------------------------------------------------
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "LEF.h"
 #include "LEF_Cli.h"
@@ -50,6 +51,53 @@ const LEF_CliCmd *lef_cmds; //*Cmds;
 // Prototypes -------------------------------------------------------------
 
 // Code -------------------------------------------------------------------
+#define NO_DATA     0x0100
+#define ARROW_UP    0x1000
+#define ARROW_DOWN  0x1001
+#define ARROW_LEFT  0x1002
+#define ARROW_RIGHT 0x1003
+
+/**
+ * Filter ANSI escape sequences from input characters. This function maintains an internal state to detect and filter out ANSI sequences, while allowing normal characters to pass through. It also translates arrow key sequences into specific codes.
+ */
+uint16_t ANSI_Filter(const char ch);
+uint16_t ANSI_Filter(const char ch) {
+	static uint8_t pos = 0;
+
+	switch (pos) {
+		case 0:
+			if (ch == 0x1b) { // ESC
+				pos = 1;
+				return NO_DATA; // Filter out ESC
+			}
+			return ch; // Normal character
+		case 1:
+			if (ch == '[') {
+				pos = 2;
+				return NO_DATA; // Filter out [
+			} else {
+				pos = 0; // Not an ANSI sequence, reset state
+				return ch; // Return the character that was after ESC
+			}
+		default:
+			if (isalpha(ch)) {
+				pos = 0; // Reset state after processing ANSI sequence
+				switch (toupper(ch)) {
+					case 'A': return ARROW_UP;
+					case 'B': return ARROW_DOWN;
+					//case 'C': return ARROW_RIGHT;
+					//case 'D': return ARROW_LEFT;
+					default: return NO_DATA; // Filter out the final character of ANSI sequence
+				}
+			}
+			if (pos > 5)
+				pos = 0; // Reset state if sequence is too long (should not happen)
+				// return 0; // Filter out characters in ANSI sequence
+			else
+				pos++; // Move to next character in ANSI sequence				
+	}
+	return ch; // Return character just in case
+}
 
 
 void LEF_Cli_WaitKeyPressed(void) {
@@ -70,6 +118,7 @@ void LEF_Cli_init(const LEF_CliCmd *cmds, uint8_t size) {
 
 void LEF_Cli_putc(const char ch) {
 	LEF_Event event;
+	uint16_t chf = ANSI_Filter(ch);
 
 	if (cli_wait_key_pressed) {
 		event.id = LEF_EVENT_CLI;
@@ -79,8 +128,18 @@ void LEF_Cli_putc(const char ch) {
 		return;
 	}
 	
+	if (chf == NO_DATA) {
+		return; // Filtered out character, do nothing
+	}
+
+	if (chf >= ARROW_UP && chf <= ARROW_RIGHT) {
+		// Handle arrow keys if needed
+		// For now, just ignore them
+		return;
+	}
+
 	// handle backspace
-	if (ch=='\b') {
+	if (chf=='\b') {
 //		LDEBUGPRINT("cliCnt = %d\n", cliCnt);
 		if (cli_cnt > 0 ) {
 		  cli_cnt--;
@@ -91,7 +150,7 @@ void LEF_Cli_putc(const char ch) {
 	}
 
 	// handle newline(enter)
-	if (ch=='\n') {
+	if (chf=='\n') {
 //			cliLock = 1;
 	//	cliCnt=0;
 		printf("\n");
@@ -108,9 +167,9 @@ void LEF_Cli_putc(const char ch) {
 		return;
 
 //	if (!cliLock) {
-	cliBuf[cli_cnt] = ch;
+	cliBuf[cli_cnt] = chf;
 	cli_cnt++;
-	printf("%c",ch);
+	printf("%c",chf);
 }
 
 
