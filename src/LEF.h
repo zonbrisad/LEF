@@ -19,7 +19,7 @@
  *
  * https://github.com/zonbrisad/LEF
  *
- * 1 tab = 2 spaces
+ * 
  */
 
 #pragma once
@@ -132,24 +132,6 @@ extern LEF_EventQueue StdQueue;
 void LEF_init(void);
 
 void LEF_Print_event(LEF_queue_element *event);
-
-
-/**
- *
- */
-//void LEF_QueueStdSend(LEF_Event *event);
-
-/**
- * Wait for
- * @param event
- */
-//void LEF_QueueStdWait(LEF_Event *event);
-
-	
-//void LEF_QueueStdClear(void);
-
-//uint16_t LEF_QueueStdCnt(void);   
-
 	
 void LEF_Send(LEF_Event *event);
 

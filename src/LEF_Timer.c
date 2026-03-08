@@ -1,5 +1,5 @@
 /**
- * LEF - Lightweiht Event Framework
+ * LEF - Lightweight Event Framework
  *
  * This file is part of LEF distribution
  *
@@ -19,7 +19,7 @@
  *
  * https://github.com/zonbrisad/LEF
  *
- * 1 tab = 2 spaces
+ * 
  */
 
 // Includes ---------------------------------------------------------------

@@ -19,7 +19,7 @@
  *
  * https://github.com/zonbrisad/LEF
  *
- * 1 tab = 2 spaces
+ * 
  */
 
 #pragma once
