@@ -137,6 +137,9 @@ void cmdHelp(char* args);
 void cmd_disk(char* args);
 void cmd_adc(char* args);
 void cmd_reset(char* args);
+void cmd_lcd_on(char* args);
+void cmd_lcd_off(char* args);
+void cmd_lcd_cursor_on(char* args);
 void cmd_lcd_clear(char* args);
 void cmd_lcd_test(char* args);
 
@@ -177,8 +180,11 @@ const PROGMEM LEF_CliCmd cmdTable[] = {
     {cmd_dblink, "dblink", "Make led blink twice"},
     {cmd_tblink, "tblink", "Make led blink three times"},
     LEF_CLI_LABEL("LCD"),
-    {cmd_lcd_clear, "lcdclear", "Clear LCD"},
-    {cmd_lcd_test, "lcdtest", "Run LCD test"},
+    {cmd_lcd_on, "lcdon", "Turn LCD on"},
+    {cmd_lcd_off, "lcdoff", "Turn LCD off"},
+    {cmd_lcd_cursor_on, "lcdcuron", "Turn LCD cursor on"},
+    {cmd_lcd_clear, "lcdclr", "Clear LCD"},
+    {cmd_lcd_test, "lcdt1", "Run LCD test"},
     LEF_CLI_LABEL("Misc"),
     {cmdEvOn, "evon", "Turn event on"},
     {cmdEvOff, "evoff", "Turn event off"},
@@ -270,6 +276,21 @@ void cmdEvOff(char* args) {
 void cmdHelp(char* args) {
     UNUSED(args);
     LEF_Cli_print();
+}
+
+void cmd_lcd_on(char* args) {
+    UNUSED(args);
+    lcd_command(LCD_DISP_ON);
+}
+
+void cmd_lcd_off(char* args) {
+    UNUSED(args);
+    lcd_command(LCD_DISP_OFF);
+}
+
+void cmd_lcd_cursor_on(char* args) {
+    UNUSED(args);
+    lcd_command(LCD_DISP_ON_CURSOR);
 }
 
 void cmd_lcd_clear(char* args) {
