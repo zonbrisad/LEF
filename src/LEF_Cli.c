@@ -43,6 +43,7 @@ char cliBuf[LEF_CLI_BUF_LENGTH];
 uint8_t cli_cnt;
 uint8_t cli_lock;
 uint8_t lef_cmds_length;
+volatile uint8_t cli_wait_key_pressed;
 
 const LEF_CliCmd *lef_cmds; //*Cmds;
 
@@ -50,10 +51,17 @@ const LEF_CliCmd *lef_cmds; //*Cmds;
 
 // Code -------------------------------------------------------------------
 
+
+void LEF_Cli_WaitKeyPressed(void) {
+	cli_wait_key_pressed = 1;
+	printf("Waiting for key press...\n");
+}
+
 void LEF_Cli_init(const LEF_CliCmd *cmds, uint8_t size) {
   cli_cnt  = 0;
   cli_lock = 0;
   lef_cmds = cmds;
+  cli_wait_key_pressed = 0;
 
 	lef_cmds_length = size;
 	printf("\n%s", LEF_CLI_PROMPT);
@@ -61,7 +69,15 @@ void LEF_Cli_init(const LEF_CliCmd *cmds, uint8_t size) {
 
 
 void LEF_Cli_putc(const char ch) {
-	LEF_queue_element event;
+	LEF_Event event;
+
+	if (cli_wait_key_pressed) {
+		event.id = LEF_EVENT_CLI;
+		event.func = 1;
+		LEF_QueueStdSend(&event);
+		//cli_wait_key_pressed = 0;
+		return;
+	}
 	
 	// handle backspace
 	if (ch=='\b') {
@@ -133,6 +149,12 @@ void LEF_Cli_exec(void) {
 	char *args;
 	char cmd[LEF_CLI_BUF_LENGTH];
 	int i = 0;
+
+	if (cli_wait_key_pressed) {
+		cli_wait_key_pressed = 0;
+		printf("Key pressed\n");
+		return;
+	}
 
 	if (cli_cnt == 0) {
 		lefprintf(LEF_CLI_PROMPT);

@@ -131,7 +131,7 @@ extern LEF_EventQueue StdQueue;
 
 void LEF_init(void);
 
-void LEF_Print_event(LEF_queue_element *event);
+void LEF_Print_event(LEF_Event *event);
 	
 void LEF_Send(LEF_Event *event);
 

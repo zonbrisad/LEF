@@ -63,6 +63,6 @@ uint16_t LEF_Count(void) {
 
 
 
-void LEF_Print_event(LEF_queue_element *event) {
+void LEF_Print_event(LEF_Event *event) {
 	printf("Event id: %3d   func: %3d\n", event->id, event->func);
 }

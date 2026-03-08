@@ -30,7 +30,7 @@ void LEF_Pot_init(LEF_Pot *pot, LEF_EventId id) {
 
 void LEF_Pot_update(LEF_Pot *pot, uint16_t newState) {
 	int diff;
-	LEF_queue_element qe;
+	LEF_Event qe;
 	qe.id = pot->id;
 
 	diff = pot->state - newState;

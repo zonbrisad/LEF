@@ -34,9 +34,6 @@ extern "C" {
 #include "LEF.h"
 
 // Macros -----------------------------------------------------------------
-
-
-#define LEF_queue_element LEF_Event // Temporary macro until all instances changed
 	
 // Typedefs ---------------------------------------------------------------
 

@@ -43,7 +43,7 @@ void LEF_Timer_init(LEF_Timer *timer, LEF_EventId id) {
 
 
 void LEF_Timer_update(LEF_Timer *timer) {
-	LEF_queue_element qe;
+	LEF_Event qe;
 
   ATOMIC_BLOCK(ATOMIC_FORCEON) {
   if (timer->counter>0) {

@@ -24,7 +24,7 @@ void LEF_Button_init(LEF_Button* button, LEF_EventId id) {
 }
 
 void LEF_Button_update(LEF_Button* button, uint8_t state) {
-    LEF_queue_element qe;
+    LEF_Event qe;
     qe.id = button->id;
 
     // store button state
