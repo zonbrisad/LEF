@@ -14,19 +14,14 @@
  */
 
 /*
- Hardware description:
-  - Arduino Mega 1280
-  - 4x LEDs (connected to PK4, PK5, PK6, PK7)
-*/
-
-/*
- * Hardware connections:
+ * Hardware description:
+ * - Arduino Mega 1280
  *
  * PG5 = Button1
  * PE5 = Button2
  * PE4 = Button3
  *
- * PD3 = Buzzer
+ * PK1 = Buzzer
  *
  * PK7 = LED1
  * PK6 = LED2
@@ -35,8 +30,8 @@
  * PK3 = LED Red
  * PK2 = LED Green
  *
- * PC0 = Rotary
- * PC1 = Rotary
+ * Pxx = Rotary
+ * Pxx = Rotary
  *
  */
 
@@ -58,16 +53,18 @@
 #include "def.h"
 #include "def_avr.h"
 #include "uart.h"
+#include "lcd.h"
 
 // Macros -------------------------------------------------------------------
 
 static const uint32_t UART_BAUD_RATE = 57600;
 
-#define BUZZER_PIN PD3
+#define BUZZER_PIN PK1
 #define POT_ADC 7
 
-inline void BUZZER_ON(void) { PORTD &= ~(1 << BUZZER_PIN); }
-inline void BUZZER_OFF(void) { PORTD |= (1 << BUZZER_PIN); }
+inline void BUZZER_INIT(void) { DDRK |= (1 << BUZZER_PIN); }
+inline void BUZZER_OFF(void) { PORTK &= ~(1 << BUZZER_PIN); }
+inline void BUZZER_ON(void) { PORTK |= (1 << BUZZER_PIN); }
 
 inline void LED1_INIT(void) { DDRK |= (0x01 << PK7); }
 inline void LED2_INIT(void) { DDRK |= (0x01 << PK6); }
@@ -140,6 +137,8 @@ void cmdHelp(char* args);
 void cmd_disk(char* args);
 void cmd_adc(char* args);
 void cmd_reset(char* args);
+void cmd_lcd_clear(char* args);
+void cmd_lcd_test(char* args);
 
 LEF_Timer timer1;
 LEF_Timer timer2;
@@ -177,6 +176,9 @@ const PROGMEM LEF_CliCmd cmdTable[] = {
     {cmd_blink, "blink", "Make led blink once"},
     {cmd_dblink, "dblink", "Make led blink twice"},
     {cmd_tblink, "tblink", "Make led blink three times"},
+    LEF_CLI_LABEL("LCD"),
+    {cmd_lcd_clear, "lcdclear", "Clear LCD"},
+    {cmd_lcd_test, "lcdtest", "Run LCD test"},
     LEF_CLI_LABEL("Misc"),
     {cmdEvOn, "evon", "Turn event on"},
     {cmdEvOff, "evoff", "Turn event off"},
@@ -268,6 +270,21 @@ void cmdEvOff(char* args) {
 void cmdHelp(char* args) {
     UNUSED(args);
     LEF_Cli_print();
+}
+
+void cmd_lcd_clear(char* args) {
+    UNUSED(args);
+    lcd_clrscr();
+}
+
+void cmd_lcd_test(char* args) {
+    UNUSED(args);
+    //lcd_init(LCD_DISP_ON);
+    lcd_clrscr();
+    lcd_puts("LCD Test Line 1\n");
+    lcd_puts("Line 2\n");
+    lcd_puts("Line 3\n");
+    lcd_puts("Line 4\n");
 }
 
 void cmd_adc(char* args) {
@@ -364,6 +381,8 @@ void hw_init(void) {
     BUTTON2_INIT();
     BUTTON3_INIT();
 
+    BUZZER_INIT();
+
     // set_sleep_mode(SLEEP_MODE_IDLE);
     // sleep_enable();
 
@@ -405,6 +424,13 @@ void hw_init(void) {
     // //	TIMER0_WGM_PWM();
     //   TIMER0_WGM_FAST_PWM();
     //   TIMER0_OM_CLEAR();
+
+    lcd_init(LCD_DISP_ON);
+    lcd_clrscr();
+    lcd_puts("LCD Test Line 1\n");
+    lcd_puts("Line 2\n");
+    lcd_puts("Line 3\n");
+    lcd_puts("Line 4\n");
     sei();
 }
 
