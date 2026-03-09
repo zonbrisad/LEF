@@ -33,10 +33,9 @@ extern "C" {
 
 #define LEF_QUEUE_LENGTH                10  /**< Length of LEF std queue */
 
-	
 // Cli settings -----------------------------------------------------------
 #define LEF_CLI_BUF_LENGTH              32  /**< Length of CLI input buffer */
-#define LEF_CLI_PROMPT          "LEF > "
+#define LEF_CLI_PROMPT            "LEF > "
 
 #define LEF_CLI_CMD_LENGTH              12
 #define LEF_CLI_DESC_LENGTH             32
@@ -76,9 +75,9 @@ extern "C" {
 	
 // LedRG settings ---------------------------------------------------------
 
-#define LEDRG_BLINK_PERIOD             30  // (cycles)
-#define LEDRG_FAST_BLINK_PERIOD         5  // (cycles)
-#define LEDRG_SINGLE_BLINK_PERIOD       5  // (cycles)
+#define LEDRG_BLINK_PERIOD              30  // (cycles)
+#define LEDRG_FAST_BLINK_PERIOD          5  // (cycles)
+#define LEDRG_SINGLE_BLINK_PERIOD        5  // (cycles)
 
 
 #ifdef __cplusplus

@@ -44,7 +44,7 @@
 
 // Variables --------------------------------------------------------------
 
-char cliBuf[LEF_CLI_BUF_LENGTH];
+char cli_buf[LEF_CLI_BUF_LENGTH];
 uint8_t cli_cnt;
 uint8_t cli_lock;
 uint8_t lef_cmds_length;
@@ -147,7 +147,6 @@ void LEF_Cli_putc(const char ch) {
 
 	// handle backspace
 	if (chf=='\b') {
-//		LDEBUGPRINT("cliCnt = %d\n", cliCnt);
 		if (cli_cnt > 0 ) {
 		  cli_cnt--;
 			printf("\b \b");
@@ -158,8 +157,6 @@ void LEF_Cli_putc(const char ch) {
 
 	// handle newline(enter)
 	if (chf=='\n') {
-//			cliLock = 1;
-	//	cliCnt=0;
 		printf("\n");
 
 		event.id = LEF_EVENT_CLI;
@@ -174,7 +171,7 @@ void LEF_Cli_putc(const char ch) {
 		return;
 
 //	if (!cliLock) {
-	cliBuf[cli_cnt] = chf;
+	cli_buf[cli_cnt] = chf;
 	cli_cnt++;
 	printf("%c",chf);
 }
@@ -216,9 +213,8 @@ void LEF_Cli_exec(LEF_Event *event) {
     char cmd[LEF_CLI_BUF_LENGTH];
     int i = 0;
 
-    if (cli_wait_key_pressed) {
+    if (event->func == 1) { // Key press event from WaitKeyPressed
         cli_wait_key_pressed = 0;
-        printf("Key pressed\n");
         return;
     }
 
@@ -231,8 +227,8 @@ void LEF_Cli_exec(LEF_Event *event) {
 		const char* hist_cmd = history_current(&cli_history);
         printf("\e[60D" LEF_CLI_PROMPT "%-40s", hist_cmd);
 		cli_cnt = strlen(hist_cmd);
-		strncpy(cliBuf, hist_cmd, LEF_CLI_BUF_LENGTH - 1);
-		cliBuf[LEF_CLI_BUF_LENGTH - 1] = '\0';
+		strncpy(cli_buf, hist_cmd, LEF_CLI_BUF_LENGTH - 1);
+		cli_buf[LEF_CLI_BUF_LENGTH - 1] = '\0';
         return;
 	}
 
@@ -241,30 +237,30 @@ void LEF_Cli_exec(LEF_Event *event) {
         return;
     }
 
-    while ((cliBuf[i] != ' ') && (i < cli_cnt)) {
+    while ((cli_buf[i] != ' ') && (i < cli_cnt)) {
         i++;
     }
 
-    cliBuf[cli_cnt] = '\0';
-    cliBuf[i] = '\0';
-    args = cliBuf;
+    cli_buf[cli_cnt] = '\0';
+    cli_buf[i] = '\0';
+    args = cli_buf;
     args += (cli_cnt > i) ? (i + 1) : i;
     //	LDEBUGPRINT("Command = %s    args = %s\n", cliBuf, args);
 
     i = 0;
     while (i < lef_cmds_length) {
         lefstrcpy(cmd, lef_cmds[i].name);
-        if (!strncmp(cmd, cliBuf, LEF_CLI_BUF_LENGTH)) {
+        if (!strncmp(cmd, cli_buf, LEF_CLI_BUF_LENGTH)) {
             //			LDEBUGPRINT("Found command: %s\n", cmd);
             ptr = (cmd_handler)pgm_read_word(&lef_cmds[i].function);
             ptr(args);
-			history_add(&cli_history, cliBuf);
+			history_add(&cli_history, cli_buf);
             goto cli_cleanup;
         }
         i++;
     }
 
-    lefprintf("%s: Command not found\n", cliBuf);
+    lefprintf("%s: Command not found\n", cli_buf);
 
 cli_cleanup:
 	

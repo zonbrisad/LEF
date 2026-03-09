@@ -110,6 +110,7 @@ inline uint8_t ROT_DATA(void) { return PINC & (1 << PC1); }
 typedef enum {
     EVENT_Timer1 = 0,
     EVENT_Timer2,
+    EVENT_TimerA,
     EVENT_Button1,
     EVENT_Button2,
     EVENT_Button3,
@@ -147,6 +148,7 @@ void cmd_lcd_test(char* args);
 
 LEF_Timer timer1;
 LEF_Timer timer2;
+LEF_Timer timer_a;
 LEF_Led led1;
 LEF_Led led2;
 LEF_Led led3;
@@ -347,40 +349,46 @@ void wait_event(LEF_Event *event) {
     return;
 }   
 
+void adc_print_all(void) {
+    uint16_t val;
+    printf("ADC:  ");
+    for (int i = 0; i < 15; i++) {
+        ADC_MUX(i);
+        _delay_ms(1);
+        ADC_START();
+        ADC_WAIT_COMPLETION();
+        val = ADC_VALUE();
+        printf("%4d ", val);
+    }
+    printf("\n");
+}
+
 void cmd_adc_mon(char* args) {
     LEF_Event event;
     UNUSED(args);
-    uint16_t val;
 
     ADC_ID();
     ADC_ENABLE();
     ADC_REF_AVCC();
 
     printf("Monitoring ADC (press any button to stop)...\n");
+    LEF_Timer_start_repeat(&timer_a, 75);
 
     LEF_Cli_WaitKeyPressed();
     while (1) {
         wait_event(&event);
-        // LEF_Print_event(&event);
         if (event.id == LEF_EVENT_CLI) {
             LEF_Cli_exec(&event);
             printf("Stopping ADC monitor...\n");
             return;
             break;
         }
-        printf("ADC:  ");
-        for (int i = 0; i < 15; i++) {
-            ADC_MUX(i);
-            _delay_ms(1);
-            ADC_START();
-            ADC_WAIT_COMPLETION();
-            val = ADC_VALUE();
-            printf("%4d ", val);
+        if (event.id == EVENT_TimerA) {
+            adc_print_all();
         }
-        printf("\n");
-        ADC_MUX(POT_ADC);
-        ADC_IE();
     }
+    ADC_MUX(POT_ADC);
+    ADC_IE();
 }
 
 void cmd_reset(char* args) {
@@ -404,6 +412,7 @@ ISR(TIMER1_COMPA_vect) {
 
     LEF_Timer_update(&timer1);
     LEF_Timer_update(&timer2);
+    LEF_Timer_update(&timer_a);
 
     LEF_Led_update(&led1) ? LED1_ON() : LED1_OFF();
     LEF_Led_update(&led2) ? LED2_ON() : LED2_OFF();
@@ -531,6 +540,8 @@ int main(void) {
     LEF_Timer_start_repeat(&timer1, 100);
     LEF_Timer_init(&timer2, EVENT_Timer2);
     LEF_Timer_start_repeat(&timer2, 10);
+    LEF_Timer_init(&timer_a, EVENT_TimerA);
+    //LEF_Timer_start_repeat(&timer_a, 1000);
 
     LEF_Led_init(&led1, LED_SLOW_BLINK);
     LEF_Led_init(&led2, LED_BLINK);
