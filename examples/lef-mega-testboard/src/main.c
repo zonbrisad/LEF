@@ -316,43 +316,6 @@ void cmd_lcd_test(char* args) {
     lcd_puts("Line 4\n");
 }
 
-void cmd_adc(char* args) {
-    UNUSED(args);
-    uint16_t val;
-
-    ADC_ID();
-    ADC_ENABLE();
-    ADC_REF_AVCC();
-
-    printf("ADC:  ");
-    for (int i = 0; i < 15; i++) {
-        ADC_MUX(i);
-        _delay_ms(1);
-        ADC_START();
-        ADC_WAIT_COMPLETION();
-        val = ADC_VALUE();
-        printf("%4d ", val);
-    }
-    printf("\n");
-    ADC_MUX(POT_ADC);
-    ADC_IE();
-}
-
-void wait_event(LEF_Event *event) {
-    uint16_t ch; 
-    LEF_Wait(event);
-    switch (event->id) {
-        case EVENT_Timer2:  // Handle data from uart to Cli
-            ch = uart_getc();
-            while ((ch & 0xff00) != UART_NO_DATA) {
-                LEF_Cli_putc(ch);
-                ch = uart_getc();
-            }
-        break;
-    }
-    return;
-}   
-
 void adc_print_all(bool print_header) {
     uint16_t val;
     if (print_header) {
@@ -373,6 +336,35 @@ void adc_print_all(bool print_header) {
     }
     printf("\n");
 }
+
+void cmd_adc(char* args) {
+    UNUSED(args);
+    uint16_t val;
+
+    ADC_ID();
+    ADC_ENABLE();
+    ADC_REF_AVCC();
+    adc_print_all(true);
+    adc_print_all(false);  
+    ADC_MUX(POT_ADC);
+    ADC_IE();
+}
+
+void wait_event(LEF_Event *event) {
+    uint16_t ch; 
+    LEF_Wait(event);
+    switch (event->id) {
+        case EVENT_Timer2:  // Handle data from uart to Cli
+            ch = uart_getc();
+            while ((ch & 0xff00) != UART_NO_DATA) {
+                LEF_Cli_putc(ch);
+                ch = uart_getc();
+            }
+        break;
+    }
+    return;
+}   
+
 
 void cmd_adc_mon(char* args) {
     LEF_Event event;

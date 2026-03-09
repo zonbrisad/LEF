@@ -16,6 +16,27 @@
 
 // Atmel AVR specific -------------------------------------------------------
 
+#define gpio_output_high(port, bit) \
+    do {                            \
+        DDR##port |= _BV(bit);      \
+        PORT##port |= _BV(bit);     \
+    } while (0)
+#define gpio_output_low(port, bit) \
+    do {                           \
+        DDR##port |= _BV(bit);     \
+        PORT##port &= ~_BV(bit);   \
+    } while (0)
+#define gpio_toggle(port, bit)  \
+    do {                        \
+        PORT##port ^= _BV(bit); \
+    } while (0)
+#define gpio_input_pullup(port, bit) \
+    do {                             \
+        DDR##port &= ~_BV(bit);      \
+        PORT##port |= _BV(bit);      \
+    } while (0)
+#define gpio_read(port, bit) (PIN##port & _BV(bit))
+
 // AVR Reset causes ---------------------------------------------------------
 inline bool IS_POWER_ON_RESET(void)       { return MCUSR & (1<<PORF); }
 inline bool IS_BROWN_OUT_RESET(void)      { return MCUSR & (1<<BORF); }

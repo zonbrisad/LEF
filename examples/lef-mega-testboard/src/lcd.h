@@ -1,13 +1,11 @@
-#ifndef LCD_H
-#define LCD_H
 /*************************************************************************
  Title	:   C include file for the HD44780U LCD library (lcd.c)
  Author:    Peter Fleury <pfleury@gmx.ch>  http://tinyurl.com/peterfleury
  File:	    $Id: lcd.h,v 1.14.2.4 2015/01/20 17:16:07 peter Exp $
  Software:  AVR-GCC 4.x
  Hardware:  any AVR device, memory mapped mode only for AVR with 
-            memory mapped interface (AT90S8515/ATmega8515/ATmega128)
-***************************************************************************/
+ memory mapped interface (AT90S8515/ATmega8515/ATmega128)
+ ***************************************************************************/
 
 /**
  @mainpage
@@ -20,35 +18,35 @@
  @code #include <lcd.h> @endcode
  
  @brief Basic routines for interfacing a HD44780U-based character LCD display
-
+ 
  LCD character displays can be found in many devices, like espresso machines, laser printers. 
  The Hitachi HD44780 controller and its compatible controllers like Samsung KS0066U have become an industry standard for these types of displays. 
  
  This library allows easy interfacing with a HD44780 compatible display and can be
  operated in memory mapped mode (LCD_IO_MODE defined as 0 in the include file lcd.h.) or in 
  4-bit IO port mode (LCD_IO_MODE defined as 1). 8-bit IO port mode is not supported.
-
+ 
  Memory mapped mode is compatible with old Kanda STK200 starter kit, but also supports
  generation of R/W signal through A8 address line.
-
+ 
  @see The chapter <a href=" http://homepage.hispeed.ch/peterfleury/avr-lcd44780.html" target="_blank">Interfacing a HD44780 Based LCD to an AVR</a>
-      on my home page, which shows example circuits how to connect an LCD to an AVR controller. 
-
+ on my home page, which shows example circuits how to connect an LCD to an AVR controller. 
+ 
  @author Peter Fleury pfleury@gmx.ch http://tinyurl.com/peterfleury
  
  @version   2.0
  
  @copyright (C) 2015 Peter Fleury, GNU General Public License Version 3
-  
-*/
+ 
+ */
+
+#pragma once
 
 #include <inttypes.h>
+
+#if defined(__AVR__)
 #include <avr/pgmspace.h>
-
-#if (__GNUC__ * 100 + __GNUC_MINOR__) < 405
-#error "This library requires AVR-GCC 4.5 or later, update to newer AVR-GCC compiler !"
 #endif
-
 
 /**@{*/
 
@@ -66,9 +64,7 @@
  * @name  Definition for LCD controller type
  * Use 0 for HD44780 controller, change to 1 for displays with KS0073 controller.
  */
-#ifndef LCD_CONTROLLER_KS0073 
 #define LCD_CONTROLLER_KS0073 0  /**< Use 0 for HD44780 controller, 1 for KS0073 controller */
-#endif
 
 /** 
  * @name  Definitions for Display Size 
@@ -79,31 +75,14 @@
  * All definitions added to the file lcd_definitions.h will override the default definitions from lcd.h
  *
  */
-#ifndef LCD_LINES
 #define LCD_LINES           4     /**< number of visible lines of the display */
-#endif
-#ifndef LCD_DISP_LENGTH
 #define LCD_DISP_LENGTH    20     /**< visibles characters per line of the display */
-#endif
-#ifndef LCD_LINE_LENGTH
 #define LCD_LINE_LENGTH  0x40     /**< internal line length of the display    */
-#endif
-#ifndef LCD_START_LINE1
 #define LCD_START_LINE1  0x00     /**< DDRAM address of first char of line 1 */
-#endif
-#ifndef LCD_START_LINE2
 #define LCD_START_LINE2  0x40     /**< DDRAM address of first char of line 2 */
-#endif
-#ifndef LCD_START_LINE3
 #define LCD_START_LINE3  0x14     /**< DDRAM address of first char of line 3 */
-#endif
-#ifndef LCD_START_LINE4
 #define LCD_START_LINE4  0x54     /**< DDRAM address of first char of line 4 */
-#endif
-#ifndef LCD_WRAP_LINES
 #define LCD_WRAP_LINES      0     /**< 0: no wrap, 1: wrap at end of visibile line */
-#endif
-
 
 /**
  * @name Definitions for 4-bit IO mode
@@ -123,70 +102,30 @@
  * All definitions added to the file lcd_definitions.h will override the default definitions from lcd.h
  *  
  */
-#define LCD_IO_MODE      1            /**< 0: memory mapped mode, 1: IO port mode */
 
-#if LCD_IO_MODE
-
-#ifndef LCD_PORT
 #define LCD_PORT         PORTF        /**< port for the LCD lines   */
-#endif
-#ifndef LCD_DATA0_PORT
 #define LCD_DATA0_PORT   LCD_PORT     /**< port for 4bit data bit 0 */
-#endif
-#ifndef LCD_DATA1_PORT
 #define LCD_DATA1_PORT   LCD_PORT     /**< port for 4bit data bit 1 */
-#endif
-#ifndef LCD_DATA2_PORT
 #define LCD_DATA2_PORT   LCD_PORT     /**< port for 4bit data bit 2 */
-#endif
-#ifndef LCD_DATA3_PORT
 #define LCD_DATA3_PORT   LCD_PORT     /**< port for 4bit data bit 3 */
-#endif
-#ifndef LCD_DATA0_PIN
 #define LCD_DATA0_PIN    4            /**< pin for 4bit data bit 0  */
-#endif
-#ifndef LCD_DATA1_PIN
 #define LCD_DATA1_PIN    3            /**< pin for 4bit data bit 1  */
-#endif
-#ifndef LCD_DATA2_PIN
 #define LCD_DATA2_PIN    2            /**< pin for 4bit data bit 2  */
-#endif
-#ifndef LCD_DATA3_PIN
 #define LCD_DATA3_PIN    1            /**< pin for 4bit data bit 3  */
-#endif
-#ifndef LCD_RS_PORT
 #define LCD_RS_PORT      LCD_PORT     /**< port for RS line         */
-#endif
-#ifndef LCD_RS_PIN
 #define LCD_RS_PIN       7            /**< pin  for RS line         */
-#endif
-#ifndef LCD_RW_PORT
 #define LCD_RW_PORT      LCD_PORT     /**< port for RW line         */
-#endif
-#ifndef LCD_RW_PIN
 #define LCD_RW_PIN       6            /**< pin  for RW line         */
-#endif
-#ifndef LCD_E_PORT
 #define LCD_E_PORT       LCD_PORT     /**< port for Enable line     */
-#endif
-#ifndef LCD_E_PIN
 #define LCD_E_PIN        5            /**< pin  for Enable line     */
-#endif
 
-#elif defined(__AVR_AT90S4414__) || defined(__AVR_AT90S8515__) || defined(__AVR_ATmega64__) || \
-      defined(__AVR_ATmega8515__)|| defined(__AVR_ATmega103__) || defined(__AVR_ATmega128__) || \
-      defined(__AVR_ATmega161__) || defined(__AVR_ATmega162__)
-/*
- * memory mapped mode is only supported when the device has an external data memory interface
- */
-#define LCD_IO_DATA      0xC000    /* A15=E=1, A14=RS=1                 */
-#define LCD_IO_FUNCTION  0x8000    /* A15=E=1, A14=RS=0                 */
-#define LCD_IO_READ      0x0100    /* A8 =R/W=1 (R/W: 1=Read, 0=Write   */
-
-#else
-#error "external data memory interface not available for this device, use 4-bit IO port mode"
-
-#endif
+// #define LCD_DATA0_PIN    F, 4         /**< pin for 4bit data bit 0  */
+// #define LCD_DATA1_PIN    F, 3         /**< pin for 4bit data bit 1  */
+// #define LCD_DATA2_PIN    F, 2         /**< pin for 4bit data bit 2  */
+// #define LCD_DATA3_PIN    F, 1         /**< pin for 4bit data bit 3  */
+// #define LCD_RS_PIN       F, 7         /**< pin  for RS line         */
+// #define LCD_RW_PIN       F, 6         /**< pin  for RW line         */
+// #define LCD_E_PIN        F, 5         /**< pin  for Enable line     */
 
 
 /**
@@ -199,25 +138,12 @@
  * adding \b -D_LCD_DEFINITIONS_FILE to the \b CDEFS section in the Makefile.
  * All definitions added to the file lcd_definitions.h will override the default definitions from lcd.h
  */
-#ifndef LCD_DELAY_BOOTUP
 #define LCD_DELAY_BOOTUP   16000      /**< delay in micro seconds after power-on  */
-#endif
-#ifndef LCD_DELAY_INIT
 #define LCD_DELAY_INIT      5000      /**< delay in micro seconds after initialization command sent  */
-#endif
-#ifndef LCD_DELAY_INIT_REP
 #define LCD_DELAY_INIT_REP    64      /**< delay in micro seconds after initialization command repeated */
-#endif
-#ifndef LCD_DELAY_INIT_4BIT
 #define LCD_DELAY_INIT_4BIT   64      /**< delay in micro seconds after setting 4-bit mode */ 
-#endif
-#ifndef LCD_DELAY_BUSY_FLAG
 #define LCD_DELAY_BUSY_FLAG    4      /**< time in micro seconds the address counter is updated after busy flag is cleared */
-#endif
-#ifndef LCD_DELAY_ENABLE_PULSE
 #define LCD_DELAY_ENABLE_PULSE 1      /**< enable signal pulse width in micro seconds */
-#endif
-
 
 /**
  * @name Definitions for LCD command instructions
@@ -273,8 +199,6 @@
 
 
 #define LCD_MODE_DEFAULT     ((1<<LCD_ENTRY_MODE) | (1<<LCD_ENTRY_INC) )
-
-
 
 /** 
  *  @name Functions
@@ -366,4 +290,3 @@ extern void lcd_data(uint8_t data);
 
 /**@}*/
 
-#endif //LCD_H

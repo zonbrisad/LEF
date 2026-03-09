@@ -47,21 +47,18 @@
 char cli_buf[LEF_CLI_BUF_LENGTH];
 uint8_t cli_cnt;
 uint8_t cli_lock;
-uint8_t lef_cmds_length;
-volatile uint8_t cli_wait_key_pressed;
+uint8_t cli_cmds_length;
+uint8_t cli_wait_key_pressed;
 
-const LEF_CliCmd *lef_cmds; //*Cmds;
+const LEF_CliCmd *cli_cmds; 
 
 LEF_History cli_history;
 
 // Code -------------------------------------------------------------------
 
-
-
 /**
  * Filter ANSI escape sequences from input characters. This function maintains an internal state to detect and filter out ANSI sequences, while allowing normal characters to pass through. It also translates arrow key sequences into specific codes.
  */
-
 uint16_t ANSI_Filter(const char ch) {
 	static uint8_t pos = 0;
 
@@ -108,10 +105,10 @@ void LEF_Cli_WaitKeyPressed(void) {
 void LEF_Cli_init(const LEF_CliCmd *cmds, uint8_t size) {
   	cli_cnt  = 0;
   	cli_lock = 0;
-  	lef_cmds = cmds;
+  	cli_cmds = cmds;
   	cli_wait_key_pressed = 0;
 
-	lef_cmds_length = size;
+	cli_cmds_length = size;
 
 	history_init(&cli_history);
 
@@ -127,7 +124,6 @@ void LEF_Cli_putc(const char ch) {
 		event.id = LEF_EVENT_CLI;
 		event.func = 1;
 		LEF_QueueStdSend(&event);
-		//cli_wait_key_pressed = 0;
 		return;
 	}
 	
@@ -135,9 +131,8 @@ void LEF_Cli_putc(const char ch) {
 		return; // Filtered out character, do nothing
 	}
 
+	// handle arrow keys
 	if (chf >= ARROW_UP) {
-		// Handle arrow keys if needed
-		// For now, just ignore them
 		event.id = LEF_EVENT_CLI;		
 		event.func = chf >> 8; // Store arrow key code in func field (1=up, 2=down, 3=right, 4=left)
 		LEF_QueueStdSend(&event);
@@ -166,10 +161,11 @@ void LEF_Cli_putc(const char ch) {
 		return;
 	}
 
+	// maximum buffer length check (leave space for null terminator)
 	if (cli_cnt >= LEF_CLI_BUF_LENGTH)
 		return;
 
-//	if (!cliLock) {
+	// add character to buffer and echo it
 	cli_buf[cli_cnt] = chf;
 	cli_cnt++;
 	printf("%c",chf);
@@ -181,16 +177,16 @@ void LEF_Cli_print(void) {
 	char dBuf[LEF_CLI_BUF_LENGTH];
 	cmd_handler ptr;
 
-  	for(int i=0; i<lef_cmds_length; i++) {
+  	for(int i=0; i<cli_cmds_length; i++) {
 
 //		lefstrcpy(cBuf, cmdTable[i].name);
 //		lefstrcpy(dBuf, cmdTable[i].desc);
 //		ptr = (handler)pgm_read_word(&cmdTable[i].function);
 
-		lefstrcpy(cBuf, lef_cmds[i].name);
-		lefstrcpy(dBuf, lef_cmds[i].desc);
+		lefstrcpy(cBuf, cli_cmds[i].name);
+		lefstrcpy(dBuf, cli_cmds[i].desc);
 
-		ptr = (cmd_handler)pgm_read_word(&lef_cmds[i].function);
+		ptr = (cmd_handler)pgm_read_word(&cli_cmds[i].function);
 		if (ptr != NULL)
 			lefprintf("  %-12s", cBuf);
 	
@@ -212,7 +208,8 @@ void LEF_Cli_exec(LEF_Event *event) {
     char cmd[LEF_CLI_BUF_LENGTH];
     int i = 0;
 
-    if (event->func == 1) { // Key press event from WaitKeyPressed
+    // Key press event from WaitKeyPressed
+    if (event->func == 1) { 
         cli_wait_key_pressed = 0;
         return;
     }
@@ -247,11 +244,11 @@ void LEF_Cli_exec(LEF_Event *event) {
     //	LDEBUGPRINT("Command = %s    args = %s\n", cliBuf, args);
 
     i = 0;
-    while (i < lef_cmds_length) {
-        lefstrcpy(cmd, lef_cmds[i].name);
+    while (i < cli_cmds_length) {
+        lefstrcpy(cmd, cli_cmds[i].name);
         if (!strncmp(cmd, cli_buf, LEF_CLI_BUF_LENGTH)) {
             //			LDEBUGPRINT("Found command: %s\n", cmd);
-            ptr = (cmd_handler)pgm_read_word(&lef_cmds[i].function);
+            ptr = (cmd_handler)pgm_read_word(&cli_cmds[i].function);
             ptr(args);
             goto cli_cleanup;
         }
