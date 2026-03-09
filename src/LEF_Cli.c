@@ -103,7 +103,6 @@ uint16_t ANSI_Filter(const char ch) {
 
 void LEF_Cli_WaitKeyPressed(void) {
 	cli_wait_key_pressed = 1;
-	printf("Waiting for key press...\n");
 }
 
 void LEF_Cli_init(const LEF_CliCmd *cmds, uint8_t size) {
@@ -254,15 +253,15 @@ void LEF_Cli_exec(LEF_Event *event) {
             //			LDEBUGPRINT("Found command: %s\n", cmd);
             ptr = (cmd_handler)pgm_read_word(&lef_cmds[i].function);
             ptr(args);
-			history_add(&cli_history, cli_buf);
             goto cli_cleanup;
         }
         i++;
     }
-
+	
     lefprintf("%s: Command not found\n", cli_buf);
-
+	
 cli_cleanup:
+	history_add(&cli_history, cli_buf);
 	
 	cli_lock = 0;
 	cli_cnt = 0;

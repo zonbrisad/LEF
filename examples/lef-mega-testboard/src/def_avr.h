@@ -38,9 +38,9 @@ inline void ADC_ID(void)                  { ADCSRA &= ~(1<<ADIE); }  // Disable 
 
 inline void ADC_MUX(uint8_t mux)          { ADMUX = (ADMUX & 0b11100000) | (mux); }
 
-inline void ADC_REF_AREF(void)            { ADMUX = (ADMUX & 0b00001111); }              // Set voltage reference to AREF
-inline void ADC_REF_AVCC(void)            { ADMUX = (ADMUX & 0b00001111) | 0b01000000; } // Set voltage reference to AVcc 
-inline void ADC_REF_INT(void)             { ADMUX = (ADMUX & 0b00001111) | 0b11000000; } // Set voltage reference to 1.1 V internal reference
+inline void ADC_REF_AREF(void)            { ADMUX = (ADMUX & 0b00011111); }              // Set voltage reference to AREF (external reference pin)
+inline void ADC_REF_AVCC(void)            { ADMUX = (ADMUX & 0b00011111) | 0b01000000; } // Set voltage reference to AVcc (Input voltage)
+inline void ADC_REF_INT(void)             { ADMUX = (ADMUX & 0b00011111) | 0b11000000; } // Set voltage reference to 1.1 V internal reference
 
 //#define ADC_PRESCALER_2() ADCSRA = (ADCSRA & ~7) | 0
 inline void ADC_PRESCALER_2(void)         { ADCSRA = (ADCSRA & 0b11111000) | 0b0001; }
@@ -55,7 +55,7 @@ inline uint16_t ADC_VALUE(void)           { return ADCL + (ADCH << 8); }
 
 inline bool ADC_IS_BUSY(void)             { return (ADCSRA & (1<<ADIF)) ? false : true; }
 inline void ADC_WAIT_COMPLETION(void)     { while (ADC_IS_BUSY()) {}}  // Busy wait for completion
-inline void ADC_AUTOTRIGGER_ENABLE(void)  { ADCSRA |= (1<<ADATE); }   // ADC auto trigger enable
+inline void ADC_AUTOTRIGGER_ENABLE(void)  { ADCSRA |= (1<<ADATE); }    // ADC auto trigger enable
 
 inline void ADC_TRG_FREE_RUNNING(void)    { ADCSRB = (ADCSRB & 0b00000111) | 0b000; }
 inline void ADC_TRG_ANALOG_COMP(void)     { ADCSRB = (ADCSRB & 0b00000111) | 0b001; }

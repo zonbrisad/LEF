@@ -64,8 +64,8 @@ static const uint32_t UART_BAUD_RATE = 57600;
 #define POT_ADC 8
 
 inline void BUZZER_INIT(void) { DDRK |= (1 << BUZZER_PIN); }
-inline void BUZZER_OFF(void) { PORTK &= ~(1 << BUZZER_PIN); }
-inline void BUZZER_ON(void) { PORTK |= (1 << BUZZER_PIN); }
+inline void BUZZER_OFF(void)  { PORTK &= ~(1 << BUZZER_PIN); }
+inline void BUZZER_ON(void)   { PORTK |= (1 << BUZZER_PIN); }
 
 inline void LED1_INIT(void) { DDRK |= (0x01 << PK7); }
 inline void LED2_INIT(void) { DDRK |= (0x01 << PK6); }
@@ -99,11 +99,15 @@ inline void BUTTON3_INIT(void) {
     DDRE &= ~(1 << PE4);
     PORTE |= (1 << PE4);
 }
-
 inline bool BUTTON1_PRESSED(void) { return (PING & (1 << PG5)) ? false : true; }
 inline bool BUTTON2_PRESSED(void) { return (PINE & (1 << PE5)) ? false : true; }
 inline bool BUTTON3_PRESSED(void) { return (PINE & (1 << PE4)) ? false : true; }
 
+inline ROT_INIT(void) {
+    // Configure rotary encoder pins as inputs with pull-ups
+    DDRC &= ~((1 << PC0) | (1 << PC1)); // Clear bits to set as input
+    PORTC |= (1 << PC0) | (1 << PC1);   // Enable pull-up resistors
+}
 inline uint8_t ROT_CLK(void)  { return PINC & (1 << PC0); }
 inline uint8_t ROT_DATA(void) { return PINC & (1 << PC1); }
 
@@ -349,9 +353,16 @@ void wait_event(LEF_Event *event) {
     return;
 }   
 
-void adc_print_all(void) {
+void adc_print_all(bool print_header) {
     uint16_t val;
-    printf("ADC:  ");
+    if (print_header) {
+        printf("\e[4m"); // Underline
+        for (int j = 0; j < 15; j++) {
+            printf("%4d ", j);
+        }
+        printf("\e[0m\n");
+        return;
+    }
     for (int i = 0; i < 15; i++) {
         ADC_MUX(i);
         _delay_ms(1);
@@ -371,7 +382,8 @@ void cmd_adc_mon(char* args) {
     ADC_ENABLE();
     ADC_REF_AVCC();
 
-    printf("Monitoring ADC (press any button to stop)...\n");
+    printf("Monitoring ADC (press any button to stop)\n");
+    adc_print_all(true);
     LEF_Timer_start_repeat(&timer_a, 75);
 
     LEF_Cli_WaitKeyPressed();
@@ -384,7 +396,7 @@ void cmd_adc_mon(char* args) {
             break;
         }
         if (event.id == EVENT_TimerA) {
-            adc_print_all();
+            adc_print_all(false);
         }
     }
     ADC_MUX(POT_ADC);
@@ -433,7 +445,7 @@ ISR(TIMER1_COMPA_vect) {
     //	LEF_Rotary_update(&rotary, (ch & (1<<PC0)), (ch & (1<<PC1)));
 
     LEF_Buzzer_update() ? BUZZER_ON() : BUZZER_OFF();
-
+    ADC_MUX(POT_ADC);
     ADC_START();
 }
 
@@ -464,30 +476,15 @@ void hw_init(void) {
     // set_sleep_mode(SLEEP_MODE_IDLE);
     // sleep_enable();
 
-    // Activate pullup for click button
-    PORTD = (0x01 << PIN7);
-
-    // Configure buzzer port
-    DDRD |= (0x01 << BUZZER_PIN);
-    PORTD |= (0x01 << BUZZER_PIN);
-
-    // Red Green LED
-    DDRB |= (0x01 << PB4) | (0x01 << PB3);
-
-    // 5mm Green LED
-    DDRD |= (0x01 << PD6);
-
-    // Rotary encoder input pullup activation
-    PORTC |= (1 << PC0) | (1 << PC1);
-
     // Pin Change Mask Register 1
-    PCMSK1 |= (1 << PCINT8);
+    //PCMSK1 |= (1 << PCINT8);
 
-    // Enable Pin change interruåt
-    PCICR |= (1 << PCIE1);
+    // Enable Pin change interrupt
+    //PCICR |= (1 << PCIE1);
 
     ADC_ENABLE();
     ADC_REF_AVCC();
+    
     ADC_PRESCALER_128();
     ADC_MUX(POT_ADC);
     ADC_IE();

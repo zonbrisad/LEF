@@ -6,7 +6,7 @@
  *---------------------------------------------------------------------------
  * @brief   A simple Command Line Interface for LEF.
  *
- * @file    LEF_Cli.c
+ * @file    LEF_Cli_History.c
  * @author  Peter Malmberg <peter.malmberg@gmail.com>
  * @date    2016-12-09
  * @license GPLv2
