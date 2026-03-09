@@ -61,11 +61,13 @@ void LEF_Cli_init(const LEF_CliCmd *cmds, uint8_t size);
 
 void LEF_Cli_putc(const char ch);
 
-void LEF_Cli_exec(void);
+void LEF_Cli_exec(LEF_Event *event);
 
 void LEF_Cli_print(void);
 
 void LEF_Cli_WaitKeyPressed(void);
+
+uint16_t ANSI_Filter(const char ch);
 
 #ifdef __cplusplus
 } //end brace for extern "C"

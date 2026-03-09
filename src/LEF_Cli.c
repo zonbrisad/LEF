@@ -32,11 +32,15 @@
 #include "LEF_Cli.h"
 #include "LEF_Config.h"
 
-//#define DEBUGALL
-//#include "def.h"
+#include "LEF_Cli_History.h"
 
 // Macros -----------------------------------------------------------------
 
+#define NO_DATA     0x0100
+#define ARROW_UP    0x0500
+#define ARROW_DOWN  0x0600
+#define ARROW_LEFT  0x0700
+#define ARROW_RIGHT 0x0800
 
 // Variables --------------------------------------------------------------
 
@@ -48,19 +52,16 @@ volatile uint8_t cli_wait_key_pressed;
 
 const LEF_CliCmd *lef_cmds; //*Cmds;
 
-// Prototypes -------------------------------------------------------------
+LEF_History cli_history;
 
 // Code -------------------------------------------------------------------
-#define NO_DATA     0x0100
-#define ARROW_UP    0x1000
-#define ARROW_DOWN  0x1001
-#define ARROW_LEFT  0x1002
-#define ARROW_RIGHT 0x1003
+
+
 
 /**
  * Filter ANSI escape sequences from input characters. This function maintains an internal state to detect and filter out ANSI sequences, while allowing normal characters to pass through. It also translates arrow key sequences into specific codes.
  */
-uint16_t ANSI_Filter(const char ch);
+
 uint16_t ANSI_Filter(const char ch) {
 	static uint8_t pos = 0;
 
@@ -85,8 +86,8 @@ uint16_t ANSI_Filter(const char ch) {
 				switch (toupper(ch)) {
 					case 'A': return ARROW_UP;
 					case 'B': return ARROW_DOWN;
-					//case 'C': return ARROW_RIGHT;
-					//case 'D': return ARROW_LEFT;
+					case 'C': return ARROW_RIGHT;
+					case 'D': return ARROW_LEFT;
 					default: return NO_DATA; // Filter out the final character of ANSI sequence
 				}
 			}
@@ -106,18 +107,21 @@ void LEF_Cli_WaitKeyPressed(void) {
 }
 
 void LEF_Cli_init(const LEF_CliCmd *cmds, uint8_t size) {
-  cli_cnt  = 0;
-  cli_lock = 0;
-  lef_cmds = cmds;
-  cli_wait_key_pressed = 0;
+  	cli_cnt  = 0;
+  	cli_lock = 0;
+  	lef_cmds = cmds;
+  	cli_wait_key_pressed = 0;
 
 	lef_cmds_length = size;
+
+	history_init(&cli_history);
+
 	printf("\n%s", LEF_CLI_PROMPT);
 }
 
-
 void LEF_Cli_putc(const char ch) {
 	LEF_Event event;
+	
 	uint16_t chf = ANSI_Filter(ch);
 
 	if (cli_wait_key_pressed) {
@@ -132,9 +136,12 @@ void LEF_Cli_putc(const char ch) {
 		return; // Filtered out character, do nothing
 	}
 
-	if (chf >= ARROW_UP && chf <= ARROW_RIGHT) {
+	if (chf >= ARROW_UP) {
 		// Handle arrow keys if needed
 		// For now, just ignore them
+		event.id = LEF_EVENT_CLI;		
+		event.func = chf >> 8; // Store arrow key code in func field (1=up, 2=down, 3=right, 4=left)
+		LEF_QueueStdSend(&event);
 		return;
 	}
 
@@ -203,47 +210,61 @@ void LEF_Cli_print(void) {
   }
 }
 
-void LEF_Cli_exec(void) {
-	cmd_handler ptr;
-	char *args;
-	char cmd[LEF_CLI_BUF_LENGTH];
-	int i = 0;
+void LEF_Cli_exec(LEF_Event *event) {
+    cmd_handler ptr;
+    char* args;
+    char cmd[LEF_CLI_BUF_LENGTH];
+    int i = 0;
 
-	if (cli_wait_key_pressed) {
-		cli_wait_key_pressed = 0;
-		printf("Key pressed\n");
-		return;
-	}
+    if (cli_wait_key_pressed) {
+        cli_wait_key_pressed = 0;
+        printf("Key pressed\n");
+        return;
+    }
 
-	if (cli_cnt == 0) {
-		lefprintf(LEF_CLI_PROMPT);
-		return;
-	}
-
-	while ((cliBuf[i] != ' ') && (i<cli_cnt)) {
-		i++;
-	}
-
-	cliBuf[cli_cnt] = '\0';
-	cliBuf[i] = '\0';
-	args=cliBuf;
-	args +=  (cli_cnt > i) ? (i+1) : i;
-//	LDEBUGPRINT("Command = %s    args = %s\n", cliBuf, args);
-
-	i = 0;
-  	while (i < lef_cmds_length) {
+	if ((event->func  >= 5) && (event->func <= 6)) { 
+		if (event->func == 5) // Up arrow
+			history_up(&cli_history);
+		else if (event->func == 6) // Down arrow
+			history_down(&cli_history);
 		
-		lefstrcpy(cmd, lef_cmds[i].name);
-		if ( !strncmp(cmd, cliBuf, LEF_CLI_BUF_LENGTH) ) {
-//			LDEBUGPRINT("Found command: %s\n", cmd);
-			ptr = (cmd_handler)pgm_read_word(&lef_cmds[i].function);
-			ptr(args);
-			goto cli_cleanup;
-		}
-		i++;
-  }
+		const char* hist_cmd = history_current(&cli_history);
+        printf("\e[60D" LEF_CLI_PROMPT "%-40s", hist_cmd);
+		cli_cnt = strlen(hist_cmd);
+		strncpy(cliBuf, hist_cmd, LEF_CLI_BUF_LENGTH - 1);
+		cliBuf[LEF_CLI_BUF_LENGTH - 1] = '\0';
+        return;
+	}
 
-	lefprintf("%s: Command not found\n", cliBuf);
+    if (cli_cnt == 0) {
+        lefprintf(LEF_CLI_PROMPT);
+        return;
+    }
+
+    while ((cliBuf[i] != ' ') && (i < cli_cnt)) {
+        i++;
+    }
+
+    cliBuf[cli_cnt] = '\0';
+    cliBuf[i] = '\0';
+    args = cliBuf;
+    args += (cli_cnt > i) ? (i + 1) : i;
+    //	LDEBUGPRINT("Command = %s    args = %s\n", cliBuf, args);
+
+    i = 0;
+    while (i < lef_cmds_length) {
+        lefstrcpy(cmd, lef_cmds[i].name);
+        if (!strncmp(cmd, cliBuf, LEF_CLI_BUF_LENGTH)) {
+            //			LDEBUGPRINT("Found command: %s\n", cmd);
+            ptr = (cmd_handler)pgm_read_word(&lef_cmds[i].function);
+            ptr(args);
+			history_add(&cli_history, cliBuf);
+            goto cli_cleanup;
+        }
+        i++;
+    }
+
+    lefprintf("%s: Command not found\n", cliBuf);
 
 cli_cleanup:
 	

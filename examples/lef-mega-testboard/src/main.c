@@ -348,329 +348,321 @@ void wait_event(LEF_Event *event) {
 }   
 
 void cmd_adc_mon(char* args) {
-        LEF_Event event;
-        UNUSED(args);
-        uint16_t val;
+    LEF_Event event;
+    UNUSED(args);
+    uint16_t val;
 
-        ADC_ID();
-        ADC_ENABLE();
-        ADC_REF_AVCC();
+    ADC_ID();
+    ADC_ENABLE();
+    ADC_REF_AVCC();
 
-        printf("Monitoring ADC (press any button to stop)...\n");
+    printf("Monitoring ADC (press any button to stop)...\n");
 
-        LEF_Cli_WaitKeyPressed();
-        while (1) {
-            wait_event(&event);
-            // LEF_Print_event(&event);
-            if (event.id == LEF_EVENT_CLI) {
-                LEF_Cli_exec();
-                printf("Stopping ADC monitor...\n");
-                return;
-                break;
-            }
-            printf("ADC:  ");
-            for (int i = 0; i < 15; i++) {
-                ADC_MUX(i);
-                _delay_ms(1);
-                ADC_START();
-                ADC_WAIT_COMPLETION();
-                val = ADC_VALUE();
-                printf("%4d ", val);
-            }
-            printf("\n");
-            ADC_MUX(POT_ADC);
-            ADC_IE();
-        
+    LEF_Cli_WaitKeyPressed();
+    while (1) {
+        wait_event(&event);
+        // LEF_Print_event(&event);
+        if (event.id == LEF_EVENT_CLI) {
+            LEF_Cli_exec(&event);
+            printf("Stopping ADC monitor...\n");
+            return;
+            break;
         }
-        
- 
-    }
-
-    void cmd_reset(char* args) {
-        UNUSED(args);
-        RESET();
-    }
-
-    ISR(PCINT1_vect) {
-        //	LEF_Event event;
-        char ch = PINC;
-        LEF_Rotary_update(&rotary, (ch & (1 << PC0)), (ch & (1 << PC1)));
-
-        // event.id = LEF_EVENT_TEST;
-        // LEF_Send(&event);
-    }
-
-    ISR(TIMER1_COMPA_vect) {
-        char ch;
-        //	LEF_Event event;
-
-        TIMER1_RELOAD(0);
-
-        // ARDUINO_LED_TOGGLE();
-        //	event.id = LEF_SYSTICK_EVENT;
-        //	LEF_QueueWait(&StdQueue, &event);
-
-        LEF_Timer_update(&timer1);
-        LEF_Timer_update(&timer2);
-
-        LEF_Led_update(&led1) ? LED1_ON() : LED1_OFF();
-        LEF_Led_update(&led2) ? LED2_ON() : LED2_OFF();
-        LEF_Led_update(&led3) ? LED3_ON() : LED3_OFF();
-        LEF_Led_update(&led4) ? LED4_ON() : LED4_OFF();
-
-        ch = LEF_LedRG_update(&ledrg);
-        (ch & 0x01) ? LED_RED_ON() : LED_RED_OFF();
-        (ch & 0x02) ? LED_GREEN_ON() : LED_GREEN_OFF();
-
-        TIMER0_OCA_SET(255 - LEF_LedA_update(&leda));
-
-        LEF_Button_update(&button1, BUTTON1_PRESSED());
-        LEF_Button_update(&button2, BUTTON2_PRESSED());
-        LEF_Button_update(&button3, BUTTON3_PRESSED());
-
-        //	ch = PINC;
-        //	LEF_Rotary_update(&rotary, (ch & (1<<PC0)), (ch & (1<<PC1)));
-
-        LEF_Buzzer_update() ? BUZZER_ON() : BUZZER_OFF();
-
-        ADC_START();
-    }
-
-    ISR(ADC_vect) {
-        // uart_putc('a');
-        uint16_t val = ADC_VALUE();
-        LEF_Pot_update(&pot, val);
-    }
-
-    void hw_init(void) {
-        stdout = &mystdout;
-        uart_init(UART_BAUD_SELECT(UART_BAUD_RATE, F_CPU));
-
-        ARDUINO_LED_INIT();
-
-        LED1_INIT();
-        LED2_INIT();
-        LED3_INIT();
-        LED4_INIT();
-        LED_RG_INIT();
-
-        BUTTON1_INIT();
-        BUTTON2_INIT();
-        BUTTON3_INIT();
-
-        BUZZER_INIT();
-
-        // set_sleep_mode(SLEEP_MODE_IDLE);
-        // sleep_enable();
-
-        // Activate pullup for click button
-        PORTD = (0x01 << PIN7);
-
-        // Configure buzzer port
-        DDRD |= (0x01 << BUZZER_PIN);
-        PORTD |= (0x01 << BUZZER_PIN);
-
-        // Red Green LED
-        DDRB |= (0x01 << PB4) | (0x01 << PB3);
-
-        // 5mm Green LED
-        DDRD |= (0x01 << PD6);
-
-        // Rotary encoder input pullup activation
-        PORTC |= (1 << PC0) | (1 << PC1);
-
-        // Pin Change Mask Register 1
-        PCMSK1 |= (1 << PCINT8);
-
-        // Enable Pin change interruåt
-        PCICR |= (1 << PCIE1);
-
-        ADC_ENABLE();
-        ADC_REF_AVCC();
-        ADC_PRESCALER_128();
+        printf("ADC:  ");
+        for (int i = 0; i < 15; i++) {
+            ADC_MUX(i);
+            _delay_ms(1);
+            ADC_START();
+            ADC_WAIT_COMPLETION();
+            val = ADC_VALUE();
+            printf("%4d ", val);
+        }
+        printf("\n");
         ADC_MUX(POT_ADC);
         ADC_IE();
-
-        // Timer 1 (16 bit) (used for LEF timing)
-        TIMER1_CLK_PRES_256();  // set prescaler to 1/1024
-        TIMER1_OCA_SET(625);
-        TIMER1_OCA_IE();  // enable output compare A interrupt
-
-        //   TIMER0_CLK_PRES_1();
-        //   TIMER0_OCA_SET(250);
-        // //	TIMER0_WGM_PWM();
-        //   TIMER0_WGM_FAST_PWM();
-        //   TIMER0_OM_CLEAR();
-
-        lcd_init(LCD_DISP_ON);
-        lcd_clrscr();
-        lcd_puts("   LEF Mega Test\n");
-
-        sei();
     }
+}
 
-    static inline char* int2bits8(uint8_t x) {
-        static char str[9];
-        for (int i = 0; i < 8; i++) {
-            str[7 - i] = (x & (1 << i)) ? '1' : '0';
-        }
-        str[8] = '\0';
-        return str;
+void cmd_reset(char* args) {
+    UNUSED(args);
+    RESET();
+}
+
+ISR(PCINT1_vect) {
+    char ch = PINC;
+    LEF_Rotary_update(&rotary, (ch & (1 << PC0)), (ch & (1 << PC1)));
+}
+
+ISR(TIMER1_COMPA_vect) {
+    char ch;
+
+    TIMER1_RELOAD(0);
+
+    // ARDUINO_LED_TOGGLE();
+    //	event.id = LEF_SYSTICK_EVENT;
+    //	LEF_QueueWait(&StdQueue, &event);
+
+    LEF_Timer_update(&timer1);
+    LEF_Timer_update(&timer2);
+
+    LEF_Led_update(&led1) ? LED1_ON() : LED1_OFF();
+    LEF_Led_update(&led2) ? LED2_ON() : LED2_OFF();
+    LEF_Led_update(&led3) ? LED3_ON() : LED3_OFF();
+    LEF_Led_update(&led4) ? LED4_ON() : LED4_OFF();
+
+    ch = LEF_LedRG_update(&ledrg);
+    (ch & 0x01) ? LED_RED_ON() : LED_RED_OFF();
+    (ch & 0x02) ? LED_GREEN_ON() : LED_GREEN_OFF();
+
+    TIMER0_OCA_SET(255 - LEF_LedA_update(&leda));
+
+    LEF_Button_update(&button1, BUTTON1_PRESSED());
+    LEF_Button_update(&button2, BUTTON2_PRESSED());
+    LEF_Button_update(&button3, BUTTON3_PRESSED());
+
+    //	ch = PINC;
+    //	LEF_Rotary_update(&rotary, (ch & (1<<PC0)), (ch & (1<<PC1)));
+
+    LEF_Buzzer_update() ? BUZZER_ON() : BUZZER_OFF();
+
+    ADC_START();
+}
+
+ISR(ADC_vect) {
+    // uart_putc('a');
+    uint16_t val = ADC_VALUE();
+    LEF_Pot_update(&pot, val);
+}
+
+void hw_init(void) {
+    stdout = &mystdout;
+    uart_init(UART_BAUD_SELECT(UART_BAUD_RATE, F_CPU));
+
+    ARDUINO_LED_INIT();
+
+    LED1_INIT();
+    LED2_INIT();
+    LED3_INIT();
+    LED4_INIT();
+    LED_RG_INIT();
+
+    BUTTON1_INIT();
+    BUTTON2_INIT();
+    BUTTON3_INIT();
+
+    BUZZER_INIT();
+
+    // set_sleep_mode(SLEEP_MODE_IDLE);
+    // sleep_enable();
+
+    // Activate pullup for click button
+    PORTD = (0x01 << PIN7);
+
+    // Configure buzzer port
+    DDRD |= (0x01 << BUZZER_PIN);
+    PORTD |= (0x01 << BUZZER_PIN);
+
+    // Red Green LED
+    DDRB |= (0x01 << PB4) | (0x01 << PB3);
+
+    // 5mm Green LED
+    DDRD |= (0x01 << PD6);
+
+    // Rotary encoder input pullup activation
+    PORTC |= (1 << PC0) | (1 << PC1);
+
+    // Pin Change Mask Register 1
+    PCMSK1 |= (1 << PCINT8);
+
+    // Enable Pin change interruåt
+    PCICR |= (1 << PCIE1);
+
+    ADC_ENABLE();
+    ADC_REF_AVCC();
+    ADC_PRESCALER_128();
+    ADC_MUX(POT_ADC);
+    ADC_IE();
+
+    // Timer 1 (16 bit) (used for LEF timing)
+    TIMER1_CLK_PRES_256();  // set prescaler to 1/1024
+    TIMER1_OCA_SET(625);
+    TIMER1_OCA_IE();  // enable output compare A interrupt
+
+    //   TIMER0_CLK_PRES_1();
+    //   TIMER0_OCA_SET(250);
+    // //	TIMER0_WGM_PWM();
+    //   TIMER0_WGM_FAST_PWM();
+    //   TIMER0_OM_CLEAR();
+
+    lcd_init(LCD_DISP_ON);
+    lcd_clrscr();
+    lcd_puts("   LEF Mega Test\n");
+
+    sei();
+}
+
+static inline char* int2bits8(uint8_t x) {
+    static char str[9];
+    for (int i = 0; i < 8; i++) {
+        str[7 - i] = (x & (1 << i)) ? '1' : '0';
     }
+    str[8] = '\0';
+    return str;
+}
 
-    static inline char* int2bits16(uint16_t x) {
-        static char str[17];
-        for (int i = 0; i < 16; i++) {
-            str[15 - i] = (x & (1 << i)) ? '1' : '0';
-        }
-        str[16] = '\0';
-        return str;
+static inline char* int2bits16(uint16_t x) {
+    static char str[17];
+    for (int i = 0; i < 16; i++) {
+        str[15 - i] = (x & (1 << i)) ? '1' : '0';
     }
+    str[16] = '\0';
+    return str;
+}
 
-    int main(void) {
-        LEF_Event event;
-        uint8_t ls;
-        ls = LEDRG_OFF;
-        uint16_t ch, val;
+int main(void) {
+    LEF_Event event;
+    uint8_t ls;
+    ls = LEDRG_OFF;
+    uint16_t ch, val;
 
-        LEF_init();
+    LEF_init();
 
-        LEF_Timer_init(&timer1, EVENT_Timer1);
-        LEF_Timer_start_repeat(&timer1, 100);
-        LEF_Timer_init(&timer2, EVENT_Timer2);
-        LEF_Timer_start_repeat(&timer2, 10);
+    LEF_Timer_init(&timer1, EVENT_Timer1);
+    LEF_Timer_start_repeat(&timer1, 100);
+    LEF_Timer_init(&timer2, EVENT_Timer2);
+    LEF_Timer_start_repeat(&timer2, 10);
 
-        LEF_Led_init(&led1, LED_SLOW_BLINK);
-        LEF_Led_init(&led2, LED_BLINK);
-        LEF_Led_init(&led3, LED_FAST_BLINK);
-        LEF_Led_init(&led4, LED_BLIP);
+    LEF_Led_init(&led1, LED_SLOW_BLINK);
+    LEF_Led_init(&led2, LED_BLINK);
+    LEF_Led_init(&led3, LED_FAST_BLINK);
+    LEF_Led_init(&led4, LED_BLIP);
 
-        LEF_LedRG_init(&ledrg, LEDRG_GREEN_DOUBLE_BLINK);
+    LEF_LedRG_init(&ledrg, LEDRG_GREEN_DOUBLE_BLINK);
 
-        //	LEF_LedA_init(&leda, LEDA_OFF);
-        //	LEF_LedA_init(&leda, LEDA_SOFT);
-        LEF_LedA_init(&leda, LEDA_ON);
-        LEF_LedA_init(&leda, LEDA_OFF_SOFT);
+    //	LEF_LedA_init(&leda, LEDA_OFF);
+    //	LEF_LedA_init(&leda, LEDA_SOFT);
+    LEF_LedA_init(&leda, LEDA_ON);
+    LEF_LedA_init(&leda, LEDA_OFF_SOFT);
 
-        LEF_Button_init(&button1, EVENT_Button1);
-        LEF_Button_init(&button2, EVENT_Button2);
-        LEF_Button_init(&button3, EVENT_Button3);
+    LEF_Button_init(&button1, EVENT_Button1);
+    LEF_Button_init(&button2, EVENT_Button2);
+    LEF_Button_init(&button3, EVENT_Button3);
 
-        LEF_Rotary_init(&rotary, EVENT_Rotary);
-        LEF_Pot_init(&pot, EVENT_Pot);
+    LEF_Rotary_init(&rotary, EVENT_Rotary);
+    LEF_Pot_init(&pot, EVENT_Pot);
 
-        LEF_Buzzer_init();
+    LEF_Buzzer_init();
 
-        hw_init();
+    hw_init();
 
-        printf("\n\nStarting LEF Arduino mega test\n\n");
-        LEF_Buzzer_set(LEF_BUZZER_BEEP);
-        LEF_Cli_init(cmdTable, sizeof(cmdTable) / sizeof((cmdTable)[0]));
+    printf("\n\nStarting LEF Arduino mega test\n\n");
+    LEF_Buzzer_set(LEF_BUZZER_BEEP);
+    LEF_Cli_init(cmdTable, sizeof(cmdTable) / sizeof((cmdTable)[0]));
 
-        while (1) {
-            LEF_Wait(&event);
+    while (1) {
+        LEF_Wait(&event);
 
-            if (evOn) LEF_Print_event(&event);
+        if (evOn) LEF_Print_event(&event);
 
-            switch (event.id) {
-                    /*		 case LEF_SYSTICK_EVENT:
-                                    ch = LEF_LedRGUpdate(&ledrg);
-                                if (ch & 0x01)
-                                    LED_RED_ON();
-                                else
-                                    LED_RED_OFF();
+        switch (event.id) {
+                /*		 case LEF_SYSTICK_EVENT:
+                                ch = LEF_LedRGUpdate(&ledrg);
+                            if (ch & 0x01)
+                                LED_RED_ON();
+                            else
+                                LED_RED_OFF();
 
-                                if (ch & 0x02)
-                                    LED_GREEN_ON();
-                                else
-                                    LED_GREEN_OFF();
+                            if (ch & 0x02)
+                                LED_GREEN_ON();
+                            else
+                                LED_GREEN_OFF();
 
-                                break;
-                    */
-                case EVENT_Button1:  // Handle button press event
-                    printf("Button 1 event: func = %d\n", event.func);
-                    LEF_Led_set(&led1, LED_SLOW_BLINK);
-                    LEF_Led_set(&led2, LED_BLINK);
-                    LEF_Led_set(&led3, LED_FAST_BLINK);
-                    LEF_Led_set(&led4, LED_BLIP);
-                    break;
-                case EVENT_Button2:  // Handle button press event
-                    printf("Button 2 event: func = %d\n", event.func);
-                    break;
-                case EVENT_Button3:  // Handle button press event
-                    // LEF_Print_event(&event);
-                    if (event.func == 1) {
-                        ls++;
-                        if (ls >= LEDRG_LAST) ls = LEDRG_OFF;
+                            break;
+                */
+            case EVENT_Button1:  // Handle button press event
+                printf("Button 1 event: func = %d\n", event.func);
+                LEF_Led_set(&led1, LED_SLOW_BLINK);
+                LEF_Led_set(&led2, LED_BLINK);
+                LEF_Led_set(&led3, LED_FAST_BLINK);
+                LEF_Led_set(&led4, LED_BLIP);
+                break;
+            case EVENT_Button2:  // Handle button press event
+                printf("Button 2 event: func = %d\n", event.func);
+                break;
+            case EVENT_Button3:  // Handle button press event
+                // LEF_Print_event(&event);
+                if (event.func == 1) {
+                    ls++;
+                    if (ls >= LEDRG_LAST) ls = LEDRG_OFF;
 
-                        LEF_Led_set(&led1, LED_SINGLE_BLINK);
-                        LEF_LedRG_set(&ledrg, ls);
+                    LEF_Led_set(&led1, LED_SINGLE_BLINK);
+                    LEF_LedRG_set(&ledrg, ls);
 
-                        LEF_Buzzer_set(LEF_BUZZER_SHORT_BEEP);
-                    }
-                    if (event.func == 3) {
-                        LEF_Buzzer_set(LEF_BUZZER_BRP);
-                    }
+                    LEF_Buzzer_set(LEF_BUZZER_SHORT_BEEP);
+                }
+                if (event.func == 3) {
+                    LEF_Buzzer_set(LEF_BUZZER_BRP);
+                }
 
-                    // printf("Port C: %x  Clk = %d   Dt = %d\n", PINC, (PINC &
-                    // (1<<PC0)), (PINC & (1<<PC1)));
-                    printf("Port C: %s  Clk = %d   Dt = %d\n", int2bits8(PINE),
-                           (PINC & (1 << PC0)), (PINC & (1 << PC1)));
+                // printf("Port C: %x  Clk = %d   Dt = %d\n", PINC, (PINC &
+                // (1<<PC0)), (PINC & (1<<PC1)));
+                printf("Port C: %s  Clk = %d   Dt = %d\n", int2bits8(PINE),
+                       (PINC & (1 << PC0)), (PINC & (1 << PC1)));
 
-                    // event.id = LEF_EVENT_TEST;
-                    //	LEF_Send(&event);
-                    break;
-                case EVENT_Rotary:  // Handle rotary event
-                    LEF_Buzzer_set(LEF_BUZZER_BLIP);
-                    LEF_Print_event(&event);
-                    break;
+                // event.id = LEF_EVENT_TEST;
+                //	LEF_Send(&event);
+                break;
+            case EVENT_Rotary:  // Handle rotary event
+                LEF_Buzzer_set(LEF_BUZZER_BLIP);
+                LEF_Print_event(&event);
+                break;
 
-                case EVENT_Timer2:  // Handle data from uart to Cli
+            case EVENT_Timer2:  // Handle data from uart to Cli
+                ch = uart_getc();
+                while ((ch & 0xff00) != UART_NO_DATA) {
+                    LEF_Cli_putc(ch);
                     ch = uart_getc();
-                    while ((ch & 0xff00) != UART_NO_DATA) {
-                        LEF_Cli_putc(ch);
-                        ch = uart_getc();
-                    }
-                    break;
+                }
+                break;
 
-                case LEF_EVENT_CLI:
-                    LEF_Cli_exec();
-                    break;
+            case LEF_EVENT_CLI:
+                LEF_Cli_exec(&event);
+                break;
 
-                case EVENT_Pot:
-                    val = LEF_Pot_state(&pot);
-                    // printf("Pot changed %d\n", val);
-                    TIMER0_OCA_SET(val / 4);
+            case EVENT_Pot:
+                val = LEF_Pot_state(&pot);
+                // printf("Pot changed %d\n", val);
+                TIMER0_OCA_SET(val / 4);
 
-                    if (val > 100)
-                        LEF_Led_set(&led1, LED_ON);
-                    else
-                        LEF_Led_set(&led1, LED_OFF);
+                if (val > 100)
+                    LEF_Led_set(&led1, LED_ON);
+                else
+                    LEF_Led_set(&led1, LED_OFF);
 
-                    if (val > 250)
-                        LEF_Led_set(&led2, LED_ON);
-                    else
-                        LEF_Led_set(&led2, LED_OFF);
+                if (val > 250)
+                    LEF_Led_set(&led2, LED_ON);
+                else
+                    LEF_Led_set(&led2, LED_OFF);
 
-                    if (val > 500)
-                        LEF_Led_set(&led3, LED_ON);
-                    else
-                        LEF_Led_set(&led3, LED_OFF);
+                if (val > 500)
+                    LEF_Led_set(&led3, LED_ON);
+                else
+                    LEF_Led_set(&led3, LED_OFF);
 
-                    if (val > 750)
-                        LEF_Led_set(&led4, LED_ON);
-                    else
-                        LEF_Led_set(&led4, LED_OFF);
+                if (val > 750)
+                    LEF_Led_set(&led4, LED_ON);
+                else
+                    LEF_Led_set(&led4, LED_OFF);
 
-                    break;
+                break;
 
-                case LEF_EVENT_TEST:
-                    printf("Testevent\n");
-                    break;
-            }
-
-            // sleep_cpu();
+            case LEF_EVENT_TEST:
+                printf("Testevent\n");
+                break;
         }
 
-        return 0;
+        // sleep_cpu();
     }
+
+    return 0;
+}
