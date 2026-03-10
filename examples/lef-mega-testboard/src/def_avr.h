@@ -16,26 +16,17 @@
 
 // Atmel AVR specific -------------------------------------------------------
 
-#define gpio_output_high(port, bit) \
-    do {                            \
-        DDR##port |= _BV(bit);      \
-        PORT##port |= _BV(bit);     \
-    } while (0)
-#define gpio_output_low(port, bit) \
-    do {                           \
-        DDR##port |= _BV(bit);     \
-        PORT##port &= ~_BV(bit);   \
-    } while (0)
-#define gpio_toggle(port, bit)  \
-    do {                        \
-        PORT##port ^= _BV(bit); \
-    } while (0)
-#define gpio_input_pullup(port, bit) \
-    do {                             \
-        DDR##port &= ~_BV(bit);      \
-        PORT##port |= _BV(bit);      \
-    } while (0)
-#define gpio_read(port, bit) (PIN##port & _BV(bit))
+/*
+** constants/macros
+*/
+#define DDR(x) (*(&x - 1)) /* address of data direction register of port x */
+#if defined(__AVR_ATmega64__) || defined(__AVR_ATmega128__)
+/* on ATmega64/128 PINF is on port 0x00 and not 0x60 */
+#define PIN(x) (&PORTF == &(x) ? _SFR_IO8(0x00) : (*(&x - 2)))
+#else
+#define PIN(x) (*(&x - 2)) /* address of input register of port x          */
+#endif
+
 
 // AVR Reset causes ---------------------------------------------------------
 inline bool IS_POWER_ON_RESET(void)       { return MCUSR & (1<<PORF); }

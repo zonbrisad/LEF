@@ -34,6 +34,14 @@
  * Pxx = Rotary
  * Pxx = Rotary
  *
+ * LCD 
+ * - RS = PD7
+ * - RW = PD6
+ * - E  = PD5
+ * - D4 = PD4
+ * - D5 = PD3
+ * - D6 = PD2
+ * - D7 = PD1
  */
 
 // Include ------------------------------------------------------------------
@@ -289,27 +297,27 @@ void cmdHelp(char* args) {
 
 void cmd_lcd_on(char* args) {
     UNUSED(args);
-    lcd_command(LCD_DISP_ON);
+    lcd_on();
 }
 
 void cmd_lcd_off(char* args) {
     UNUSED(args);
-    lcd_command(LCD_DISP_OFF);
+    lcd_off();
 }
 
 void cmd_lcd_cursor_on(char* args) {
     UNUSED(args);
-    lcd_command(LCD_DISP_ON_CURSOR);
+    lcd_on_cursor();
 }
 
 void cmd_lcd_clear(char* args) {
     UNUSED(args);
-    lcd_clrscr();
+    lcd_clear();
 }
 
 void cmd_lcd_test(char* args) {
     UNUSED(args);
-    lcd_clrscr();
+    lcd_clear();
     lcd_puts("Line 1\n");
     lcd_puts("Line 2\n");
     lcd_puts("Line 3\n");
@@ -493,7 +501,7 @@ void hw_init(void) {
     //   TIMER0_OM_CLEAR();
 
     lcd_init(LCD_DISP_ON);
-    lcd_clrscr();
+    lcd_clear();
     lcd_puts("   LEF Mega Test\n");
 
     sei();

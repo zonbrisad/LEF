@@ -40,6 +40,11 @@
  
  */
 
+/** External references
+ * https://github.com/aostanin/avr-hd44780?tab=readme-ov-file
+ * https://github.com/efthymios-ks/AVR-HD44780
+ */
+
 #pragma once
 
 #include <inttypes.h>
@@ -104,28 +109,20 @@
  */
 
 #define LCD_PORT         PORTF        /**< port for the LCD lines   */
-#define LCD_DATA0_PORT   LCD_PORT     /**< port for 4bit data bit 0 */
-#define LCD_DATA1_PORT   LCD_PORT     /**< port for 4bit data bit 1 */
-#define LCD_DATA2_PORT   LCD_PORT     /**< port for 4bit data bit 2 */
-#define LCD_DATA3_PORT   LCD_PORT     /**< port for 4bit data bit 3 */
-#define LCD_DATA0_PIN    4            /**< pin for 4bit data bit 0  */
-#define LCD_DATA1_PIN    3            /**< pin for 4bit data bit 1  */
-#define LCD_DATA2_PIN    2            /**< pin for 4bit data bit 2  */
-#define LCD_DATA3_PIN    1            /**< pin for 4bit data bit 3  */
+#define LCD_DATA4_PORT   LCD_PORT     /**< port for 4bit data bit 0 */
+#define LCD_DATA5_PORT   LCD_PORT     /**< port for 4bit data bit 1 */
+#define LCD_DATA6_PORT   LCD_PORT     /**< port for 4bit data bit 2 */
+#define LCD_DATA7_PORT   LCD_PORT     /**< port for 4bit data bit 3 */
+#define LCD_DATA4_PIN    4            /**< pin for 4bit data bit 0  */
+#define LCD_DATA5_PIN    3            /**< pin for 4bit data bit 1  */
+#define LCD_DATA6_PIN    2            /**< pin for 4bit data bit 2  */
+#define LCD_DATA7_PIN    1            /**< pin for 4bit data bit 3  */
 #define LCD_RS_PORT      LCD_PORT     /**< port for RS line         */
 #define LCD_RS_PIN       7            /**< pin  for RS line         */
 #define LCD_RW_PORT      LCD_PORT     /**< port for RW line         */
 #define LCD_RW_PIN       6            /**< pin  for RW line         */
 #define LCD_E_PORT       LCD_PORT     /**< port for Enable line     */
 #define LCD_E_PIN        5            /**< pin  for Enable line     */
-
-// #define LCD_DATA0_PIN    F, 4         /**< pin for 4bit data bit 0  */
-// #define LCD_DATA1_PIN    F, 3         /**< pin for 4bit data bit 1  */
-// #define LCD_DATA2_PIN    F, 2         /**< pin for 4bit data bit 2  */
-// #define LCD_DATA3_PIN    F, 1         /**< pin for 4bit data bit 3  */
-// #define LCD_RS_PIN       F, 7         /**< pin  for RS line         */
-// #define LCD_RW_PIN       F, 6         /**< pin  for RW line         */
-// #define LCD_E_PIN        F, 5         /**< pin  for Enable line     */
 
 
 /**
@@ -200,9 +197,8 @@
 
 #define LCD_MODE_DEFAULT     ((1<<LCD_ENTRY_MODE) | (1<<LCD_ENTRY_INC) )
 
-/** 
- *  @name Functions
- */
+#define LCD_INIT_SEQ    0b00110000  
+#define LCD_4BIT_MODE   0b00100000  /**< Put LCD in 4 bit data mode */
 
 
 /**
@@ -215,20 +211,37 @@
 */
 extern void lcd_init(uint8_t dispAttr);
 
-
 /**
- @brief    Clear display and set cursor to home position
+ @brief    Send LCD controller instruction command
+ @param    cmd instruction to send to LCD controller, see HD44780 data sheet
  @return   none
 */
-extern void lcd_clrscr(void);
-
+extern void lcd_command(uint8_t cmd);
 
 /**
- @brief    Set cursor to home position
- @return   none
-*/
-extern void lcd_home(void);
+ * Clear display and set cursor to home position
+ */
+inline void lcd_clear(void) { lcd_command(1 << LCD_CLR); }
 
+/**
+ * Set cursor to home position
+ */
+inline void lcd_home(void) { lcd_command(1 << LCD_HOME); }
+
+/**
+ * Turn display on
+ */
+inline void lcd_on(void) { lcd_command(LCD_DISP_ON); }
+
+/**
+ * Turn display on and show cursor
+ */
+inline void lcd_on_cursor(void) { lcd_command(LCD_DISP_ON_CURSOR); }
+
+/** 
+ * Turn display off     
+ */
+inline void lcd_off(void) { lcd_command(LCD_DISP_OFF); }
 
 /**
  @brief    Set cursor to specified position
@@ -264,13 +277,6 @@ extern void lcd_puts(const char *s);
 */
 extern void lcd_puts_p(const char *progmem_s);
 
-
-/**
- @brief    Send LCD controller instruction command
- @param    cmd instruction to send to LCD controller, see HD44780 data sheet
- @return   none
-*/
-extern void lcd_command(uint8_t cmd);
 
 
 /**
