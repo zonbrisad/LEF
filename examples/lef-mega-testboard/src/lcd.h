@@ -220,6 +220,12 @@ inline void lcd_clear(void) { lcd_command(1 << LCD_CLR); }
  */
 inline void lcd_home(void) { lcd_command(1 << LCD_HOME); }
 
+
+inline void lcd_move_right(void) { lcd_command(LCD_MOVE_DISP_RIGHT); }
+inline void lcd_move_left(void) { lcd_command(LCD_MOVE_DISP_LEFT); }
+
+
+
 /**
  * Turn display on
  */
@@ -244,6 +250,7 @@ inline void lcd_off(void) { lcd_command(LCD_DISP_OFF); }
 */
 extern void lcd_gotoxy(uint8_t x, uint8_t y);
 
+extern int lcd_getxy(void);
 
 /**
  @brief    Display character at current cursor position
@@ -279,7 +286,6 @@ extern void lcd_puts_p(const char *progmem_s);
  @return   none
 */
 extern void lcd_data(uint8_t data);
-
 
 /**
  @brief macros for automatically storing string constant in program memory

@@ -16,8 +16,31 @@
 
 // Atmel AVR specific -------------------------------------------------------
 
+// Macros to edit PORT, DDR and PIN
+#define gpio_mode(x, y) (y ? _SET(DDR, x) : _CLEAR(DDR, x))
+#define gpio_write(x, y) (y ? _SET(PORT, x) : _CLEAR(PORT, x))
+#define gpio_read(x) (_GET(PIN, x))
+#define gpio_toggle(x) (_TOGGLE(PORT, x))
 
+// General use bit manipulating commands
+#define BitSet(x, y) (x |= (1UL << y))
+#define BitClear(x, y) (x &= (~(1UL << y)))
+#define BitToggle(x, y) (x ^= (1UL << y))
+#define BitCheck(x, y) (x & (1UL << y) ? 1 : 0)
 
+// Access PORT, DDR and PIN
+#define xPORT(port) (_PORT(port))
+#define xDDR(port) (_DDR(port))
+#define xPIN(port) (_PIN(port))
+
+#define _PORT(port) (xPORT##port)
+#define _DDR(port) (xDDR##port)
+#define _PIN(port) (xPIN##port)
+
+#define _SET(type, port, bit) (BitSet((type##port), bit))
+#define _CLEAR(type, port, bit) (BitClear((type##port), bit))
+#define _TOGGLE(type, port, bit) (BitToggle((type##port), bit))
+#define _GET(type, port, bit) (BitCheck((type##port), bit))
 
 // AVR Reset causes ---------------------------------------------------------
 inline bool IS_POWER_ON_RESET(void)       { return MCUSR & (1<<PORF); }

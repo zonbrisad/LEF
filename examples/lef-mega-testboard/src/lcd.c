@@ -62,9 +62,9 @@
 delay for a minimum of <us> microseconds
 the number of loops is calculated at compile-time from MCU clock frequency
 *************************************************************************/
-inline void lcd_delay(uint16_t us) { _delay_us(us); }
+static inline void lcd_delay(uint16_t us) { _delay_us(us); }
 
-inline void lcd_e_delay(void) { lcd_delay(LCD_DELAY_ENABLE_PULSE);}
+static inline void lcd_e_delay(void) { lcd_delay(LCD_DELAY_ENABLE_PULSE);}
 inline void lcd_e_set(bool state)  { gpio_write(LCD_E_PIN, state); }
 inline void lcd_rw_set(bool state) { gpio_write(LCD_RW_PIN, state); }
 inline void lcd_rs_set(bool state) { gpio_write(LCD_RS_PIN, state); }
@@ -115,7 +115,7 @@ inline void lcd_init_pins(void) {
     lcd_data_write(0b11110000);
 }
 
-inline void lcd_e_toggle(void) {
+static inline void lcd_e_toggle(void) {
     lcd_e_set(1);
     lcd_e_delay();
     lcd_e_set(0);

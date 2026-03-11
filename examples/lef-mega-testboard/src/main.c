@@ -68,30 +68,37 @@
 
 static const uint32_t UART_BAUD_RATE = 57600;
 
-#define BUZZER_PIN PK1
+#define BUZZER_PIN K,1
+#define LED1_PIN K,7
+#define LED2_PIN K,6
+#define LED3_PIN K,5
+#define LED4_PIN K,4
+
 #define POT_ADC 8
 
-inline void BUZZER_INIT(void) { DDRK |= (1 << BUZZER_PIN); }
-inline void BUZZER_OFF(void)  { PORTK &= ~(1 << BUZZER_PIN); }
-inline void BUZZER_ON(void)   { PORTK |= (1 << BUZZER_PIN); }
 
-inline void LED1_INIT(void) { DDRK |= (0x01 << PK7); }
-inline void LED2_INIT(void) { DDRK |= (0x01 << PK6); }
-inline void LED3_INIT(void) { DDRK |= (0x01 << PK5); }
-inline void LED4_INIT(void) { DDRK |= (0x01 << PK4); }
+inline void BUZZER_SET(bool on) { gpio_write(BUZZER_PIN, on); }
+// inline void BUZZER_INIT(void) { DDRK |= (1 << BUZZER_PIN); }
+// inline void BUZZER_OFF(void)  { PORTK &= ~(1 << BUZZER_PIN); }
+// inline void BUZZER_ON(void)   { PORTK |= (1 << BUZZER_PIN); }
+
+// inline void LED1_INIT(void) { DDRK |= (0x01 << PK7); }
+// inline void LED2_INIT(void) { DDRK |= (0x01 << PK6); }
+// inline void LED3_INIT(void) { DDRK |= (0x01 << PK5); }
+// inline void LED4_INIT(void) { DDRK |= (0x01 << PK4); }
 inline void LED_RG_INIT(void) { DDRK |= (0x01 << PK3) | (0x01 << PK2); }
 
-inline void LED1_ON(void) { PORTK |= (0x01 << PK7); }
-inline void LED2_ON(void) { PORTK |= (0x01 << PK6); }
-inline void LED3_ON(void) { PORTK |= (0x01 << PK5); }
-inline void LED4_ON(void) { PORTK |= (0x01 << PK4); }
+// inline void LED1_ON(void) { PORTK |= (0x01 << PK7); }
+// inline void LED2_ON(void) { PORTK |= (0x01 << PK6); }
+// inline void LED3_ON(void) { PORTK |= (0x01 << PK5); }
+// inline void LED4_ON(void) { PORTK |= (0x01 << PK4); }
 inline void LED_GREEN_ON(void) { PORTK |= (0x01 << PK3); }
 inline void LED_RED_ON(void) { PORTK |= (0x01 << PK2); }
 
-inline void LED1_OFF(void) { PORTK &= ~(0x01 << PK7); }
-inline void LED2_OFF(void) { PORTK &= ~(0x01 << PK6); }
-inline void LED3_OFF(void) { PORTK &= ~(0x01 << PK5); }
-inline void LED4_OFF(void) { PORTK &= ~(0x01 << PK4); }
+// inline void LED1_OFF(void) { PORTK &= ~(0x01 << PK7); }
+// inline void LED2_OFF(void) { PORTK &= ~(0x01 << PK6); }
+// inline void LED3_OFF(void) { PORTK &= ~(0x01 << PK5); }
+// inline void LED4_OFF(void) { PORTK &= ~(0x01 << PK4); }
 inline void LED_GREEN_OFF(void) { PORTK &= ~(0x01 << PK3); }
 inline void LED_RED_OFF(void) { PORTK &= ~(0x01 << PK2); }
 
@@ -111,7 +118,7 @@ inline bool BUTTON1_PRESSED(void) { return (PING & (1 << PG5)) ? false : true; }
 inline bool BUTTON2_PRESSED(void) { return (PINE & (1 << PE5)) ? false : true; }
 inline bool BUTTON3_PRESSED(void) { return (PINE & (1 << PE4)) ? false : true; }
 
-inline ROT_INIT(void) {
+inline void ROT_INIT(void) {
     // Configure rotary encoder pins as inputs with pull-ups
     DDRC &= ~((1 << PC0) | (1 << PC1)); // Clear bits to set as input
     PORTC |= (1 << PC0) | (1 << PC1);   // Enable pull-up resistors
@@ -156,7 +163,11 @@ void cmd_lcd_on(char* args);
 void cmd_lcd_off(char* args);
 void cmd_lcd_cursor_on(char* args);
 void cmd_lcd_clear(char* args);
+void cmd_lcd_home(char* args);
 void cmd_lcd_test(char* args);
+void cmd_lcd_test_move(char *args);
+void cmd_lcd_move_right(char *args);
+void cmd_lcd_move_left(char *args);
 
 LEF_Timer timer1;
 LEF_Timer timer2;
@@ -200,7 +211,12 @@ const PROGMEM LEF_CliCmd cmdTable[] = {
     {cmd_lcd_off, "lcdoff", "Turn LCD off"},
     {cmd_lcd_cursor_on, "lcdcuron", "Turn LCD cursor on"},
     {cmd_lcd_clear, "lcdclr", "Clear LCD"},
+    {cmd_lcd_home, "lcdh", "Move cursor to home pos"},
+    {cmd_lcd_move_right, "lcdr", "Move text right"},
+    {cmd_lcd_move_left, "lcdl", "Move text left"},
     {cmd_lcd_test, "lcdt1", "Run LCD test"},
+    {cmd_lcd_test_move, "lcdtm", "Run LCD move test"},
+
     LEF_CLI_LABEL("Misc"),
     {cmdEvOn, "evon", "Turn event on"},
     {cmdEvOff, "evoff", "Turn event off"},
@@ -314,6 +330,20 @@ void cmd_lcd_clear(char* args) {
     UNUSED(args);
     lcd_clear();
 }
+void cmd_lcd_home(char* args) {
+    UNUSED(args);
+    lcd_home();
+}
+
+void cmd_lcd_move_right(char* args) {
+    UNUSED(args);
+    lcd_move_right();
+}
+
+void cmd_lcd_move_left(char* args) {
+    UNUSED(args);
+    lcd_move_left();
+}
 
 void cmd_lcd_test(char* args) {
     UNUSED(args);
@@ -324,6 +354,16 @@ void cmd_lcd_test(char* args) {
     lcd_puts("Line 4\n");
 }
 
+void cmd_lcd_test_move(char* args) {
+    UNUSED(args);
+    lcd_clear();
+    lcd_puts_P("Some text to move");
+    _delay_ms(300);
+    lcd_home();
+    lcd_command(LCD_MOVE_DISP_RIGHT);
+}
+
+void adc_print_all(bool print_header);
 void adc_print_all(bool print_header) {
     uint16_t val;
     if (print_header) {
@@ -347,7 +387,6 @@ void adc_print_all(bool print_header) {
 
 void cmd_adc(char* args) {
     UNUSED(args);
-    uint16_t val;
 
     ADC_ID();
     ADC_ENABLE();
@@ -358,6 +397,7 @@ void cmd_adc(char* args) {
     ADC_IE();
 }
 
+void wait_event(LEF_Event *event);
 void wait_event(LEF_Event *event) {
     uint16_t ch; 
     LEF_Wait(event);
@@ -426,10 +466,14 @@ ISR(TIMER1_COMPA_vect) {
     LEF_Timer_update(&timer2);
     LEF_Timer_update(&timer_a);
 
-    LEF_Led_update(&led1) ? LED1_ON() : LED1_OFF();
-    LEF_Led_update(&led2) ? LED2_ON() : LED2_OFF();
-    LEF_Led_update(&led3) ? LED3_ON() : LED3_OFF();
-    LEF_Led_update(&led4) ? LED4_ON() : LED4_OFF();
+    // LEF_Led_update(&led1) ? LED1_ON() : LED1_OFF();
+    // LEF_Led_update(&led2) ? LED2_ON() : LED2_OFF();
+    // LEF_Led_update(&led3) ? LED3_ON() : LED3_OFF();
+    // LEF_Led_update(&led4) ? LED4_ON() : LED4_OFF();
+    gpio_write(LED1_PIN, LEF_Led_update(&led1));
+    gpio_write(LED2_PIN, LEF_Led_update(&led2));
+    gpio_write(LED3_PIN, LEF_Led_update(&led3));
+    gpio_write(LED4_PIN, LEF_Led_update(&led4));
 
     ch = LEF_LedRG_update(&ledrg);
     (ch & 0x01) ? LED_RED_ON() : LED_RED_OFF();
@@ -444,7 +488,10 @@ ISR(TIMER1_COMPA_vect) {
     //	ch = PINC;
     //	LEF_Rotary_update(&rotary, (ch & (1<<PC0)), (ch & (1<<PC1)));
 
-    LEF_Buzzer_update() ? BUZZER_ON() : BUZZER_OFF();
+    // LEF_Buzzer_update() ? BUZZER_ON() : BUZZER_OFF();
+    
+    BUZZER_SET(LEF_Buzzer_update());
+
     ADC_MUX(POT_ADC);
     ADC_START();
 }
@@ -461,17 +508,24 @@ void hw_init(void) {
 
     ARDUINO_LED_INIT();
 
-    LED1_INIT();
-    LED2_INIT();
-    LED3_INIT();
-    LED4_INIT();
+    // LED1_INIT();
+    // LED2_INIT();
+    // LED3_INIT();
+    // LED4_INIT();
+
+    gpio_mode(LED1_PIN, 1);
+    gpio_mode(LED2_PIN, 1);
+    gpio_mode(LED3_PIN, 1);
+    gpio_mode(LED4_PIN, 1);
+
     LED_RG_INIT();
 
     BUTTON1_INIT();
     BUTTON2_INIT();
     BUTTON3_INIT();
 
-    BUZZER_INIT();
+    // BUZZER_INIT();
+    gpio_mode(BUZZER_PIN, 1);
 
     // set_sleep_mode(SLEEP_MODE_IDLE);
     // sleep_enable();
