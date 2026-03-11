@@ -13,6 +13,20 @@
  *
  */
 
+/*
+ * Hardvare connections.
+ * PD7 = Button
+ * PD3 = Buzzer
+ *
+ * PB3 = LED green
+ * PB4 = LED red
+ *
+ * PC0 = Rotary clk
+ * PC1 = Rotary data
+ *
+ * Pot = ADC5
+ */
+
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 #include <avr/interrupt.h>
@@ -25,26 +39,20 @@
 #include "main.h"
 #include "uart.h"
 #include "def.h"
+#include "def_avr.h"
 
 #include "LEF.h"
 
 static const uint32_t UART_BAUD_RATE = 57600;
 
 #define POT_ADC 5
-#define BUZZER_PIN PD3
 
-inline void BUZZER_ON() { PORTD &= ~(1<<BUZZER_PIN); }
-inline void BUZZER_OFF() { PORTD |= (1<<BUZZER_PIN); }
-
-inline void LED_RED_ON() { PORTB |= (0x01 << PB4); }
-inline void LED_RED_OFF() { PORTB &= ~(0x01 << PB4); }
-inline void LED_GREEN_ON() { PORTB |= (0x01 << PB3); }
-inline void LED_GREEN_OFF() { PORTB &= ~(0x01 << PB3); }
-
-#define ROT_CLK()  PINC | (1 << PC0)
-#define ROT_DATA() PINC | (1 << PC1)
-
-
+#define BUZZER_PIN D,3
+#define BUTTON_PIN D,7
+#define LED_RED_PIN B,4
+#define LED_GREEN_PIN B,3
+#define ROT_CLK_PIN C,0
+#define ROT_DATA_PIN C,1
 
 typedef enum {
   EVENT_Timer1 = 0,
@@ -211,19 +219,10 @@ void cmd_adc(char *args) {
 
 
 ISR(PCINT1_vect) {
-//	LEF_Event event;
-  char ch;
-	
-  ch = PINC;
-  LEF_Rotary_update(&rotary, (ch & (1<<PC0)), (ch & (1<<PC1)));
-
-  //event.id = LEF_EVENT_TEST;
-  //LEF_Send(&event);
+  LEF_Rotary_update(&rotary, gpio_read(ROT_CLK_PIN), gpio_read(ROT_DATA_PIN));
 }
 
 ISR(TIMER1_COMPA_vect) {
-  char ch;
-//	LEF_Event event;
 	
   TIMER1_RELOAD(0);
 
@@ -239,54 +238,26 @@ ISR(TIMER1_COMPA_vect) {
     ARDUINO_LED_OFF();
   }
 
-  ch = LEF_LedRG_update(&ledrg);
-  if (ch & 0x01) 
-    LED_RED_ON();
-  else
-    LED_RED_OFF();
-
-  if (ch & 0x02) 
-    LED_GREEN_ON();
-  else
-    LED_GREEN_OFF();
+  uint8_t ch = LEF_LedRG_update(&ledrg);
+  gpio_write(LED_RED_PIN, (ch & 0x01));
+  gpio_write(LED_GREEN_PIN, (ch & 0x02));
 
   TIMER0_OCA_SET(255 - LEF_LedA_update(&leda));
-	
-  LEF_Button_update(&button1, (PIND & (1<<PIN7))==0  );
 
-//	ch = PINC;
-//	LEF_Rotary_update(&rotary, (ch & (1<<PC0)), (ch & (1<<PC1)));
-	
-  if (LEF_Buzzer_update() > 0) {
-    BUZZER_ON();
-  } else {
-    BUZZER_OFF();
-  }
+  LEF_Button_update(&button1, !gpio_read(BUTTON_PIN));
+
+  gpio_write(BUZZER_PIN, !LEF_Buzzer_update());
 
   ADC_START();
 }
 
 ISR(ADC_vect) {
-  //uart_putc('a');
-  uint16_t val;
-  val = ADC_VALUE();
+  uint16_t val = ADC_VALUE();
   LEF_Pot_update(&pot, val);
 }
 
 
 
-/*
- * PD7 = Button 
- * PD3 = Buzzer
- *
- * PB3 = LED a
- * PB4 = LED b
- *
- * PC0 = Rotary
- * PC1 = Rotary
- *
- * 
- */
 
 void hw_init(void) {
   stdout = &mystdout;
@@ -303,20 +274,20 @@ void hw_init(void) {
   //sleep_enable();
 
   // Activate pullup for click button
-  PORTD = (0x01 << PIN7);
+  gpio_init(BUTTON_PIN, 0, true);
 
   // Configure buzzer port
-  DDRD |= (0x01 << BUZZER_PIN);
-  PORTD |= (0x01 << BUZZER_PIN);
+  gpio_init(BUZZER_PIN, 1, 1);
 
-  // Red Green LED
-  DDRB |= (0x01 << PB4) | (0x01 << PB3);
+  // Red and Green LED
+  gpio_init(LED_RED_PIN, 1, 0);
 
   // 5mm Green LED
   DDRD |= (0x01 << PD6);
 	
   // Rotary encoder input pullup activation
-  PORTC |= (1<<PC0) | (1<<PC1);
+  gpio_init(ROT_CLK_PIN, 0, true);
+  gpio_init(ROT_DATA_PIN, 0, true);
 
   // Pin Change Mask Register 1 
   PCMSK1 |= (1<<PCINT8);
@@ -381,17 +352,6 @@ int main() {
 
 	switch (event.id) {
 /*		 case LEF_SYSTICK_EVENT:
-				ch = LEF_LedRGUpdate(&ledrg);
-			if (ch & 0x01) 
-				LED_RED_ON();
-			else
-				LED_RED_OFF();
-			
-			if (ch & 0x02) 
-				LED_GREEN_ON();
-			else
-				LED_GREEN_OFF();
-
 			break;
 */
       case EVENT_Button:           // Handle button press event
@@ -410,7 +370,7 @@ int main() {
 				LEF_Buzzer_set(LEF_BUZZER_BRP);
 			}
 
-			printf("Port C: %x  Clk = %d   Dt = %d\n", PINC, (PINC & (1<<PC0)), (PINC & (1<<PC1)));
+			printf("Clk = %d   Dt = %d\n", gpio_read(ROT_CLK_PIN), gpio_read(ROT_DATA_PIN));
 
 			//event.id = LEF_EVENT_TEST;
 		//	LEF_Send(&event);
@@ -429,7 +389,7 @@ int main() {
 			break;
 		
 		 case LEF_EVENT_CLI:
-			LEF_Cli_exec();
+			LEF_Cli_exec(&event);
 			break;
 
 		 case EVENT_Pot:
