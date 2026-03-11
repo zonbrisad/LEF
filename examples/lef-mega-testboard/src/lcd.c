@@ -71,7 +71,6 @@ inline void lcd_rs_set(bool state) { gpio_write(LCD_RS_PIN, state); }
 
 
 inline void lcd_data_direction(bool write) {
-    
     if (write) {
         /* configure data pins as output */
         gpio_mode(LCD_DATA4_PIN, 1);

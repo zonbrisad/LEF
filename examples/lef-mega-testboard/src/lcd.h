@@ -42,8 +42,9 @@
 
 /** External references
  * https://github.com/damadmai/pfleury
- * https://github.com/aostanin/avr-hd44780?tab=readme-ov-file
  * https://github.com/efthymios-ks/AVR-HD44780
+ * https://github.com/aostanin/avr-hd44780?tab=readme-ov-file
+ * 
  */
 
 #pragma once

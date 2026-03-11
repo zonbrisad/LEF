@@ -73,58 +73,27 @@ static const uint32_t UART_BAUD_RATE = 57600;
 #define LED2_PIN K,6
 #define LED3_PIN K,5
 #define LED4_PIN K,4
+#define LED_RED_PIN K,3
+#define LED_GREEN_PIN K,2
+#define BUTTON1_PIN G,5
+#define BUTTON2_PIN E,5
+#define BUTTON3_PIN E,4
 
 #define POT_ADC 8
 
 
-inline void BUZZER_SET(bool on) { gpio_write(BUZZER_PIN, on); }
-// inline void BUZZER_INIT(void) { DDRK |= (1 << BUZZER_PIN); }
-// inline void BUZZER_OFF(void)  { PORTK &= ~(1 << BUZZER_PIN); }
-// inline void BUZZER_ON(void)   { PORTK |= (1 << BUZZER_PIN); }
+// inline void BUZZER_SET(bool on) { gpio_write(BUZZER_PIN, on); }
+// inline bool BUTTON1_PRESSED(void) { return (PING & (1 << PG5)) ? false : true; }
+// inline bool BUTTON2_PRESSED(void) { return (PINE & (1 << PE5)) ? false : true; }
+// inline bool BUTTON3_PRESSED(void) { return (PINE & (1 << PE4)) ? false : true; }
 
-// inline void LED1_INIT(void) { DDRK |= (0x01 << PK7); }
-// inline void LED2_INIT(void) { DDRK |= (0x01 << PK6); }
-// inline void LED3_INIT(void) { DDRK |= (0x01 << PK5); }
-// inline void LED4_INIT(void) { DDRK |= (0x01 << PK4); }
-inline void LED_RG_INIT(void) { DDRK |= (0x01 << PK3) | (0x01 << PK2); }
-
-// inline void LED1_ON(void) { PORTK |= (0x01 << PK7); }
-// inline void LED2_ON(void) { PORTK |= (0x01 << PK6); }
-// inline void LED3_ON(void) { PORTK |= (0x01 << PK5); }
-// inline void LED4_ON(void) { PORTK |= (0x01 << PK4); }
-inline void LED_GREEN_ON(void) { PORTK |= (0x01 << PK3); }
-inline void LED_RED_ON(void) { PORTK |= (0x01 << PK2); }
-
-// inline void LED1_OFF(void) { PORTK &= ~(0x01 << PK7); }
-// inline void LED2_OFF(void) { PORTK &= ~(0x01 << PK6); }
-// inline void LED3_OFF(void) { PORTK &= ~(0x01 << PK5); }
-// inline void LED4_OFF(void) { PORTK &= ~(0x01 << PK4); }
-inline void LED_GREEN_OFF(void) { PORTK &= ~(0x01 << PK3); }
-inline void LED_RED_OFF(void) { PORTK &= ~(0x01 << PK2); }
-
-inline void BUTTON1_INIT(void) {
-    DDRG &= ~(1 << PG5);
-    PORTG |= (1 << PG5);
-}
-inline void BUTTON2_INIT(void) {
-    DDRE &= ~(1 << PE5);
-    PORTE |= (1 << PE5);
-}
-inline void BUTTON3_INIT(void) {
-    DDRE &= ~(1 << PE4);
-    PORTE |= (1 << PE4);
-}
-inline bool BUTTON1_PRESSED(void) { return (PING & (1 << PG5)) ? false : true; }
-inline bool BUTTON2_PRESSED(void) { return (PINE & (1 << PE5)) ? false : true; }
-inline bool BUTTON3_PRESSED(void) { return (PINE & (1 << PE4)) ? false : true; }
-
-inline void ROT_INIT(void) {
-    // Configure rotary encoder pins as inputs with pull-ups
-    DDRC &= ~((1 << PC0) | (1 << PC1)); // Clear bits to set as input
-    PORTC |= (1 << PC0) | (1 << PC1);   // Enable pull-up resistors
-}
-inline uint8_t ROT_CLK(void)  { return PINC & (1 << PC0); }
-inline uint8_t ROT_DATA(void) { return PINC & (1 << PC1); }
+// inline void ROT_INIT(void) {
+//     // Configure rotary encoder pins as inputs with pull-ups
+//     DDRC &= ~((1 << PC0) | (1 << PC1)); // Clear bits to set as input
+//     PORTC |= (1 << PC0) | (1 << PC1);   // Enable pull-up resistors
+// }
+// inline uint8_t ROT_CLK(void)  { return PINC & (1 << PC0); }
+// inline uint8_t ROT_DATA(void) { return PINC & (1 << PC1); }
 
 typedef enum {
     EVENT_Timer1 = 0,
@@ -466,31 +435,29 @@ ISR(TIMER1_COMPA_vect) {
     LEF_Timer_update(&timer2);
     LEF_Timer_update(&timer_a);
 
-    // LEF_Led_update(&led1) ? LED1_ON() : LED1_OFF();
-    // LEF_Led_update(&led2) ? LED2_ON() : LED2_OFF();
-    // LEF_Led_update(&led3) ? LED3_ON() : LED3_OFF();
-    // LEF_Led_update(&led4) ? LED4_ON() : LED4_OFF();
     gpio_write(LED1_PIN, LEF_Led_update(&led1));
     gpio_write(LED2_PIN, LEF_Led_update(&led2));
     gpio_write(LED3_PIN, LEF_Led_update(&led3));
     gpio_write(LED4_PIN, LEF_Led_update(&led4));
-
+    
     ch = LEF_LedRG_update(&ledrg);
-    (ch & 0x01) ? LED_RED_ON() : LED_RED_OFF();
-    (ch & 0x02) ? LED_GREEN_ON() : LED_GREEN_OFF();
+    gpio_write(LED_RED_PIN, (ch & 0x01));
+    gpio_write(LED_GREEN_PIN, (ch & 0x02));
 
     TIMER0_OCA_SET(255 - LEF_LedA_update(&leda));
 
-    LEF_Button_update(&button1, BUTTON1_PRESSED());
-    LEF_Button_update(&button2, BUTTON2_PRESSED());
-    LEF_Button_update(&button3, BUTTON3_PRESSED());
+    LEF_Button_update(&button1, gpio_read(BUTTON1_PIN));
+    LEF_Button_update(&button2, gpio_read(BUTTON2_PIN));
+    LEF_Button_update(&button3, gpio_read(BUTTON3_PIN));
+    // LEF_Button_update(&button1, BUTTON1_PRESSED());
+    // LEF_Button_update(&button2, BUTTON2_PRESSED());
+    // LEF_Button_update(&button3, BUTTON3_PRESSED());
 
     //	ch = PINC;
     //	LEF_Rotary_update(&rotary, (ch & (1<<PC0)), (ch & (1<<PC1)));
 
-    // LEF_Buzzer_update() ? BUZZER_ON() : BUZZER_OFF();
-    
-    BUZZER_SET(LEF_Buzzer_update());
+    gpio_write(BUZZER_PIN, LEF_Buzzer_update());
+    // BUZZER_SET(LEF_Buzzer_update());
 
     ADC_MUX(POT_ADC);
     ADC_START();
@@ -508,24 +475,19 @@ void hw_init(void) {
 
     ARDUINO_LED_INIT();
 
-    // LED1_INIT();
-    // LED2_INIT();
-    // LED3_INIT();
-    // LED4_INIT();
+    gpio_init(LED1_PIN, 1, 0);
+    gpio_init(LED2_PIN, 1, 0);
+    gpio_init(LED3_PIN, 1, 0);
+    gpio_init(LED4_PIN, 1, 0);
+    gpio_init(LED_RED_PIN, 1, 0);
+    gpio_init(LED_GREEN_PIN, 1, 0);
 
-    gpio_mode(LED1_PIN, 1);
-    gpio_mode(LED2_PIN, 1);
-    gpio_mode(LED3_PIN, 1);
-    gpio_mode(LED4_PIN, 1);
+    // printf("Button1: %d\n", gpio_read(BUTTON1_PIN));
+    gpio_init(BUTTON1_PIN, false , true);
+    gpio_init(BUTTON2_PIN, false , true);
+    gpio_init(BUTTON3_PIN, false , true);
 
-    LED_RG_INIT();
-
-    BUTTON1_INIT();
-    BUTTON2_INIT();
-    BUTTON3_INIT();
-
-    // BUZZER_INIT();
-    gpio_mode(BUZZER_PIN, 1);
+    gpio_init(BUZZER_PIN, 1, 0);
 
     // set_sleep_mode(SLEEP_MODE_IDLE);
     // sleep_enable();
@@ -581,9 +543,8 @@ static inline char* int2bits16(uint16_t x) {
 
 int main(void) {
     LEF_Event event;
-    uint8_t ls;
-    ls = LEDRG_OFF;
     uint16_t ch, val;
+    uint8_t ls = LEDRG_OFF;
 
     LEF_init();
 
@@ -601,10 +562,8 @@ int main(void) {
 
     LEF_LedRG_init(&ledrg, LEDRG_GREEN_DOUBLE_BLINK);
 
-    //	LEF_LedA_init(&leda, LEDA_OFF);
-    //	LEF_LedA_init(&leda, LEDA_SOFT);
-    LEF_LedA_init(&leda, LEDA_ON);
-    LEF_LedA_init(&leda, LEDA_OFF_SOFT);
+    // LEF_LedA_init(&leda, LEDA_ON);
+    // LEF_LedA_init(&leda, LEDA_OFF_SOFT);
 
     LEF_Button_init(&button1, EVENT_Button1);
     LEF_Button_init(&button2, EVENT_Button2);

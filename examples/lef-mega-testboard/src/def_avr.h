@@ -16,11 +16,17 @@
 
 // Atmel AVR specific -------------------------------------------------------
 
-// Macros to edit PORT, DDR and PIN
-#define gpio_mode(x, y) (y ? _SET(DDR, x) : _CLEAR(DDR, x))
-#define gpio_write(x, y) (y ? _SET(PORT, x) : _CLEAR(PORT, x))
-#define gpio_read(x) (_GET(PIN, x))
-#define gpio_toggle(x) (_TOGGLE(PORT, x))
+// AVR GPIO macros
+
+#define gpio_init(port, direction, pullup) do { \
+     (direction ? _SET(DDR, port) : _CLEAR(DDR, port)); \
+     (pullup ? _SET(PORT, port) : _CLEAR(PORT, port)); } while (0)
+
+#define gpio_direction(port, direction) (direption ? _SET(DDR, port) : _CLEAR(DDR, port))
+#define gpio_pullup(port, pullupp) (pullupp ? _SET(PORT, port) : _CLEAR(PORT, port))
+#define gpio_write(port, val) (val ? _SET(PORT, port) : _CLEAR(PORT, port))
+#define gpio_read(port) (_GET(PIN, port))
+#define gpio_toggle(port) (_TOGGLE(PORT, port))
 
 // General use bit manipulating commands
 #define BitSet(x, y) (x |= (1UL << y))
