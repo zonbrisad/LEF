@@ -41,6 +41,7 @@
  */
 
 /** External references
+ * https://github.com/damadmai/pfleury
  * https://github.com/aostanin/avr-hd44780?tab=readme-ov-file
  * https://github.com/efthymios-ks/AVR-HD44780
  */
@@ -108,22 +109,13 @@
  *  
  */
 
-#define LCD_PORT         PORTF        /**< port for the LCD lines   */
-#define LCD_DATA4_PORT   LCD_PORT     /**< port for 4bit data bit 0 */
-#define LCD_DATA5_PORT   LCD_PORT     /**< port for 4bit data bit 1 */
-#define LCD_DATA6_PORT   LCD_PORT     /**< port for 4bit data bit 2 */
-#define LCD_DATA7_PORT   LCD_PORT     /**< port for 4bit data bit 3 */
-#define LCD_DATA4_PIN    4            /**< pin for 4bit data bit 0  */
-#define LCD_DATA5_PIN    3            /**< pin for 4bit data bit 1  */
-#define LCD_DATA6_PIN    2            /**< pin for 4bit data bit 2  */
-#define LCD_DATA7_PIN    1            /**< pin for 4bit data bit 3  */
-#define LCD_RS_PORT      LCD_PORT     /**< port for RS line         */
-#define LCD_RS_PIN       7            /**< pin  for RS line         */
-#define LCD_RW_PORT      LCD_PORT     /**< port for RW line         */
-#define LCD_RW_PIN       6            /**< pin  for RW line         */
-#define LCD_E_PORT       LCD_PORT     /**< port for Enable line     */
-#define LCD_E_PIN        5            /**< pin  for Enable line     */
-
+#define LCD_DATA4_PIN F, 4        /**< pin for 4bit data bit 0  */
+#define LCD_DATA5_PIN F, 3        /**< pin for 4bit data bit 1  */
+#define LCD_DATA6_PIN F, 2        /**< pin for 4bit data bit 2  */
+#define LCD_DATA7_PIN F, 1        /**< pin for 4bit data bit 3  */
+#define LCD_RS_PIN F, 7           /**< pin for RS line         */
+#define LCD_RW_PIN F, 6           /**< pin for Read/Write line */
+#define LCD_E_PIN F, 5            /**< pin for Enable line     */
 
 /**
  * @name Definitions of delays

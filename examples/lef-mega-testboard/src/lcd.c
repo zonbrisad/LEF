@@ -32,16 +32,31 @@
 
 #include "lcd.h"
 
-/*
-** constants/macros
-*/
-#define DDR(x) (*(&x - 1)) /* address of data direction register of port x */
-#if defined(__AVR_ATmega64__) || defined(__AVR_ATmega128__)
-/* on ATmega64/128 PINF is on port 0x00 and not 0x60 */
-#define PIN(x) (&PORTF == &(x) ? _SFR_IO8(0x00) : (*(&x - 2)))
-#else
-#define PIN(x) (*(&x - 2)) /* address of input register of port x          */
-#endif
+// Macros to edit PORT, DDR and PIN
+#define gpio_mode(x, y) (y ? _SET(DDR, x) : _CLEAR(DDR, x))
+#define gpio_write(x, y) (y ? _SET(PORT, x) : _CLEAR(PORT, x))
+#define gpio_read(x) (_GET(PIN, x))
+#define gpio_toggle(x) (_TOGGLE(PORT, x))
+
+// General use bit manipulating commands
+#define BitSet(x, y) (x |= (1UL << y))
+#define BitClear(x, y) (x &= (~(1UL << y)))
+#define BitToggle(x, y) (x ^= (1UL << y))
+#define BitCheck(x, y) (x & (1UL << y) ? 1 : 0)
+
+// Access PORT, DDR and PIN
+#define xPORT(port) (_PORT(port))
+#define xDDR(port) (_DDR(port))
+#define xPIN(port) (_PIN(port))
+
+#define _PORT(port) (xPORT##port)
+#define _DDR(port) (xDDR##port)
+#define _PIN(port) (xPIN##port)
+
+#define _SET(type, port, bit) (BitSet((type##port), bit))
+#define _CLEAR(type, port, bit) (BitClear((type##port), bit))
+#define _TOGGLE(type, port, bit) (BitToggle((type##port), bit))
+#define _GET(type, port, bit) (BitCheck((type##port), bit))
 
 /*************************************************************************
 delay for a minimum of <us> microseconds
@@ -50,81 +65,60 @@ the number of loops is calculated at compile-time from MCU clock frequency
 inline void lcd_delay(uint16_t us) { _delay_us(us); }
 
 inline void lcd_e_delay(void) { lcd_delay(LCD_DELAY_ENABLE_PULSE);}
-inline void lcd_e_high(void)  { LCD_E_PORT |= _BV(LCD_E_PIN); }
-inline void lcd_e_low(void)   { LCD_E_PORT &= ~_BV(LCD_E_PIN); }
-inline void lcd_rw_high(void) { LCD_RW_PORT |= _BV(LCD_RW_PIN); }
-inline void lcd_rw_low(void)  { LCD_RW_PORT &= ~_BV(LCD_RW_PIN); }
-inline void lcd_rs_high(void) { LCD_RS_PORT |= _BV(LCD_RS_PIN); }
-inline void lcd_rs_low(void)  { LCD_RS_PORT &= ~_BV(LCD_RS_PIN); }
+inline void lcd_e_set(bool state)  { gpio_write(LCD_E_PIN, state); }
+inline void lcd_rw_set(bool state) { gpio_write(LCD_RW_PIN, state); }
+inline void lcd_rs_set(bool state) { gpio_write(LCD_RS_PIN, state); }
 
-inline void lcd_data_dir_write(bool write) {
+
+inline void lcd_data_direction(bool write) {
     
     if (write) {
         /* configure data pins as output */
-        DDR(LCD_DATA4_PORT) |= _BV(LCD_DATA4_PIN);
-        DDR(LCD_DATA5_PORT) |= _BV(LCD_DATA5_PIN);
-        DDR(LCD_DATA6_PORT) |= _BV(LCD_DATA6_PIN);
-        DDR(LCD_DATA7_PORT) |= _BV(LCD_DATA7_PIN);
+        gpio_mode(LCD_DATA4_PIN, 1);
+        gpio_mode(LCD_DATA5_PIN, 1);
+        gpio_mode(LCD_DATA6_PIN, 1);
+        gpio_mode(LCD_DATA7_PIN, 1);
     } else {
         /* configure data pins as input */
-        DDR(LCD_DATA4_PORT) &= ~_BV(LCD_DATA4_PIN);
-        DDR(LCD_DATA5_PORT) &= ~_BV(LCD_DATA5_PIN);
-        DDR(LCD_DATA6_PORT) &= ~_BV(LCD_DATA6_PIN);
-        DDR(LCD_DATA7_PORT) &= ~_BV(LCD_DATA7_PIN);
+        gpio_mode(LCD_DATA4_PIN, 0);
+        gpio_mode(LCD_DATA5_PIN, 0);
+        gpio_mode(LCD_DATA6_PIN, 0);
+        gpio_mode(LCD_DATA7_PIN, 0);
     }
 }
 
-inline void lcd_set_data(uint8_t data) {
-
-    /* output high nibble first */
-
-    if (data & 0x80) 
-        LCD_DATA7_PORT |= _BV(LCD_DATA7_PIN);
-    else
-        LCD_DATA7_PORT &= ~_BV(LCD_DATA7_PIN);
-    
-    if (data & 0x40) 
-        LCD_DATA6_PORT |= _BV(LCD_DATA6_PIN);
-    else
-        LCD_DATA6_PORT &= ~_BV(LCD_DATA6_PIN);
-    
-    if (data & 0x20) 
-        LCD_DATA5_PORT |= _BV(LCD_DATA5_PIN);
-    else
-        LCD_DATA5_PORT &= ~_BV(LCD_DATA5_PIN);
-    
-    if (data & 0x10) 
-        LCD_DATA4_PORT |= _BV(LCD_DATA4_PIN);
-    else
-        LCD_DATA4_PORT &= ~_BV(LCD_DATA4_PIN);
+inline void lcd_data_write(uint8_t data) {
+    gpio_write(LCD_DATA7_PIN, data & 0x80);
+    gpio_write(LCD_DATA6_PIN, data & 0x40);
+    gpio_write(LCD_DATA5_PIN, data & 0x20);
+    gpio_write(LCD_DATA4_PIN, data & 0x10);
 }
 
-inline uint8_t lcd_read_data(void) {
+inline uint8_t lcd_data_read(void) {
     uint8_t data = 0;
 
-    if (PIN(LCD_DATA4_PORT) & _BV(LCD_DATA4_PIN)) data |= 0x01;
-    if (PIN(LCD_DATA5_PORT) & _BV(LCD_DATA5_PIN)) data |= 0x02;
-    if (PIN(LCD_DATA6_PORT) & _BV(LCD_DATA6_PIN)) data |= 0x04;
-    if (PIN(LCD_DATA7_PORT) & _BV(LCD_DATA7_PIN)) data |= 0x08;
+    if (gpio_read(LCD_DATA4_PIN)) data |= 0x01;
+    if (gpio_read(LCD_DATA5_PIN)) data |= 0x02;
+    if (gpio_read(LCD_DATA6_PIN)) data |= 0x04;
+    if (gpio_read(LCD_DATA7_PIN)) data |= 0x08;
 
     return data;
 }
 
 inline void lcd_init_pins(void) {
     /* configure control pins as output */
-    DDR(LCD_RS_PORT) |= _BV(LCD_RS_PIN);
-    DDR(LCD_RW_PORT) |= _BV(LCD_RW_PIN);
-    DDR(LCD_E_PORT)  |= _BV(LCD_E_PIN);
+    gpio_mode(LCD_RS_PIN, 1);
+    gpio_mode(LCD_RW_PIN, 1);
+    gpio_mode(LCD_E_PIN, 1);
 
-    lcd_data_dir_write(true);
-    
-    lcd_set_data(0b11110000);
+    lcd_data_direction(true);
+    lcd_data_write(0b11110000);
 }
 
 inline void lcd_e_toggle(void) {
-    lcd_e_high();
+    lcd_e_set(1);
     lcd_e_delay();
-    lcd_e_low();
+    lcd_e_set(0);
 }
 
 #if LCD_LINES == 1
@@ -155,22 +149,17 @@ Returns:  none
 *************************************************************************/
 static void lcd_write(uint8_t data, uint8_t rs) {
 
-    if (rs) { /* write data        (RS=1, RW=0) */
-        lcd_rs_high();
-    } else { /* write instruction (RS=0, RW=0) */
-        lcd_rs_low();
-    }
+    lcd_rs_set(rs);
+    lcd_rw_set(0);  /* RW=0  write mode      */
 
-    lcd_rw_low(); /* RW=0  write mode      */
-
-    lcd_data_dir_write(true);
-    lcd_set_data(data);
+    lcd_data_direction(true);
+    lcd_data_write(data);
     lcd_e_toggle();
         
-    lcd_set_data(data<<4);
+    lcd_data_write(data<<4);
     lcd_e_toggle();
 
-    lcd_set_data(0b11110000);
+    lcd_data_write(0b11110000);
 }
 
 /*************************************************************************
@@ -182,30 +171,27 @@ Returns:  byte read from LCD controller
 static uint8_t lcd_read(uint8_t rs) {
     uint8_t data = 0;
 
-    if (rs)
-        lcd_rs_high(); /* RS=1: read data      */
-    else
-        lcd_rs_low(); /* RS=0: read busy flag */
-    lcd_rw_high();    /* RW=1  read mode      */
+    lcd_rs_set(rs);
+    lcd_rw_set(1);    /* RW=1  read mode      */
     
     // set data pins as inputs
-    lcd_data_dir_write(false);
+    lcd_data_direction(false);
 
     /* read high nibble first */
-    lcd_e_high();
+    lcd_e_set(1);
     lcd_e_delay();
-    data = lcd_read_data();
-    lcd_e_low();
+    data = lcd_data_read();
+    lcd_e_set(0);
 
     data = data << 4;
 
     lcd_e_delay(); /* Enable 500ns low       */
 
     /* read low nibble */
-    lcd_e_high();
+    lcd_e_set(1);
     lcd_e_delay();
-    data |= lcd_read_data();
-    lcd_e_low();
+    data |= lcd_data_read();
+    lcd_e_set(0);
     return data;
 }
 
@@ -416,7 +402,7 @@ void lcd_init(uint8_t dispAttr) {
     lcd_delay(LCD_DELAY_BOOTUP); /* wait 16ms or more after power-on       */
 
     /* initial write to lcd is 8bit */
-    lcd_set_data(LCD_INIT_SEQ);
+    lcd_data_write(LCD_INIT_SEQ);
     
     lcd_e_toggle();
     lcd_delay(LCD_DELAY_INIT); /* delay, busy flag can't be checked here */
@@ -430,7 +416,7 @@ void lcd_init(uint8_t dispAttr) {
     lcd_delay(LCD_DELAY_INIT_REP); /* delay, busy flag can't be checked here */
     
     /* now configure for 4bit mode */
-    lcd_set_data(LCD_4BIT_MODE);
+    lcd_data_write(LCD_4BIT_MODE);
 
     lcd_e_toggle();
     lcd_delay(LCD_DELAY_INIT_4BIT); /* some displays need this additional delay */
