@@ -82,11 +82,6 @@ static const uint32_t UART_BAUD_RATE = 57600;
 #define POT_ADC 8
 
 
-// inline void BUZZER_SET(bool on) { gpio_write(BUZZER_PIN, on); }
-// inline bool BUTTON1_PRESSED(void) { return (PING & (1 << PG5)) ? false : true; }
-// inline bool BUTTON2_PRESSED(void) { return (PINE & (1 << PE5)) ? false : true; }
-// inline bool BUTTON3_PRESSED(void) { return (PINE & (1 << PE4)) ? false : true; }
-
 // inline void ROT_INIT(void) {
 //     // Configure rotary encoder pins as inputs with pull-ups
 //     DDRC &= ~((1 << PC0) | (1 << PC1)); // Clear bits to set as input
@@ -192,7 +187,6 @@ const PROGMEM LEF_CliCmd cmdTable[] = {
     {cmd_adc, "adc", "Read adc inputs"},
     {cmd_adc_mon, "adcmon", "Monitor adc inputs"},
     {cmd_reset, "reset", "Reset the system"},
-    // {cmdHelp,     "help",     "Show help"},
     LEF_CLI_CMD(cmdHelp, "help", "Show help")};
 
 void cmd_brp(char* args) {
@@ -446,12 +440,9 @@ ISR(TIMER1_COMPA_vect) {
 
     TIMER0_OCA_SET(255 - LEF_LedA_update(&leda));
 
-    LEF_Button_update(&button1, gpio_read(BUTTON1_PIN));
-    LEF_Button_update(&button2, gpio_read(BUTTON2_PIN));
-    LEF_Button_update(&button3, gpio_read(BUTTON3_PIN));
-    // LEF_Button_update(&button1, BUTTON1_PRESSED());
-    // LEF_Button_update(&button2, BUTTON2_PRESSED());
-    // LEF_Button_update(&button3, BUTTON3_PRESSED());
+    LEF_Button_update(&button1, !gpio_read(BUTTON1_PIN));
+    LEF_Button_update(&button2, !gpio_read(BUTTON2_PIN));
+    LEF_Button_update(&button3, !gpio_read(BUTTON3_PIN));
 
     //	ch = PINC;
     //	LEF_Rotary_update(&rotary, (ch & (1<<PC0)), (ch & (1<<PC1)));
