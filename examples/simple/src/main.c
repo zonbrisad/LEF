@@ -194,7 +194,6 @@ void cmdHelp(char *args) {
 
 void cmd_adc(char *args) {
   UNUSED(args);
-  int i;
   uint16_t val;
 
   ADC_ID();
@@ -203,7 +202,7 @@ void cmd_adc(char *args) {
 
 
   printf("ADC:  ");
-  for (i=0; i<8; i++) {
+  for (int i=0; i<8; i++) {
     ADC_MUX(i);
     _delay_ms(1);
     ADC_START();
@@ -232,11 +231,7 @@ ISR(TIMER1_COMPA_vect) {
   LEF_Timer_update(&timer1);
   LEF_Timer_update(&timer2);
 	
-  if (LEF_Led_update(&led1)) {
-    ARDUINO_LED_ON();
-  } else {
-    ARDUINO_LED_OFF();
-  }
+  ARDUINO_LED_SET(LEF_Led_update(&led1));
 
   uint8_t ch = LEF_LedRG_update(&ledrg);
   gpio_write(LED_RED_PIN, (ch & 0x01));
@@ -255,9 +250,6 @@ ISR(ADC_vect) {
   uint16_t val = ADC_VALUE();
   LEF_Pot_update(&pot, val);
 }
-
-
-
 
 void hw_init(void) {
   stdout = &mystdout;
@@ -280,6 +272,7 @@ void hw_init(void) {
   gpio_init(BUZZER_PIN, 1, 1);
 
   // Red and Green LED
+  gpio_init(LED_GREEN_PIN, 1, 0);
   gpio_init(LED_RED_PIN, 1, 0);
 
   // 5mm Green LED

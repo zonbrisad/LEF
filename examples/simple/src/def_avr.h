@@ -184,18 +184,33 @@ inline void TIMER2_RELOAD(uint8_t x)      { TCNT2 = x; }              // Reload 
 // Arduino specific ---------------------------------------------------------
 
 #ifdef ARDUINO
-#define ARDUINO_LED_PIN PB5
+#define ARDUINO_LED_PIN B,5
 #endif
 
 #ifdef ARDUINO_MEGA
-#define ARDUINO_LED_PIN PB7
+#define ARDUINO_LED_PIN B,7
 #endif
 
-inline void ARDUINO_LED_INIT(void)   { DDRB |= (1 << ARDUINO_LED_PIN); }
-inline void ARDUINO_LED_ON(void)     { PORTB |= (1 << ARDUINO_LED_PIN); }
-inline void ARDUINO_LED_OFF(void)    { PORTB &= ~(1 << ARDUINO_LED_PIN); }
-inline void ARDUINO_LED_TOGGLE(void) { PINB = (1 << ARDUINO_LED_PIN); }
-inline bool ARDUINO_LED_IS_ON(void)  { return PINB & (1 << ARDUINO_LED_PIN); }
+inline void ARDUINO_LED_INIT(void)   { gpio_init(ARDUINO_LED_PIN, 1, 0); }
+inline void ARDUINO_LED_SET(bool on) { gpio_write(ARDUINO_LED_PIN, on); }
+inline void ARDUINO_LED_ON(void)     { gpio_write(ARDUINO_LED_PIN, 1); }
+inline void ARDUINO_LED_OFF(void)    { gpio_write(ARDUINO_LED_PIN, 0); }
+inline void ARDUINO_LED_TOGGLE(void) { gpio_toggle(ARDUINO_LED_PIN); }
+inline bool ARDUINO_LED_IS_ON(void)  { return gpio_read(ARDUINO_LED_PIN); }
+
+// #ifdef ARDUINO
+// #define ARDUINO_LED_PIN PB5
+// #endif
+
+// #ifdef ARDUINO_MEGA
+// #define ARDUINO_LED_PIN PB7
+// #endif
+
+// inline void ARDUINO_LED_INIT(void)   { DDRB |= (1 << ARDUINO_LED_PIN); }
+// inline void ARDUINO_LED_ON(void)     { PORTB |= (1 << ARDUINO_LED_PIN); }
+// inline void ARDUINO_LED_OFF(void)    { PORTB &= ~(1 << ARDUINO_LED_PIN); }
+// inline void ARDUINO_LED_TOGGLE(void) { PINB = (1 << ARDUINO_LED_PIN); }
+// inline bool ARDUINO_LED_IS_ON(void)  { return PINB & (1 << ARDUINO_LED_PIN); }
 
 
 
