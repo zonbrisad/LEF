@@ -33,6 +33,8 @@
 #define BitToggle(x, y) (x ^= (1UL << y))
 #define BitCheck(x, y)  (x & (1UL << y) ? 1 : 0)
 
+#define SetMask(reg, mask, val) (reg = (reg & mask) | val);
+
 // Access PORT, DDR and PIN
 #define xPORT(port) (_PORT(port))
 #define xDDR(port)  (_DDR(port))
@@ -93,10 +95,8 @@ inline void ADC_PRESCALER_128(void)       { ADCSRA = (ADCSRA & 0b11111000) | 0b0
 
 inline uint16_t ADC_VALUE(void)           { return ADCL + (ADCH << 8); }
 
-// inline bool ADC_IS_BUSY(void)             { return (ADCSRA & (1<<ADIF)) ? false : true; }
 inline bool ADC_IS_BUSY(void)             { return (ADCSRA & (1<<ADSC)); }
-// inline void ADC_WAIT_COMPLETION(void)     { while (ADC_IS_BUSY()) {}}  // Busy wait for completion
-inline void ADC_WAIT_COMPLETION(void)     { while (ADCSRA & (1<<ADSC)); }  // Busy wait for completion
+inline void ADC_WAIT_COMPLETION(void)     { while (ADC_IS_BUSY()) {}}  // Busy wait for completion
 inline void ADC_AUTOTRIGGER_ENABLE(void)  { ADCSRA |= (1<<ADATE); }     // ADC auto trigger enable
 
 inline void ADC_TRG_FREE_RUNNING(void)    { ADCSRB = (ADCSRB & 0b00000111) | 0b000; }
@@ -194,19 +194,19 @@ inline void TIMER2_RELOAD(uint8_t x)      { TCNT2 = x; }              // Reload 
 // Arduino specific ---------------------------------------------------------
 
 #ifdef ARDUINO
-#define ARDUINO_LED_PIN PB5
+#define ARDUINO_LED_PIN B,5
 #endif
 
 #ifdef ARDUINO_MEGA
-#define ARDUINO_LED_PIN PB7
+#define ARDUINO_LED_PIN B,7
 #endif
 
-inline void ARDUINO_LED_INIT(void)   { DDRB |= (1 << ARDUINO_LED_PIN); }
-inline void ARDUINO_LED_ON(void)     { PORTB |= (1 << ARDUINO_LED_PIN); }
-inline void ARDUINO_LED_OFF(void)    { PORTB &= ~(1 << ARDUINO_LED_PIN); }
-inline void ARDUINO_LED_TOGGLE(void) { PINB = (1 << ARDUINO_LED_PIN); }
-inline bool ARDUINO_LED_IS_ON(void)  { return PINB & (1 << ARDUINO_LED_PIN); }
-
+inline void ARDUINO_LED_INIT(void)   { gpio_init(ARDUINO_LED_PIN, 1, 0); }
+inline void ARDUINO_LED_SET(bool on) { gpio_write(ARDUINO_LED_PIN, on); }
+inline void ARDUINO_LED_ON(void)     { gpio_write(ARDUINO_LED_PIN, 1); }
+inline void ARDUINO_LED_OFF(void)    { gpio_write(ARDUINO_LED_PIN, 0); }
+inline void ARDUINO_LED_TOGGLE(void) { gpio_toggle(ARDUINO_LED_PIN); }
+inline bool ARDUINO_LED_IS_ON(void)  { return gpio_read(ARDUINO_LED_PIN); }
 
 
 /* Timer example code

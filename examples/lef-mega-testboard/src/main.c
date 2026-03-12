@@ -326,8 +326,7 @@ void cmd_lcd_test_move(char* args) {
     lcd_command(LCD_MOVE_DISP_RIGHT);
 }
 
-void adc_print_all(bool print_header);
-void adc_print_all(bool print_header) {
+static inline void adc_print_all(bool print_header) {
     if (print_header) {
         printf("\e[4m"); // Underline
         for (int i = 0; i < 16; i++) {
@@ -347,57 +346,7 @@ void adc_print_all(bool print_header) {
     printf("\n");
 }
 
-void cmd_adc(char* args) {
-    UNUSED(args);
-    
-    ADC_ID();
-    ADC_REF_AVCC();
-    ADC_ENABLE();
-    _delay_ms(5);
-
-    adc_print_all(true);
-    adc_print_all(false); 
-
-    ADC_MUX(POT_ADC);
-    //ADC_IE();
-}
-
-void cmd_adc_mon(char* args) {
-    LEF_Event event;
-    UNUSED(args);
-    
-    // ADC_ID();
-    // ADC_ENABLE();
-    // ADC_REF_AVCC();
-    // ADC_TRG_FREE_RUNNING();
-    LEF_Pot_enable(&pot, false);
-
-    DIDR0 = 0xff;
-    DIDR1 = 0xff;
-    printf("Monitoring ADC (press any button to stop)\n");
-    adc_print_all(true);
-    LEF_Timer_start_repeat(&timer_a, 75);
-    
-    LEF_Cli_WaitKeyPressed();
-    while (1) {
-        wait_event(&event);
-        if (event.id == LEF_EVENT_CLI) {
-            LEF_Cli_exec(&event);
-            printf("Stopping ADC monitor...\n");
-            return;
-            break;
-        }
-        if (event.id == EVENT_TimerA) {
-            adc_print_all(false);
-        }
-    }
-    ADC_MUX(POT_ADC);
-    LEF_Pot_enable(&pot, true);
-    //ADC_IE();
-}
-
-void wait_event(LEF_Event *event);
-void wait_event(LEF_Event *event) {
+inline void wait_event(LEF_Event *event) {
     uint16_t ch; 
     LEF_Wait(event);
     switch (event->id) {
@@ -410,7 +359,46 @@ void wait_event(LEF_Event *event) {
         break;
     }
     return;
-}   
+}  
+
+void cmd_adc(char* args) {
+    UNUSED(args);
+
+    LEF_Pot_enable(&pot, false);
+
+    adc_print_all(true);
+    adc_print_all(false);
+
+    ADC_MUX(POT_ADC);
+    LEF_Pot_enable(&pot, true);
+}
+
+void cmd_adc_mon(char* args) {
+    UNUSED(args);
+    LEF_Event event;
+    
+    LEF_Pot_enable(&pot, false);
+
+    printf("Monitoring ADC (press any button to stop)\n");
+    adc_print_all(true);
+    LEF_Timer_start_repeat(&timer_a, 75);
+    
+    LEF_Cli_WaitKeyPressed();
+    while (1) {
+        wait_event(&event);
+        if (event.id == LEF_EVENT_CLI) {
+            LEF_Cli_exec(&event);
+            printf("Stopping ADC monitor...\n");
+            break;
+        }
+        if (event.id == EVENT_TimerA) {
+            adc_print_all(false);
+        }
+    }
+    ADC_MUX(POT_ADC);
+    LEF_Pot_enable(&pot, true);
+}
+
 
 void cmd_reset(char* args) {
     UNUSED(args);
@@ -454,9 +442,7 @@ ISR(TIMER1_COMPA_vect) {
     //	LEF_Rotary_update(&rotary, (ch & (1<<PC0)), (ch & (1<<PC1)));
 
     gpio_write(BUZZER_PIN, LEF_Buzzer_update());
-    // BUZZER_SET(LEF_Buzzer_update());
 
-    //ADC_MUX(POT_ADC);
     if (LEF_Pot_is_enabled(&pot))
         ADC_START();
 }
@@ -515,9 +501,9 @@ void hw_init(void) {
     //   TIMER0_WGM_FAST_PWM();
     //   TIMER0_OM_CLEAR();
 
-    // lcd_init(LCD_DISP_ON);
-    // lcd_clear();
-    // lcd_puts("   LEF Mega Test\n");
+    lcd_init(LCD_DISP_ON);
+    lcd_clear();
+    lcd_puts("   LEF Mega Test\n");
 
     sei();
 }
@@ -637,7 +623,7 @@ int main(void) {
 
             case EVENT_Pot:
                 val = LEF_Pot_state(&pot);
-                // printf("Pot changed %d\n", val);
+                //printf("Pot changed %d\n", val);
                 TIMER0_OCA_SET(val / 4);
 
 
