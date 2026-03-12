@@ -31,8 +31,8 @@
  * PK3 = LED Red
  * PK2 = LED Green
  *
- * Pxx = Rotary
- * Pxx = Rotary
+ * Rotary Clk  = NC
+ * Rotary Data = NC
  *
  * LCD 
  * - RS = PD7
@@ -339,7 +339,7 @@ void adc_print_all(bool print_header) {
     }
     for (int i = 0; i < 15; i++) {
         ADC_MUX(i);
-        _delay_ms(1);
+        _delay_ms(2);
         ADC_START();
         ADC_WAIT_COMPLETION();
         val = ADC_VALUE();
@@ -496,9 +496,13 @@ void hw_init(void) {
     ADC_MUX(POT_ADC);
     ADC_IE();
 
-    // Timer 1 (16 bit) (used for LEF timing)
-    TIMER1_CLK_PRES_256();  // set prescaler to 1/1024
-    TIMER1_OCA_SET(625);
+    // Timer 1 (16 bit) 10ms intervall on OCA1 interrupt 
+    // (used for LEF system timer)
+    // 
+    TIMER1_CLK_PRES_256();  // set prescaler to 1/256
+    TIMER1_OCA_SET(624);
+    // TIMER1_CLK_PRES_64(); // alternative for 10ms that gives good accuracy
+    // TIMER1_OCA_SET(2499);
     TIMER1_OCA_IE();  // enable output compare A interrupt
 
     //   TIMER0_CLK_PRES_1();
@@ -507,9 +511,9 @@ void hw_init(void) {
     //   TIMER0_WGM_FAST_PWM();
     //   TIMER0_OM_CLEAR();
 
-    lcd_init(LCD_DISP_ON);
-    lcd_clear();
-    lcd_puts("   LEF Mega Test\n");
+    // lcd_init(LCD_DISP_ON);
+    // lcd_clear();
+    // lcd_puts("   LEF Mega Test\n");
 
     sei();
 }

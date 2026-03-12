@@ -17,7 +17,6 @@
 // Atmel AVR specific -------------------------------------------------------
 
 // AVR GPIO macros
-
 #define gpio_init(port, direction, pullup) do { \
      (direction ? _SET(DDR, port) : _CLEAR(DDR, port)); \
      (pullup ? _SET(PORT, port) : _CLEAR(PORT, port)); } while (0)
@@ -68,7 +67,14 @@ inline void ADC_START(void)               { ADCSRA |= (1<<ADSC); }   // Start si
 inline void ADC_IE(void)                  { ADCSRA |= (1<<ADIE); }   // Enable ADC interrupt
 inline void ADC_ID(void)                  { ADCSRA &= ~(1<<ADIE); }  // Disable ADC interrupt
 
-inline void ADC_MUX(uint8_t mux)          { ADMUX = (ADMUX & 0b11100000) | (mux); }
+#if defined(__AVR_ATmega1280__) || defined(__AVR_ATmega1281__) || \
+defined(__AVR_ATmega2560__) || defined(__AVR_ATmega2561__)
+inline void ADC_MUX(uint8_t mux)          { ADMUX = (ADMUX & 0b11111000) | (mux & 0x00000111);
+    if (mux > 7) BitSet(ADCSRB, MUX5); else BitClear(ADCSRB, MUX5);
+}
+#else
+inline void ADC_MUX(uint8_t mux)          { ADMUX = (ADMUX & 0b11110000) | (mux); }
+#endif
 
 inline void ADC_REF_AREF(void)            { ADMUX = (ADMUX & 0b00011111); }              // Set voltage reference to AREF (external reference pin)
 inline void ADC_REF_AVCC(void)            { ADMUX = (ADMUX & 0b00011111) | 0b01000000; } // Set voltage reference to AVcc (Input voltage)
