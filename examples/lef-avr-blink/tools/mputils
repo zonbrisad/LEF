@@ -271,7 +271,7 @@ arduino_write_flash() { ## Write firmware to Arduino via bootloader
   fi
 
   # Write to flash
-  avrdude -v -v -V -p "${MCU}" -b 57600 -c arduino -P "${PORT}" -U flash:w:"${FILE}":i
+  avrdude -v -v -V -p "${MCU}" -c urclock -P "${PORT}" -U flash:w:"${FILE}":i
 }
 
 get_serial_port() {

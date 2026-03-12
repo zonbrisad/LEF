@@ -17,10 +17,9 @@
 // Atmel AVR specific -------------------------------------------------------
 
 // AVR GPIO macros
-
-#define gpio_init(port, direction, pullup) do { \
-     (direction ? _SET(DDR, port) : _CLEAR(DDR, port)); \
-     (pullup ? _SET(PORT, port) : _CLEAR(PORT, port)); } while (0)
+#define gpio_init(port, direction, pullup) do {        \
+    (direction ? _SET(DDR, port) : _CLEAR(DDR, port)); \
+    (pullup ? _SET(PORT, port) : _CLEAR(PORT, port)); } while (0)
 
 #define gpio_direction(port, direction) (direption ? _SET(DDR, port) : _CLEAR(DDR, port))
 #define gpio_pullup(port, pullupp) (pullupp ? _SET(PORT, port) : _CLEAR(PORT, port))
@@ -29,19 +28,21 @@
 #define gpio_toggle(port) (_TOGGLE(PORT, port))
 
 // General use bit manipulating commands
-#define BitSet(x, y) (x |= (1UL << y))
-#define BitClear(x, y) (x &= (~(1UL << y)))
+#define BitSet(x, y)    (x |= (1UL << y))
+#define BitClear(x, y)  (x &= (~(1UL << y)))
 #define BitToggle(x, y) (x ^= (1UL << y))
-#define BitCheck(x, y) (x & (1UL << y) ? 1 : 0)
+#define BitCheck(x, y)  (x & (1UL << y) ? 1 : 0)
+
+#define SetMask(reg, mask, val) (reg = (reg & mask) | val);
 
 // Access PORT, DDR and PIN
 #define xPORT(port) (_PORT(port))
-#define xDDR(port) (_DDR(port))
-#define xPIN(port) (_PIN(port))
+#define xDDR(port)  (_DDR(port))
+#define xPIN(port)  (_PIN(port))
 
 #define _PORT(port) (xPORT##port)
-#define _DDR(port) (xDDR##port)
-#define _PIN(port) (xPIN##port)
+#define _DDR(port)  (xDDR##port)
+#define _PIN(port)  (xPIN##port)
 
 #define _SET(type, port, bit) (BitSet((type##port), bit))
 #define _CLEAR(type, port, bit) (BitClear((type##port), bit))
@@ -68,7 +69,16 @@ inline void ADC_START(void)               { ADCSRA |= (1<<ADSC); }   // Start si
 inline void ADC_IE(void)                  { ADCSRA |= (1<<ADIE); }   // Enable ADC interrupt
 inline void ADC_ID(void)                  { ADCSRA &= ~(1<<ADIE); }  // Disable ADC interrupt
 
-inline void ADC_MUX(uint8_t mux)          { ADMUX = (ADMUX & 0b11100000) | (mux); }
+#if defined(__AVR_ATmega1280__) || defined(__AVR_ATmega1281__) || \
+defined(__AVR_ATmega2560__) || defined(__AVR_ATmega2561__)
+
+inline void ADC_MUX(uint8_t channel)  { 
+    if (channel > 7) BitSet(ADCSRB, MUX5); else BitClear(ADCSRB, MUX5);
+    ADMUX = (ADMUX & 0b11100000) | (channel & 0b00000111);
+}
+#else
+inline void ADC_MUX(uint8_t mux)          { ADMUX = (ADMUX & 0b11110000) | (mux); }
+#endif
 
 inline void ADC_REF_AREF(void)            { ADMUX = (ADMUX & 0b00011111); }              // Set voltage reference to AREF (external reference pin)
 inline void ADC_REF_AVCC(void)            { ADMUX = (ADMUX & 0b00011111) | 0b01000000; } // Set voltage reference to AVcc (Input voltage)
@@ -85,9 +95,9 @@ inline void ADC_PRESCALER_128(void)       { ADCSRA = (ADCSRA & 0b11111000) | 0b0
 
 inline uint16_t ADC_VALUE(void)           { return ADCL + (ADCH << 8); }
 
-inline bool ADC_IS_BUSY(void)             { return (ADCSRA & (1<<ADIF)) ? false : true; }
+inline bool ADC_IS_BUSY(void)             { return (ADCSRA & (1<<ADSC)); }
 inline void ADC_WAIT_COMPLETION(void)     { while (ADC_IS_BUSY()) {}}  // Busy wait for completion
-inline void ADC_AUTOTRIGGER_ENABLE(void)  { ADCSRA |= (1<<ADATE); }    // ADC auto trigger enable
+inline void ADC_AUTOTRIGGER_ENABLE(void)  { ADCSRA |= (1<<ADATE); }     // ADC auto trigger enable
 
 inline void ADC_TRG_FREE_RUNNING(void)    { ADCSRB = (ADCSRB & 0b00000111) | 0b000; }
 inline void ADC_TRG_ANALOG_COMP(void)     { ADCSRB = (ADCSRB & 0b00000111) | 0b001; }
@@ -123,9 +133,9 @@ inline void  TIMER0_OCB_SET(uint8_t x)    { OCR0B = x; }                  // Set
 inline void  TIMER0_RELOAD(uint8_t x)     { TCNT0 = x; }                  // Reload timer register
     
 // Waveform generation mode
-inline void TIMER0_WGM_NORMAL(void)       { TCCR0A = (TCCR0A & 0x11111100) | 0x00000000; }
-inline void TIMER0_WGM_PWM(void)          { TCCR0A = (TCCR0A & 0x11111100) | 0x00000001; } // PWM, phase correct
-inline void TIMER0_WGM_FAST_PWM(void)     { TCCR0A = (TCCR0A & 0x11111100) | 0x00000011; } // Fast PWM
+inline void TIMER0_WGM_NORMAL(void)       { TCCR0A = (TCCR0A & 0b11111100) | 0x00000000; }
+inline void TIMER0_WGM_PWM(void)          { TCCR0A = (TCCR0A & 0b11111100) | 0x00000001; } // PWM, phase correct
+inline void TIMER0_WGM_FAST_PWM(void)     { TCCR0A = (TCCR0A & 0b11111100) | 0x00000011; } // Fast PWM
 
 // Output modes
 inline void TIMER0_OM_NORMAL(void)        { TCCR0A &= 0b00111111; }                        // OC0A disconnected
