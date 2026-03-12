@@ -226,7 +226,6 @@ inline void lcd_move_right(void) { lcd_command(LCD_MOVE_DISP_RIGHT); }
 inline void lcd_move_left(void) { lcd_command(LCD_MOVE_DISP_LEFT); }
 
 
-
 /**
  * Turn display on
  */

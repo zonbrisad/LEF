@@ -328,36 +328,72 @@ void cmd_lcd_test_move(char* args) {
 
 void adc_print_all(bool print_header);
 void adc_print_all(bool print_header) {
-    uint16_t val;
     if (print_header) {
         printf("\e[4m"); // Underline
-        for (int j = 0; j < 15; j++) {
-            printf("%4d ", j);
+        for (int i = 0; i < 16; i++) {
+            printf("%4d ", i);
         }
         printf("\e[0m\n");
         return;
     }
-    for (int i = 0; i < 15; i++) {
+
+    for (uint8_t i = 0; i < 16; i++) {
         ADC_MUX(i);
-        _delay_ms(2);
+        _delay_us(5);
         ADC_START();
         ADC_WAIT_COMPLETION();
-        val = ADC_VALUE();
-        printf("%4d ", val);
+        printf("%4d ", ADC_VALUE());
     }
     printf("\n");
 }
 
 void cmd_adc(char* args) {
     UNUSED(args);
-
+    
     ADC_ID();
-    ADC_ENABLE();
     ADC_REF_AVCC();
+    ADC_ENABLE();
+    _delay_ms(5);
+
     adc_print_all(true);
-    adc_print_all(false);  
+    adc_print_all(false); 
+
     ADC_MUX(POT_ADC);
-    ADC_IE();
+    //ADC_IE();
+}
+
+void cmd_adc_mon(char* args) {
+    LEF_Event event;
+    UNUSED(args);
+    
+    // ADC_ID();
+    // ADC_ENABLE();
+    // ADC_REF_AVCC();
+    // ADC_TRG_FREE_RUNNING();
+    LEF_Pot_enable(&pot, false);
+
+    DIDR0 = 0xff;
+    DIDR1 = 0xff;
+    printf("Monitoring ADC (press any button to stop)\n");
+    adc_print_all(true);
+    LEF_Timer_start_repeat(&timer_a, 75);
+    
+    LEF_Cli_WaitKeyPressed();
+    while (1) {
+        wait_event(&event);
+        if (event.id == LEF_EVENT_CLI) {
+            LEF_Cli_exec(&event);
+            printf("Stopping ADC monitor...\n");
+            return;
+            break;
+        }
+        if (event.id == EVENT_TimerA) {
+            adc_print_all(false);
+        }
+    }
+    ADC_MUX(POT_ADC);
+    LEF_Pot_enable(&pot, true);
+    //ADC_IE();
 }
 
 void wait_event(LEF_Event *event);
@@ -375,36 +411,6 @@ void wait_event(LEF_Event *event) {
     }
     return;
 }   
-
-
-void cmd_adc_mon(char* args) {
-    LEF_Event event;
-    UNUSED(args);
-
-    ADC_ID();
-    ADC_ENABLE();
-    ADC_REF_AVCC();
-
-    printf("Monitoring ADC (press any button to stop)\n");
-    adc_print_all(true);
-    LEF_Timer_start_repeat(&timer_a, 75);
-
-    LEF_Cli_WaitKeyPressed();
-    while (1) {
-        wait_event(&event);
-        if (event.id == LEF_EVENT_CLI) {
-            LEF_Cli_exec(&event);
-            printf("Stopping ADC monitor...\n");
-            return;
-            break;
-        }
-        if (event.id == EVENT_TimerA) {
-            adc_print_all(false);
-        }
-    }
-    ADC_MUX(POT_ADC);
-    ADC_IE();
-}
 
 void cmd_reset(char* args) {
     UNUSED(args);
@@ -450,14 +456,13 @@ ISR(TIMER1_COMPA_vect) {
     gpio_write(BUZZER_PIN, LEF_Buzzer_update());
     // BUZZER_SET(LEF_Buzzer_update());
 
-    ADC_MUX(POT_ADC);
-    ADC_START();
+    //ADC_MUX(POT_ADC);
+    if (LEF_Pot_is_enabled(&pot))
+        ADC_START();
 }
 
 ISR(ADC_vect) {
-    // uart_putc('a');
-    uint16_t val = ADC_VALUE();
-    LEF_Pot_update(&pot, val);
+    LEF_Pot_update(&pot, ADC_VALUE());
 }
 
 void hw_init(void) {
@@ -491,7 +496,6 @@ void hw_init(void) {
 
     ADC_ENABLE();
     ADC_REF_AVCC();
-    
     ADC_PRESCALER_128();
     ADC_MUX(POT_ADC);
     ADC_IE();
@@ -581,20 +585,6 @@ int main(void) {
         if (evOn) LEF_Print_event(&event);
 
         switch (event.id) {
-                /*		 case LEF_SYSTICK_EVENT:
-                                ch = LEF_LedRGUpdate(&ledrg);
-                            if (ch & 0x01)
-                                LED_RED_ON();
-                            else
-                                LED_RED_OFF();
-
-                            if (ch & 0x02)
-                                LED_GREEN_ON();
-                            else
-                                LED_GREEN_OFF();
-
-                            break;
-                */
             case EVENT_Button1:  // Handle button press event
                 printf("Button 1 event: func = %d\n", event.func);
                 LEF_Led_set(&led1, LED_SLOW_BLINK);
@@ -650,25 +640,11 @@ int main(void) {
                 // printf("Pot changed %d\n", val);
                 TIMER0_OCA_SET(val / 4);
 
-                if (val > 100)
-                    LEF_Led_set(&led1, LED_ON);
-                else
-                    LEF_Led_set(&led1, LED_OFF);
 
-                if (val > 250)
-                    LEF_Led_set(&led2, LED_ON);
-                else
-                    LEF_Led_set(&led2, LED_OFF);
-
-                if (val > 500)
-                    LEF_Led_set(&led3, LED_ON);
-                else
-                    LEF_Led_set(&led3, LED_OFF);
-
-                if (val > 750)
-                    LEF_Led_set(&led4, LED_ON);
-                else
-                    LEF_Led_set(&led4, LED_OFF);
+                LEF_Led_set(&led1, (val > 100));
+                LEF_Led_set(&led2, (val > 300));
+                LEF_Led_set(&led3, (val > 500));
+                LEF_Led_set(&led4, (val > 800));
 
                 break;
 

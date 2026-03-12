@@ -26,6 +26,7 @@ extern "C"
 typedef struct {
 	LEF_EventId id;
 	uint16_t state;
+	bool enabled;
 } LEF_Pot;
 
 
@@ -37,8 +38,12 @@ void LEF_Pot_update(LEF_Pot *pot, uint16_t newState);
 
 uint16_t LEF_Pot_state(LEF_Pot *pot);
 
-void LEF_Pot_free(LEF_Pot *pot);
-        
+void LEF_Pot_enable(LEF_Pot* pot, bool en);
+
+bool LEF_Pot_is_enabled(LEF_Pot* pot);
+
+void LEF_Pot_free(LEF_Pot* pot);
+
 #ifdef __cplusplus
 } //end brace for extern "C"
 #endif
