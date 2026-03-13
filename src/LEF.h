@@ -91,7 +91,6 @@ extern "C" {
 	
 #endif
 
-//#define LDEBUGPRINT()
 	
  
 // For compability with older code, remove in future

@@ -47,10 +47,10 @@
 char cli_buf[LEF_CLI_BUF_LENGTH];
 uint8_t cli_cnt;
 uint8_t cli_lock;
-uint8_t cli_cmds_length;
 uint8_t cli_wait_key_pressed;
 
 const LEF_CliCmd *cli_cmds; 
+uint8_t cli_cmds_length;
 
 LEF_History cli_history;
 
@@ -168,7 +168,8 @@ void LEF_Cli_putc(const char ch) {
 	// add character to buffer and echo it
 	cli_buf[cli_cnt] = chf;
 	cli_cnt++;
-	printf("%c",chf);
+    cli_buf[cli_cnt] = '\0';
+    printf("%c",chf);
 }
 
 
@@ -214,6 +215,7 @@ void LEF_Cli_exec(LEF_Event *event) {
         return;
     }
 
+	// up/down key pressed
 	if ((event->func  >= 5) && (event->func <= 6)) { 
 		if (event->func == 5) // Up arrow
 			history_up(&cli_history);
@@ -221,13 +223,15 @@ void LEF_Cli_exec(LEF_Event *event) {
 			history_down(&cli_history);
 		
 		const char* hist_cmd = history_current(&cli_history);
-        printf("\e[60D" LEF_CLI_PROMPT "%-40s", hist_cmd);
+        printf("\r" LEF_CLI_PROMPT "%-40s", hist_cmd);
+		printf("\r\e[%dC", strlen(hist_cmd)+strlen(LEF_CLI_PROMPT));
 		cli_cnt = strlen(hist_cmd);
 		strncpy(cli_buf, hist_cmd, LEF_CLI_BUF_LENGTH - 1);
 		cli_buf[LEF_CLI_BUF_LENGTH - 1] = '\0';
         return;
 	}
 
+	// enter key pressed
     if (cli_cnt == 0) {
         lefprintf(LEF_CLI_PROMPT);
         return;
@@ -237,10 +241,11 @@ void LEF_Cli_exec(LEF_Event *event) {
         i++;
     }
 
-    cli_buf[cli_cnt] = '\0';
-    cli_buf[i] = '\0';
-    args = cli_buf;
-    args += (cli_cnt > i) ? (i + 1) : i;
+    //cli_buf[cli_cnt] = '\0';
+    // cli_buf[i] = '\0';
+    // args = cli_buf;
+    // args += (cli_cnt > i) ? (i + 1) : i;
+	args = NULL;
     //	LDEBUGPRINT("Command = %s    args = %s\n", cliBuf, args);
 
     i = 0;

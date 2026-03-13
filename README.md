@@ -5,8 +5,6 @@
 
 </div>
 
-
-
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
@@ -37,7 +35,21 @@
 
 ## About
 
+Lightweigth Event Framework (LEF) is a software framework for small to medium sized microcontrollers. It is intended for applications where an RTOS would be overkill, but still deliver some level of convenience.
+
 ## Features
+
+Components for:
+ - LED
+ - RG LED
+ - Buzzer
+ - Click Button
+ - Potentiometer
+ - Rotary encoder (experimental)
+ - Cli
+ - Timers (software)
+ - Eventloop
+ - Eventqueue
 
 ## Requirements
 
@@ -60,6 +72,10 @@
 [HISTORY.md](/HISTORY.md)
 
 ## ToDo
+
+- Some sort of sequence class could be usefull.
+- Membrane button scanner
+- Use C23 when available
 
 ## Links
 

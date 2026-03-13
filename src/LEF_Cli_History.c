@@ -31,37 +31,38 @@
 void history_init(LEF_History* h) {
     // Zero out all memory (makes strcmp safe and shows empty slots)
     memset(h->entries, 0, sizeof(h->entries));
-    h->newest = 0;
+    h->head = 0;
     h->count = 0;
     h->cursor = -1;
 }
 
 // Add command — returns 1 if stored, 0 if ignored (empty / duplicate)
 int history_add(LEF_History* h, const char* line) {
-    if (!line || !*line) {
+
+    if (line == NULL || line[0] == '\0') {
         return 0;
     }
 
     // Skip if same as most recent command
-    if (h->count > 0 && strcmp(h->entries[h->newest], line) == 0) {
+    if (h->count > 0 && strcmp(h->entries[h->head], line) == 0) {
+        h->cursor = -1;
         return 0;
     }
 
     // Move forward (circular buffer)
-    h->newest = (h->newest + 1) % LEF_CLI_HISTORY;
+    h->head = (h->head + 1) % LEF_CLI_HISTORY;
 
     // Safe copy — truncates if longer than 63 chars
-    strncpy(h->entries[h->newest], line, LEF_CLI_BUF_LENGTH - 1);
-    h->entries[h->newest][LEF_CLI_BUF_LENGTH - 1] =
-        '\0';  // guarantee null termination
+    strncpy(h->entries[h->head], line, LEF_CLI_BUF_LENGTH - 1);
+    h->entries[h->head][LEF_CLI_BUF_LENGTH - 1] = '\0';  // guarantee null termination
 
     if (h->count < LEF_CLI_HISTORY) {
         h->count++;
     }
 
+    printf("cnt=%2d  head=%2d  cursor=%2d\n", h->count, h->head, h->cursor);
     // Reset navigation after new entry
     h->cursor = -1;
-
     return 1;
 }
 
@@ -71,7 +72,7 @@ const char* history_current(const LEF_History* h) {
     if (h->cursor == -1) {
         return "";
     }
-    int idx = (h->newest - h->cursor + LEF_CLI_HISTORY) % LEF_CLI_HISTORY;
+    int idx = (h->head - h->cursor + LEF_CLI_HISTORY) % LEF_CLI_HISTORY;
     return h->entries[idx];
 }
 

@@ -632,7 +632,7 @@ int main(void) {
                 LEF_Led_set(&led4, (val > 800));
                 
                 lcd_gotoxy(0,3);
-                sprintf(buf,"Pot value %4d", val);
+                sprintf(buf,"   Pot value %4d", val);
                 lcd_puts(buf);
 
                 break;

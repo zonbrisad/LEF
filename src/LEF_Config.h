@@ -39,7 +39,7 @@ extern "C" {
 
 #define LEF_CLI_CMD_LENGTH              12
 #define LEF_CLI_DESC_LENGTH             32
-#define LEF_CLI_HISTORY                  4 /**< Number of previous commands to store in history */
+#define LEF_CLI_HISTORY                  5 /**< Number of previous commands to store in history */
 
 
 // Buzzer settings --------------------------------------------------------

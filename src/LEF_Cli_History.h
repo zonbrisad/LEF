@@ -6,7 +6,7 @@
  *---------------------------------------------------------------------------
  * @brief   A simple Command Line Interface for LEF.
  *
- * @file    LEF_Cli_History.c
+ * @file    LEF_Cli_History.h
  * @author  Peter Malmberg <peter.malmberg@gmail.com>
  * @date    2016-12-09
  * @license GPLv2
@@ -28,7 +28,7 @@
 
 typedef struct {
     char entries[LEF_CLI_HISTORY][LEF_CLI_BUF_LENGTH];
-    int newest;  // index of most recent entry
+    int head;  // index of most recent entry
     int count;   
     int cursor;  // -1 = current typing, 0 = newest, 1 = older, ...
 } LEF_History;

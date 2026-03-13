@@ -115,7 +115,7 @@ inline void I2C_Enable(bool enable)       { if (enable) BitSet(TWCR, TWEN); else
 inline void I2C_Int_Enable(bool enable)   { if (enable) BitSet(TWCR, TWIE); else BitClear(TWCR, TWIE); }
 inline void I2C_Bitrate(uint8_t bitrate)  { TWBR = bitrate; }
 inline bool I2C_Is_Busy(void)             { return (!BitCheck(TWCR, TWINT)); }
-inline void I2C_Wait_Completion(void)     { while(I2C_Is_Busy) {} }
+inline void I2C_Wait_Completion(void)     { while(I2C_Is_Busy()) {} }
 
 
 // AVR Timer 0 (8 bit) ------------------------------------------------------
