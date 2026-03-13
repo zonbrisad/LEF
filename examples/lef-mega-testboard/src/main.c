@@ -625,12 +625,15 @@ int main(void) {
                 val = LEF_Pot_state(&pot);
                 //printf("Pot changed %d\n", val);
                 TIMER0_OCA_SET(val / 4);
-
-
+                char buf[41];
                 LEF_Led_set(&led1, (val > 100));
                 LEF_Led_set(&led2, (val > 300));
                 LEF_Led_set(&led3, (val > 500));
                 LEF_Led_set(&led4, (val > 800));
+                
+                lcd_gotoxy(0,3);
+                sprintf(buf,"Pot value %4d", val);
+                lcd_puts(buf);
 
                 break;
 

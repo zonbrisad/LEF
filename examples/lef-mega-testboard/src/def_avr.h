@@ -108,6 +108,16 @@ inline void ADC_TRG_TIMER1_COMPB(void)    { ADCSRB = (ADCSRB & 0b00000111) | 0b1
 inline void ADC_TRG_TIMER1_OVF(void)      { ADCSRB = (ADCSRB & 0b00000111) | 0b110; }
 inline void ADC_TRG_TIMER1_CPT(void)      { ADCSRB = (ADCSRB & 0b00000111) | 0b111; }
 
+
+// AVR TWI (I2C -------------------------------------------------------------
+
+inline void I2C_Enable(bool enable)       { if (enable) BitSet(TWCR, TWEN); else BitClear(TWCR, TWEN); }
+inline void I2C_Int_Enable(bool enable)   { if (enable) BitSet(TWCR, TWIE); else BitClear(TWCR, TWIE); }
+inline void I2C_Bitrate(uint8_t bitrate)  { TWBR = bitrate; }
+inline bool I2C_Is_Busy(void)             { return (!BitCheck(TWCR, TWINT)); }
+inline void I2C_Wait_Completion(void)     { while(I2C_Is_Busy) {} }
+
+
 // AVR Timer 0 (8 bit) ------------------------------------------------------
 
 // Clock source
