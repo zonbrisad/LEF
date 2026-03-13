@@ -60,7 +60,6 @@ int history_add(LEF_History* h, const char* line) {
         h->count++;
     }
 
-    printf("cnt=%2d  head=%2d  cursor=%2d\n", h->count, h->head, h->cursor);
     // Reset navigation after new entry
     h->cursor = -1;
     return 1;
