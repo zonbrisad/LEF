@@ -384,7 +384,7 @@ void cmd_adc_mon(char* args) {
     LEF_Timer_start_repeat(&timer_a, 75);
     
     LEF_Cli_WaitKeyPressed();
-    while (1) {
+    while (true) {
         wait_event(&event);
         if (event.id == LEF_EVENT_CLI) {
             LEF_Cli_exec(&event);
@@ -563,9 +563,9 @@ int main(void) {
 
     printf("\n\nStarting LEF Arduino mega test\n\n");
     LEF_Buzzer_set(LEF_BUZZER_BEEP);
-    LEF_Cli_init(cmdTable, sizeof(cmdTable) / sizeof((cmdTable)[0]));
+    LEF_CLI_INIT(cmdTable);
 
-    while (1) {
+    while (true) {
         LEF_Wait(&event);
 
         if (evOn) LEF_Print_event(&event);

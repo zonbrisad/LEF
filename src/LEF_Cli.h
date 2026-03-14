@@ -35,6 +35,8 @@ extern "C" {
 
 // Macros -----------------------------------------------------------------
 
+#define LEF_CLI_INIT(commands) LEF_Cli_init(commands, (sizeof((commands)) / sizeof((commands)[0])))
+
 #define LEF_CLI_LABEL(label)  {.function=NULL, .desc=label }
 #define LEF_CLI_CMD(func, name, desc)  {(cmd_handler)func, name, desc }
 // #define LEF_CLI_CMD(func, name, desc)  {.function=(cmd_handler)func, .name=name, .desc=desc }
