@@ -538,32 +538,28 @@ int main(void) {
     LEF_Timer_init(&timer2, EVENT_Timer2);
     LEF_Timer_start_repeat(&timer2, 10);
     LEF_Timer_init(&timer_a, EVENT_TimerA);
-    //LEF_Timer_start_repeat(&timer_a, 1000);
 
     LEF_Led_init(&led1, LED_SLOW_BLINK);
     LEF_Led_init(&led2, LED_BLINK);
     LEF_Led_init(&led3, LED_FAST_BLINK);
     LEF_Led_init(&led4, LED_BLIP);
-
     LEF_LedRG_init(&ledrg, LEDRG_GREEN_DOUBLE_BLINK);
-
-    // LEF_LedA_init(&leda, LEDA_ON);
-    // LEF_LedA_init(&leda, LEDA_OFF_SOFT);
-
     LEF_Button_init(&button1, EVENT_Button1);
     LEF_Button_init(&button2, EVENT_Button2);
     LEF_Button_init(&button3, EVENT_Button3);
-
     LEF_Rotary_init(&rotary, EVENT_Rotary);
     LEF_Pot_init(&pot, EVENT_Pot);
-
     LEF_Buzzer_init();
+    LEF_CLI_INIT(cmdTable);
+    
+    // LEF_LedA_init(&leda, LEDA_ON);
+    // LEF_LedA_init(&leda, LEDA_OFF_SOFT);
 
     hw_init();
 
     printf("\n\nStarting LEF Arduino mega test\n\n");
+
     LEF_Buzzer_set(LEF_BUZZER_BEEP);
-    LEF_CLI_INIT(cmdTable);
 
     while (true) {
         LEF_Wait(&event);
