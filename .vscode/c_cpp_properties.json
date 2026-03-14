@@ -1,7 +1,7 @@
 {
     "configurations": [
         {
-            "name": "LEF mega test",
+            "name": "ATMega1280",
             "includePath": [
                 "${workspaceFolder}/**",
                 "/usr/lib/avr/include"
@@ -20,7 +20,7 @@
             ]
         },
         {
-            "name": "LEF simple test",
+            "name": "ATMega328P",
             "includePath": [
                 "${workspaceFolder}/**",
                 "/usr/lib/avr/include"

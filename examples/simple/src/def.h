@@ -11,8 +11,15 @@
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * 
  */
 
+/* Some documentation links
+ *
+ * https://gcc.gnu.org/onlinedocs/cpp/Standard-Predefined-Macros.html
+ * https://gcc.gnu.org/onlinedocs/cpp/Common-Predefined-Macros.html
+ *
+ */
 // Settings  ---------------------------------------------------------------
 
 // Enable all debugmessages
