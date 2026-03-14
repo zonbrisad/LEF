@@ -143,9 +143,9 @@ inline void  TIMER0_OCB_SET(uint8_t x)    { OCR0B = x; }                  // Set
 inline void  TIMER0_RELOAD(uint8_t x)     { TCNT0 = x; }                  // Reload timer register
     
 // Waveform generation mode
-inline void TIMER0_WGM_NORMAL(void)       { TCCR0A = (TCCR0A & 0b11111100) | 0x00000000; }
-inline void TIMER0_WGM_PWM(void)          { TCCR0A = (TCCR0A & 0b11111100) | 0x00000001; } // PWM, phase correct
-inline void TIMER0_WGM_FAST_PWM(void)     { TCCR0A = (TCCR0A & 0b11111100) | 0x00000011; } // Fast PWM
+inline void TIMER0_WGM_NORMAL(void)       { TCCR0A = (TCCR0A & 0b11111100) | 0b00000000; }
+inline void TIMER0_WGM_PWM(void)          { TCCR0A = (TCCR0A & 0b11111100) | 0b00000001; } // PWM, phase correct
+inline void TIMER0_WGM_FAST_PWM(void)     { TCCR0A = (TCCR0A & 0b11111100) | 0b00000011; } // Fast PWM
 
 // Output modes
 inline void TIMER0_OM_NORMAL(void)        { TCCR0A &= 0b00111111; }                        // OC0A disconnected

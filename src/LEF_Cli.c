@@ -83,8 +83,8 @@ uint16_t ANSI_Filter(const char ch) {
 				switch (toupper(ch)) {
 					case 'A': return ARROW_UP;
 					case 'B': return ARROW_DOWN;
-					case 'C': return ARROW_RIGHT;
-					case 'D': return ARROW_LEFT;
+					//case 'C': return ARROW_RIGHT;
+					//case 'D': return ARROW_LEFT;
 					default: return NO_DATA; // Filter out the final character of ANSI sequence
 				}
 			}
@@ -180,10 +180,6 @@ void LEF_Cli_print(void) {
 
   	for(int i=0; i<cli_cmds_length; i++) {
 
-//		lefstrcpy(cBuf, cmdTable[i].name);
-//		lefstrcpy(dBuf, cmdTable[i].desc);
-//		ptr = (handler)pgm_read_word(&cmdTable[i].function);
-
 		lefstrcpy(cBuf, cli_cmds[i].name);
 		lefstrcpy(dBuf, cli_cmds[i].desc);
 
@@ -205,21 +201,20 @@ void LEF_Cli_print(void) {
 
 void LEF_Cli_exec(LEF_Event *event) {
     cmd_handler ptr;
-    char* args;
     char cmd[LEF_CLI_BUF_LENGTH];
-    int i = 0;
-
+	
     // Key press event from WaitKeyPressed
     if (event->func == 1) { 
-        cli_wait_key_pressed = 0;
+		cli_wait_key_pressed = 0;
         return;
     }
-
+	
 	// up/down key pressed
 	if ((event->func  >= 5) && (event->func <= 6)) { 
 		if (event->func == 5) // Up arrow
 			history_up(&cli_history);
-		else if (event->func == 6) // Down arrow
+		
+		if (event->func == 6) // Down arrow
 			history_down(&cli_history);
 		
 		const char* hist_cmd = history_current(&cli_history);
@@ -230,39 +225,51 @@ void LEF_Cli_exec(LEF_Event *event) {
 		cli_buf[LEF_CLI_BUF_LENGTH - 1] = '\0';
         return;
 	}
-
+	
 	// enter key pressed
     if (cli_cnt == 0) {
-        lefprintf(LEF_CLI_PROMPT);
+		lefprintf(LEF_CLI_PROMPT);
         return;
     }
-
-    while ((cli_buf[i] != ' ') && (i < cli_cnt)) {
-        i++;
-    }
-
-    //cli_buf[cli_cnt] = '\0';
-    // cli_buf[i] = '\0';
-    // args = cli_buf;
-    // args += (cli_cnt > i) ? (i + 1) : i;
-	args = NULL;
-    //	LDEBUGPRINT("Command = %s    args = %s\n", cliBuf, args);
-
-    i = 0;
-    while (i < cli_cmds_length) {
+	
+	// find start position of command and arguments in buffer
+	char* cmd_start = NULL;
+	char* args_start = NULL;
+	for (int j = 0; j < LEF_CLI_BUF_LENGTH; j++) {
+		
+		if ((cli_buf[j] != ' ') && (cmd_start == NULL)) {
+			cmd_start = &cli_buf[j];
+		} 
+		
+		if (cmd_start != NULL) {
+			if (cli_buf[j] == ' ') {
+				cli_buf[j] = '\0';
+				args_start = &cli_buf[j+1];
+				break;
+			}
+		}
+	}
+	
+	for (int i=0; i<cli_cmds_length; i++) {
         lefstrcpy(cmd, cli_cmds[i].name);
-        if (!strncmp(cmd, cli_buf, LEF_CLI_BUF_LENGTH)) {
+        if (!strncmp(cmd, cmd_start, LEF_CLI_BUF_LENGTH)) {
+        // if (!strncmp(cmd, cli_buf, LEF_CLI_BUF_LENGTH)) {
             //			LDEBUGPRINT("Found command: %s\n", cmd);
             ptr = (cmd_handler)pgm_read_word(&cli_cmds[i].function);
-            ptr(args);
+            ptr(args_start);
             goto cli_cleanup;
         }
-        i++;
     }
-	
-    lefprintf("%s: Command not found\n", cli_buf);
+
+	lefprintf("%s: Command not found\n", cmd_start);
+    // lefprintf("Args: %s\n", args_start);
 	
 cli_cleanup:
+	
+	// remove null termination for command and argument separation
+	if (args_start != NULL)
+		args_start[-1] = ' ';
+
 	history_add(&cli_history, cli_buf);
 	
 	cli_lock = 0;

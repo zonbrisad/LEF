@@ -76,6 +76,8 @@ Components for:
 - Some sort of sequence class could be usefull.
 - Membrane button scanner
 - Use C23 when available
+- Helper functions for argument parsing in CLI
+- Improved filtering out ANSI terminal sequences
 
 ## Links
 
