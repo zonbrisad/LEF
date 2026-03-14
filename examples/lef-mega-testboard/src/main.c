@@ -148,7 +148,7 @@ LEF_Button button3;
 LEF_Rotary rotary;
 LEF_Pot pot;
 
-char evOn = 0;
+bool evOn = false;
 
 static FILE mystdout =
     FDEV_SETUP_STREAM((void*)uart_putc, NULL, _FDEV_SETUP_WRITE);
@@ -261,12 +261,12 @@ void cmdLedOff(char* args) {
 
 void cmdEvOn(char* args) {
     UNUSED(args);
-    evOn = 1;
+    evOn = true;
 }
 
 void cmdEvOff(char* args) {
     UNUSED(args);
-    evOn = 0;
+    evOn = false;
 }
 
 void cmdHelp(char* args) {
