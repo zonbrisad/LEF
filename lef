@@ -50,24 +50,24 @@ bpUserSettings() {
 
 clef() { ##D Copy LEF source files
   if [ -e "LEF" ]; then 
-    if ! bpReadBoolDN "Directory LEF already exist"; then 
+    if ! bpReadBoolDN "Directory LEF already exist, overwrite?"; then 
       return
     fi
     bpBackup "LEF"
   fi
-	bpCpM ${BP_SELF_DIR}/src/*.[ch] ${2:-.}/LEF
+	bpCpM "${BP_SELF_DIR}/src/"*.[ch] "${2:-.}/LEF"
 }
 
 ex() { # Show simple example
-  bpCat ${BP_SELF_DIR}/doc/example.c
+  bpCat "${BP_SELF_DIR}/doc/example.c"
 }
 
 bpCat() {
   
 	if bpHasCmd batcat; then # Use batcat, if available, to view function
-    batcat --decorations never $1
+    batcat --decorations never "$1"
 	else
-	  cat $1
+	  cat "$1"
 	fi
     
 }
