@@ -508,24 +508,6 @@ void hw_init(void) {
     sei();
 }
 
-static inline char* int2bits8(uint8_t x) {
-    static char str[9];
-    for (int i = 0; i < 8; i++) {
-        str[7 - i] = (x & (1 << i)) ? '1' : '0';
-    }
-    str[8] = '\0';
-    return str;
-}
-
-static inline char* int2bits16(uint16_t x) {
-    static char str[17];
-    for (int i = 0; i < 16; i++) {
-        str[15 - i] = (x & (1 << i)) ? '1' : '0';
-    }
-    str[16] = '\0';
-    return str;
-}
-
 int main(void) {
     LEF_Event event;
     uint16_t ch, val;
@@ -554,7 +536,7 @@ int main(void) {
     
     // LEF_LedA_init(&leda, LEDA_ON);
     // LEF_LedA_init(&leda, LEDA_OFF_SOFT);
-
+    
     hw_init();
 
     printf("\n\nStarting LEF Arduino mega test\n\n");
@@ -578,7 +560,6 @@ int main(void) {
                 printf("Button 2 event: func = %d\n", event.func);
                 break;
             case EVENT_Button3:  // Handle button press event
-                // LEF_Print_event(&event);
                 if (event.func == 1) {
                     ls++;
                     if (ls >= LEDRG_LAST) ls = LEDRG_OFF;
@@ -592,13 +573,9 @@ int main(void) {
                     LEF_Buzzer_set(LEF_BUZZER_BRP);
                 }
 
-                // printf("Port C: %x  Clk = %d   Dt = %d\n", PINC, (PINC &
-                // (1<<PC0)), (PINC & (1<<PC1)));
-                printf("Port C: %s  Clk = %d   Dt = %d\n", int2bits8(PINE),
+                printf("Port C: %s  Clk = %d   Dt = %d\n", int2bin8(PINE),
                        (PINC & (1 << PC0)), (PINC & (1 << PC1)));
 
-                // event.id = LEF_EVENT_TEST;
-                //	LEF_Send(&event);
                 break;
             case EVENT_Rotary:  // Handle rotary event
                 LEF_Buzzer_set(LEF_BUZZER_BLIP);
