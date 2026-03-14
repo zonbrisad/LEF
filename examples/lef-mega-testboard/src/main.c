@@ -190,7 +190,7 @@ const PROGMEM LEF_CliCmd cmdTable[] = {
     LEF_CLI_CMD(cmdHelp, "help", "Show help")};
 
 void cmd_brp(char* args) {
-    printf("Brp args = %s\n", args);
+    printf_P(PSTR("Brp args = %s\n"), args);
     LEF_Buzzer_set(LEF_BUZZER_BRP);
 }
 
@@ -311,10 +311,10 @@ void cmd_lcd_move_left(char* args) {
 void cmd_lcd_test(char* args) {
     UNUSED(args);
     lcd_clear();
-    lcd_puts("Line 1\n");
-    lcd_puts("Line 2\n");
-    lcd_puts("Line 3\n");
-    lcd_puts("Line 4\n");
+    lcd_puts_P("Line 1\n");
+    lcd_puts_P("Line 2\n");
+    lcd_puts_P("Line 3\n");
+    lcd_puts_P("Line 4\n");
 }
 
 void cmd_lcd_test_move(char* args) {
@@ -328,11 +328,11 @@ void cmd_lcd_test_move(char* args) {
 
 static inline void adc_print_all(bool print_header) {
     if (print_header) {
-        printf("\e[4m"); // Underline
+        printf_P(PSTR("\e[4m")); // Underline
         for (int i = 0; i < 16; i++) {
             printf("%4d ", i);
         }
-        printf("\e[0m\n");
+        printf_P(PSTR("\e[0m\n"));
         return;
     }
 
@@ -379,7 +379,7 @@ void cmd_adc_mon(char* args) {
     
     LEF_Pot_enable(&pot, false);
 
-    printf("Monitoring ADC (press any button to stop)\n");
+    printf_P(PSTR("Monitoring ADC (press any button to stop)\n"));
     adc_print_all(true);
     LEF_Timer_start_repeat(&timer_a, 75);
     
@@ -388,7 +388,7 @@ void cmd_adc_mon(char* args) {
         wait_event(&event);
         if (event.id == LEF_EVENT_CLI) {
             LEF_Cli_exec(&event);
-            printf("Stopping ADC monitor...\n");
+            printf_P(PSTR("Stopping ADC monitor...\n"));
             break;
         }
         if (event.id == EVENT_TimerA) {
@@ -503,7 +503,7 @@ void hw_init(void) {
 
     lcd_init(LCD_DISP_ON);
     lcd_clear();
-    lcd_puts("   LEF Mega Test\n");
+    lcd_puts_P("   LEF Mega Test\n");
 
     sei();
 }
@@ -539,7 +539,7 @@ int main(void) {
     
     hw_init();
 
-    printf("\n\nStarting LEF Arduino mega test\n\n");
+    printf_P(PSTR("\n\nStarting LEF Arduino mega test\n\n"));
 
     LEF_Buzzer_set(LEF_BUZZER_BEEP);
 
@@ -550,14 +550,14 @@ int main(void) {
 
         switch (event.id) {
             case EVENT_Button1:  // Handle button press event
-                printf("Button 1 event: func = %d\n", event.func);
+                printf_P(PSTR("Button 1 event: func = %d\n"), event.func);
                 LEF_Led_set(&led1, LED_SLOW_BLINK);
                 LEF_Led_set(&led2, LED_BLINK);
                 LEF_Led_set(&led3, LED_FAST_BLINK);
                 LEF_Led_set(&led4, LED_BLIP);
                 break;
             case EVENT_Button2:  // Handle button press event
-                printf("Button 2 event: func = %d\n", event.func);
+                printf_P(PSTR("Button 2 event: func = %d\n"), event.func);
                 break;
             case EVENT_Button3:  // Handle button press event
                 if (event.func == 1) {
@@ -573,7 +573,7 @@ int main(void) {
                     LEF_Buzzer_set(LEF_BUZZER_BRP);
                 }
 
-                printf("Port C: %s  Clk = %d   Dt = %d\n", int2bin8(PINE),
+                printf_P(PSTR("Port C: %s  Clk = %d   Dt = %d\n"), int2bin8(PINE),
                        (PINC & (1 << PC0)), (PINC & (1 << PC1)));
 
                 break;
@@ -605,13 +605,13 @@ int main(void) {
                 LEF_Led_set(&led4, (val > 800));
                 
                 lcd_gotoxy(0,3);
-                sprintf(buf,"   Pot value %4d", val);
+                sprintf_P(buf,PSTR("   Pot value %4d"), val);
                 lcd_puts(buf);
 
                 break;
 
             case LEF_EVENT_TEST:
-                printf("Testevent\n");
+                printf_P(PSTR("Testevent\n"));
                 break;
         }
 
