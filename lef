@@ -58,7 +58,7 @@ clef() { ##D Copy LEF source files
 	bpCpM ${BP_SELF_DIR}/src/*.[ch] ${2:-.}/LEF
 }
 
-ex() { ##D Show simple example
+ex() { # Show simple example
   bpCat ${BP_SELF_DIR}/doc/example.c
 }
 
@@ -74,7 +74,7 @@ bpCat() {
 
 
 ##- Misc
-install() { ##D Install
+install() { # Install
   bpAddModule "${BP_SELF_DIR}/lef_init"
 }
 	
