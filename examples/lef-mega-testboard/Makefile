@@ -615,7 +615,8 @@ term: ##D Connect to QEMU virtual serial port via telnet terminal
 AVRDUDE_PORT = /dev/ttyUSB1
 
 flash: ##D Write program to MCU flash with avrdude
-	@$(MPUTILS) arduino-flash $(OUTDIR)/$(TARGET).hex $(MCU) $(AVRDUDE_PORT) 
+	@$(MPUTILS) avr_flash_urboot $(OUTDIR)/$(TARGET).hex $(MCU) $(AVRDUDE_PORT) 
+# 	@$(MPUTILS) arduino-flash $(OUTDIR)/$(TARGET).hex $(MCU) $(AVRDUDE_PORT) 
 
 flash_wait: ##D Start non blocking flash write loop 
 	@$(MPUTILS) arduino-flash-wait $(OUTDIR)/$(TARGET).hex $(MCU) $(AVRDUDE_PORT) 

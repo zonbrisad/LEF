@@ -68,14 +68,8 @@ extern "C" {
 	
 #define LEF_ATOMIC_BLOCK()
 	
-// 
 #define lefprintf(...)   printf( __VA_ARGS__)
-// #define lefprintf(...)   printf("%s" __VA_ARGS__)
-// #define lefprintf(str)   printf("%s" (str))
-// #define lefprintf(_fmt, ...)   printf(_fmt, ##__VA_ARGS__)
-
 #define lefstrcpy(d, s)  strcpy(d,s)
- 
 
 // if avr GCC use printf_P to store format strings in flash instead of RAM
 #ifdef __AVR__   
@@ -87,7 +81,7 @@ extern "C" {
 #define lefprintf(fmt, ...)  printf_P(PSTR(fmt), ##__VA_ARGS__)
 
 #undef lefstrcpy
-#define lefstrcpy(d, s)  strcpy_P(d,s)
+#define lefstrcpy(d, s)      strcpy_P(d,s)
 	
 #endif
 

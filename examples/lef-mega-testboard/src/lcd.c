@@ -22,15 +22,16 @@
        See the C include lcd.h file for a description of each function
 
 *****************************************************************************/
-#include <inttypes.h>
-#include <stdbool.h>
+#include "lcd.h"
+
 #if defined(__AVR__)
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 #include <util/delay.h>
 #endif
+#include <inttypes.h>
+#include <stdbool.h>
 
-#include "lcd.h"
 
 // Macros to edit PORT, DDR and PIN
 #define gpio_mode(x, y) (y ? _SET(DDR, x) : _CLEAR(DDR, x))
