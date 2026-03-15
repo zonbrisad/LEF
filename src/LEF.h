@@ -83,8 +83,8 @@ extern "C" {
 #undef LEF_ATOMIC_BLOCK
 #define LEF_ATOMIC_BLOCK() ATOMIC_BLOCK(ATOMIC_FORCEON)
 	
-//#undef lefprintf
-//#define lefprintf(fmt, ...)  printf_P(PSTR(fmt), ##__VA_ARGS__)
+#undef lefprintf
+#define lefprintf(fmt, ...)  printf_P(PSTR(fmt), ##__VA_ARGS__)
 
 #undef lefstrcpy
 #define lefstrcpy(d, s)  strcpy_P(d,s)
