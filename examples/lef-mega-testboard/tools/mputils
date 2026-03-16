@@ -302,7 +302,6 @@ arduino_write_flash() { ## Write firmware to AVR(Arduino) via arduino bootloader
   avrdude -v -v -V -p "${MCU}" -b 57600 -c arduino -P "${PORT}" -U flash:w:"${FILE}":i
 }
 
-
 #
 # $2 file
 # $3 MCU type
@@ -321,10 +320,10 @@ arduino-flash() { ##D Write firmware to arduino with avrdude (deprecated)
   arduino_write_flash "${FILE}" "${MCU}" "${PORT}"
 }
 
-avr_flash_arduino() { ##D Write firmware to AVR with avrdude using arduino protocol 
-  FILE=${1}
-  MCU=${2}
-  PORT=${3}
+avr_flash_arduino() { ##D Write firmware to AVR with avrdude using arduino standard protocol stk500
+  FILE=${2}
+  MCU=${3}
+  PORT=${4}
 
   check_writing
 
@@ -336,7 +335,7 @@ avr_flash_arduino() { ##D Write firmware to AVR with avrdude using arduino proto
   mpterm_suspend
 
   # Write to flash
-  avrdude -v -v -V -p "${MCU}" -b 57600 -c arduino -P "${PORT}" -U flash:w:"${FILE}":i
+  avrdude -v -v -V -p "${MCU}" -c arduino -P "${PORT}" -U flash:w:"${FILE}":i
 }
 
 avr_flash_urboot() { ##D Write firmware to AVR with avrdude using urboot protocol 
@@ -354,7 +353,7 @@ avr_flash_urboot() { ##D Write firmware to AVR with avrdude using urboot protoco
   mpterm_suspend
 
   # Write to flash
-  avrdude -v -v -V -p "${MCU}" -c urclock -P "${PORT}" -U flash:w:"${FILE}":i
+  avrdude -v -v -V -p "${MCU}" -c urclock -P "${PORT}" -U flash:w:"${FILE}":i 
 }
 
 avr_flash_micronucleus() { ##D Write firmware to AVR ATtiny(sparkfun) with micronucleus

@@ -17,32 +17,40 @@
  * Hardware description:
  * - Arduino Mega 1280
  *
- * PG5 = Button1
- * PE5 = Button2
- * PE4 = Button3
+ * Button1 = PG5 (PWM4)
+ * Button2 = PE5 (PWM3)
+ * Button3 = PE4 (PWM2)
  *
- * PK0 = Potentiometer ADC input (ADC8)
- * PK1 = Buzzer
+ * Pot = PK0 (ADC8)
+ * Buzzer = PK1 (ADC9)
  *
- * PK7 = LED1
- * PK6 = LED2
- * PK5 = LED3
- * PK4 = LED4
- * PK3 = LED Red
- * PK2 = LED Green
+ * LED1 = PK7 (ADC15)
+ * LED2 = PK6 (ADC14)
+ * LED3 = PK5 (ADC13)
+ * LED4 = PK4 (ADC12)
+ * LED Red = PK3 (ADC11)
+ * LED Green = PK2 (ADC10)
  *
  * Rotary Clk  = NC
  * Rotary Data = NC
  *
- * LCD 
- * - RS = PD7
- * - RW = PD6
- * - E  = PD5
- * - D4 = PD4
- * - D5 = PD3
- * - D6 = PD2
- * - D7 = PD1
+ * LCD
+ * - RS = PF7 (ADC7)
+ * - RW = PF6 (ADC6)
+ * - E  = PF5 (ADC5)
+ * - D4 = PF4 (ADC4)
+ * - D5 = PF3 (ADC3)
+ * - D6 = PF2 (ADC2)
+ * - D7 = PF1 (ADC1)
  */
+
+#define LCD_DATA4_PIN F, 4 /**< pin for 4bit data bit 0  */
+#define LCD_DATA5_PIN F, 3 /**< pin for 4bit data bit 1  */
+#define LCD_DATA6_PIN F, 2 /**< pin for 4bit data bit 2  */
+#define LCD_DATA7_PIN F, 1 /**< pin for 4bit data bit 3  */
+#define LCD_RS_PIN F, 7    /**< pin for RS line         */
+#define LCD_RW_PIN F, 6    /**< pin for Read/Write line */
+#define LCD_E_PIN F, 5
 
 // Include ------------------------------------------------------------------
 

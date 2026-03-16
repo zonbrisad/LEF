@@ -613,10 +613,15 @@ term: ##D Connect to QEMU virtual serial port via telnet terminal
 # Avrdude
 #============================================================================
 AVRDUDE_PORT = /dev/ttyUSB1
+AVRDUDE_PROGRAMMER = jtag2isp
 
 flash: ##D Write program to MCU flash with avrdude
-	@$(MPUTILS) avr_flash_urboot $(OUTDIR)/$(TARGET).hex $(MCU) $(AVRDUDE_PORT) 
+# 	@$(MPUTILS) avr_flash_urboot $(OUTDIR)/$(TARGET).hex $(MCU) $(AVRDUDE_PORT) 
+	@$(MPUTILS) avr_flash_arduino $(OUTDIR)/$(TARGET).hex $(MCU) $(AVRDUDE_PORT) 
 # 	@$(MPUTILS) arduino-flash $(OUTDIR)/$(TARGET).hex $(MCU) $(AVRDUDE_PORT) 
+
+flashisp: ##D Write direct via isp port
+	avrdude -v -F -c jtag2isp -p "${MCU}" -U "flash:w:$(OUTDIR)/$(TARGET).hex" -U lfuse:w:0xFF:m -U hfuse:w:0xD9:m -U efuse:w:0xF4:m -U lock:w:0x0F:m
 
 flash_wait: ##D Start non blocking flash write loop 
 	@$(MPUTILS) arduino-flash-wait $(OUTDIR)/$(TARGET).hex $(MCU) $(AVRDUDE_PORT) 
