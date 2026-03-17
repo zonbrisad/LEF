@@ -116,48 +116,37 @@ void LEF_Cli_init(const LEF_CliCmd *cmds, uint8_t size) {
 }
 
 void LEF_Cli_putc(const char ch) {
-	LEF_Event event;
-	
 	uint16_t chf = ANSI_Filter(ch);
 
 	if (cli_wait_key_pressed) {
-		event.id = LEF_EVENT_CLI;
-		event.func = 1;
-		LEF_QueueStdSend(&event);
+		LEF_Send_msg(LEF_EVENT_CLI, 1);
 		return;
 	}
 	
 	if (chf == NO_DATA) {
 		return; // Filtered out character, do nothing
 	}
-
+	
 	// handle arrow keys
 	if (chf >= ARROW_UP) {
-		event.id = LEF_EVENT_CLI;		
-		event.func = chf >> 8; // Store arrow key code in func field (1=up, 2=down, 3=right, 4=left)
-		LEF_QueueStdSend(&event);
-		return;
+        LEF_Send_msg(LEF_EVENT_CLI, chf >> 8);
+        return;
 	}
-
+	
 	// handle backspace
 	if (chf=='\b') {
 		if (cli_cnt > 0 ) {
-		  cli_cnt--;
+			cli_cnt--;
 			lefprintf("\b \b");
 			return;
 		}
 		return;
 	}
-
+	
 	// handle newline(enter)
 	if (chf=='\n') {
 		lefprintf("\n");
-
-		event.id = LEF_EVENT_CLI;
-		event.func = 0;
-		
-		LEF_QueueStdSend(&event);
-				
+		LEF_Send_msg(LEF_EVENT_CLI, 0);
 		return;
 	}
 
