@@ -37,13 +37,13 @@ void LEF_Button_update(LEF_Button* button, uint8_t state) {
     // detect button press event
     if ((button->state & 0b111) == 0b011) {
         qe.func = 1;
-        LEF_QueueStdSend(&qe);
+        LEF_Send(&qe);
     }
 
     // detect button release event
     if ((button->state & 0b111) == 0b100) {
         qe.func = 2;
-        LEF_QueueStdSend(&qe);
+        LEF_Send(&qe);
     }
 
     // detect long press event
@@ -52,7 +52,7 @@ void LEF_Button_update(LEF_Button* button, uint8_t state) {
 
         if (button->cnt == 250) {
             qe.func = 3;
-            LEF_QueueStdSend(&qe);
+            LEF_Send(&qe);
         }
     } else {
         button->cnt = 0;

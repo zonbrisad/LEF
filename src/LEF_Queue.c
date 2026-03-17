@@ -84,6 +84,7 @@ void LEF_QueueSend(LEF_EventQueue *queue,  LEF_Event *event) {
 void LEF_QueueWait(LEF_EventQueue *queue, LEF_Event *event) {
 
   while(queue->cnt==0) {               // wait until queue has an element
+    LEF_portNOP;
   }
 
   LEF_ATOMIC_BLOCK() {

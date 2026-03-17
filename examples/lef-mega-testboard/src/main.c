@@ -44,13 +44,6 @@
  * - D7 = PF1 (ADC1)
  */
 
-#define LCD_DATA4_PIN F, 4 /**< pin for 4bit data bit 0  */
-#define LCD_DATA5_PIN F, 3 /**< pin for 4bit data bit 1  */
-#define LCD_DATA6_PIN F, 2 /**< pin for 4bit data bit 2  */
-#define LCD_DATA7_PIN F, 1 /**< pin for 4bit data bit 3  */
-#define LCD_RS_PIN F, 7    /**< pin for RS line         */
-#define LCD_RW_PIN F, 6    /**< pin for Read/Write line */
-#define LCD_E_PIN F, 5
 
 // Include ------------------------------------------------------------------
 
