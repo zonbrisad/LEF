@@ -35,7 +35,7 @@ typedef struct {
 
 void LEF_Rotary_init(LEF_Rotary *rotary, LEF_EventId id);
 
-void LEF_Rotary_update(LEF_Rotary *rotary, uint8_t clk, uint8_t dt);
+void LEF_Rotary_update(LEF_Rotary *rotary, uint8_t clk, uint8_t data);
 
 void LEF_Rotary_free(LEF_Rotary *rotary);
         
