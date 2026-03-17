@@ -13,6 +13,12 @@
  *
  */
 
+ /* Function codes:
+  * 
+  * 1 = button pressed 
+  * 2 = button released
+  * 3 = button long press  
+  */
         
 #pragma once
 

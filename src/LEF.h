@@ -60,6 +60,7 @@ extern "C" {
 	
 // Events ----------------------------------------------------------------
 
+#define LEF_ERROR         240
 #define LEF_EVENT_CLI     250
 #define LEF_EVENT_TEST    254
 #define LEF_SYSTICK_EVENT 255
