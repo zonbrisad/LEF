@@ -31,17 +31,13 @@ void LEF_Pot_init(LEF_Pot *pot, LEF_EventId id) {
 
 void LEF_Pot_update(LEF_Pot *pot, uint16_t newState) {
 	int diff;
-	LEF_Event qe;
 
 	if (!pot->enabled) return;
-
-	qe.id = pot->id;
 
 	diff = pot->state - newState;
 
 	if ((((diff) < 0) ? -(diff) : (diff)) > POT_THRESHOLD) {
-		qe.func=1;
-		LEF_QueueStdSend(&qe);
+		LEF_Send_msg(pot->id, 1);
 		pot->state = newState;
 	}
 }
