@@ -129,12 +129,14 @@ void LEF_Print_event(LEF_Event *event);
 	
 void LEF_Send(LEF_Event *event);
 
-/**
- * Wait for
- * @param event
- */
-void LEF_Wait(LEF_Event *event);
-	
+void LEF_Send_msg(LEF_EventId id, LEF_EventFunc func);
+
+    /**
+     * Wait for
+     * @param event
+     */
+    void LEF_Wait(LEF_Event* event);
+
 void LEF_Clear(void);
 
 uint16_t LEF_Count(void);

@@ -49,12 +49,12 @@ void LEF_Send(LEF_Event *event) {
 	return LEF_QueueSend(&StdQueue, event);
 }
 
-void LEF_Send_msg(LEF_EventId id, uint32_t data) {
+void LEF_Send_msg(LEF_EventId id, LEF_EventFunc func) {
 	LEF_Event event;
 	event.id = id;
-	event.func = data;
+	event.func = func;
+	LEF_Send(&event);
 }
-
 
 void LEF_Wait(LEF_Event *event) {
 	return LEF_QueueWait(&StdQueue, event);
@@ -71,5 +71,5 @@ uint16_t LEF_Count(void) {
 
 
 void LEF_Print_event(LEF_Event *event) {
-	printf("Event id: %3d   func: %3d\n", event->id, event->func);
+	printf("Event id: %3d   Event func: %3d\n", event->id, event->func);
 }

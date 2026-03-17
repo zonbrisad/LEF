@@ -38,10 +38,11 @@ extern "C" {
 // Typedefs ---------------------------------------------------------------
 
 typedef uint8_t LEF_EventId;
+typedef uint8_t LEF_EventFunc;
 
 typedef struct {
 	LEF_EventId id;
-	uint8_t func;
+	LEF_EventFunc func;
 } LEF_Event;
 
 typedef struct {
