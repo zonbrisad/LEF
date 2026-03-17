@@ -43,15 +43,12 @@ void LEF_Timer_init(LEF_Timer *timer, LEF_EventId id) {
 
 
 void LEF_Timer_update(LEF_Timer *timer) {
-	LEF_Event qe;
 
   ATOMIC_BLOCK(ATOMIC_FORCEON) {
   if (timer->counter>0) {
     timer->counter--;
     if (timer->counter==0) {
-			qe.id = timer->id;
-			qe.func = 0;
-    	LEF_QueueStdSend(&qe);
+      LEF_Send_msg(timer->id, 0);
       if (timer->reload>0)
         timer->counter = timer->reload;
     }
