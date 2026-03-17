@@ -89,10 +89,10 @@ extern "C" {
 	
  
 // For compability with older code, remove in future
-#define LEF_QueueStdSend(event) LEF_Send(event)
-#define LEF_QueueStdWait(event) LEF_Wait(event)
-#define LEF_QueueStdClear()     LEF_Clear()
-#define LEF_QueueStdCnt()       LEF_Count()
+// #define LEF_QueueStdSend(event) LEF_Send(event)
+// #define LEF_QueueStdWait(event) LEF_Wait(event)
+// #define LEF_QueueStdClear()     LEF_Clear()
+// #define LEF_QueueStdCnt()       LEF_Count()
 
 	
 // Critical Section -------------------------------------------------------

@@ -15,16 +15,15 @@
 
 /*
  * Hardvare connections.
- * PD7 = Button
- * PD3 = Buzzer
- *
- * PB3 = LED green
- * PB4 = LED red
- *
- * PC0 = Rotary clk
- * PC1 = Rotary data
- *
- * Pot = ADC5
+
+ * Button      = PD7
+ * Buzzer      = PD3
+ * LED green   = PB3
+ * LED red     = PB4
+ * Rotary clk  = PC0
+ * Rotary data = PC1
+ * Pot         = ADC5
+ * Systick     = Pxx
  */
 
 #include <avr/io.h>
@@ -47,12 +46,13 @@ static const uint32_t UART_BAUD_RATE = 57600;
 
 #define POT_ADC 5
 
-#define BUZZER_PIN D,3
-#define BUTTON_PIN D,7
-#define LED_RED_PIN B,4
-#define LED_GREEN_PIN B,3
-#define ROT_CLK_PIN C,0
-#define ROT_DATA_PIN C,1
+#define PIN_BUZZER D,3
+#define PIN_BUTTON D,7
+#define PIN_LED_RED B,4
+#define PIN_LED_GREEN B,3
+#define PIN_ROT_CLK C, 0
+#define PIN_ROT_DATA C,1
+#define PIN_SYSTICK C,2
 
 typedef enum {
   EVENT_Timer1 = 0,
@@ -216,14 +216,11 @@ void cmd_adc(char* args) {
 }
 
 ISR(PCINT1_vect) {
-    LEF_Rotary_update(&rotary, gpio_read(ROT_CLK_PIN), gpio_read(ROT_DATA_PIN));
+    LEF_Rotary_update(&rotary, gpio_read(PIN_ROT_CLK), gpio_read(PIN_ROT_DATA));
 }
 
 ISR(TIMER1_COMPA_vect) {
     TIMER1_RELOAD(0);
-
-    //	event.id = LEF_SYSTICK_EVENT;
-    //	LEF_QueueWait(&StdQueue, &event);
 
     LEF_Timer_update(&timer1);
     LEF_Timer_update(&timer2);
@@ -231,14 +228,16 @@ ISR(TIMER1_COMPA_vect) {
     ARDUINO_LED_SET(LEF_Led_update(&led1));
 
     uint8_t ch = LEF_LedRG_update(&ledrg);
-    gpio_write(LED_RED_PIN, (ch & 0x01));
-    gpio_write(LED_GREEN_PIN, (ch & 0x02));
+    gpio_write(PIN_LED_RED, (ch & 0x01));
+    gpio_write(PIN_LED_GREEN, (ch & 0x02));
 
     TIMER0_OCA_SET(255 - LEF_LedA_update(&leda));
 
-    LEF_Button_update(&button1, !gpio_read(BUTTON_PIN));
+    LEF_Button_update(&button1, !gpio_read(PIN_BUTTON));
 
-    gpio_write(BUZZER_PIN, !LEF_Buzzer_update());
+    gpio_write(PIN_BUZZER, !LEF_Buzzer_update());
+
+    gpio_toggle(PIN_SYSTICK);
 
     ADC_START();
 }
@@ -263,26 +262,28 @@ void hw_init(void) {
     // sleep_enable();
 
     // Activate pullup for click button
-    gpio_init(BUTTON_PIN, 0, true);
+    gpio_init(PIN_BUTTON, 0, true);
 
     // Configure buzzer port
-    gpio_init(BUZZER_PIN, 1, 1);
+    gpio_init(PIN_BUZZER, 1, 1);
 
     // Red and Green LED
-    gpio_init(LED_GREEN_PIN, 1, 0);
-    gpio_init(LED_RED_PIN, 1, 0);
+    gpio_init(PIN_LED_GREEN, 1, 0);
+    gpio_init(PIN_LED_RED, 1, 0);
+
+    gpio_init(PIN_SYSTICK, true, false);
 
     // 5mm Green LED
     DDRD |= (0x01 << PD6);
 
     // Rotary encoder input pullup activation
-    gpio_init(ROT_CLK_PIN, 0, true);
-    gpio_init(ROT_DATA_PIN, 0, true);
+    gpio_init(PIN_ROT_CLK, 0, true);
+    gpio_init(PIN_ROT_DATA, 0, true);
 
     // Pin Change Mask Register 1
     PCMSK1 |= (1 << PCINT8);
 
-    // Enable Pin change interruåt
+    // Enable Pin change interrupt
     PCICR |= (1 << PCIE1);
 
     ADC_ENABLE();
@@ -328,7 +329,7 @@ int main() {
     hw_init();
 
     LEF_Buzzer_set(LEF_BUZZER_BEEP);
-    LEF_Cli_init(cmdTable, sizeof(cmdTable) / sizeof((cmdTable)[0]));
+    LEF_CLI_INIT(cmdTable);
 
     //_delay_ms(1000);
     printf("\n\nStarting LEF simple test\n\n");
@@ -357,8 +358,8 @@ int main() {
                     LEF_Buzzer_set(LEF_BUZZER_BRP);
                 }
 
-                printf("Clk = %d   Dt = %d\n", gpio_read(ROT_CLK_PIN),
-                       gpio_read(ROT_DATA_PIN));
+                printf("Clk = %d   Dt = %d\n", gpio_read(PIN_ROT_CLK),
+                       gpio_read(PIN_ROT_DATA));
 
                 // event.id = LEF_EVENT_TEST;
                 //	LEF_Send(&event);

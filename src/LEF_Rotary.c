@@ -1,8 +1,8 @@
 /**
  *---------------------------------------------------------------------------
- * @brief    A button class
+ * @brief    Rotary encoder (experimental)
  *
- * @file     LEF_Button.c
+ * @file     LEF_Rotary.c
  * @author   Peter Malmberg <peter.malmberg@gmail.com>
  * @version  0.01
  * @date     2023-04-14
@@ -18,10 +18,6 @@
 #include "LEF_Rotary.h"
 
 
-//LEF_Button *LEF_Button_new(void) {
-//  return malloc(sizeof(LEF_Button));
-//}
-
 void LEF_Rotary_init(LEF_Rotary *rotary, LEF_EventId id) {
 	rotary->id = id;
 	rotary->state = 0;
@@ -31,8 +27,6 @@ void LEF_Rotary_init(LEF_Rotary *rotary, LEF_EventId id) {
 }
 
 void LEF_Rotary_update(LEF_Rotary *rotary, uint8_t clk, uint8_t data) {
-	// LEF_Event event;
-	// event.id = rotary->id;
 
 	// store rotary state
 	rotary->clk = (rotary->clk << 1);
@@ -43,12 +37,6 @@ void LEF_Rotary_update(LEF_Rotary *rotary, uint8_t clk, uint8_t data) {
 
 	// event.func = rotary->clk;
 	if ((rotary->clk & 0x3) == 2) {
-		// if (data) 
-		// 	event.func = 0;
-		// else 
-		// 	event.func = 1;		
-		
-		// LEF_Send(&event);
 		LEF_Send_msg(rotary->id, (data) ? 0 : 1);
 	}
 
@@ -56,8 +44,6 @@ void LEF_Rotary_update(LEF_Rotary *rotary, uint8_t clk, uint8_t data) {
 
 void LEF_Rotary_update_alt(LEF_Rotary *rotary, uint8_t clk , uint8_t data);
 void LEF_Rotary_update_alt(LEF_Rotary *rotary, uint8_t clk , uint8_t data) {
-	// LEF_Event event;
-	// event.id = rotary->id;
 
 	// store rotary state
 	rotary->clk = (rotary->clk << 1);
@@ -68,19 +54,8 @@ void LEF_Rotary_update_alt(LEF_Rotary *rotary, uint8_t clk , uint8_t data) {
 
 	// event.func = rotary->clk;
 	if ((rotary->clk & 0x3) == 2) {
-	// if (data) 
-	// 	event.func = 0;
-	// else
-	// 	event.func = 1;		
-
-	// LEF_Send(&event);
     	LEF_Send_msg(rotary->id, (data) ? 0 : 1);
 	}
 
 
 }
-/* 
-void LEF_Button_free(LEF_Button *button) {  
-  free(button);
-}
-*/
