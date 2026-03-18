@@ -33,6 +33,8 @@
 #define BitToggle(x, y) (x ^= (1UL << y))
 #define BitCheck(x, y)  (x & (1UL << y) ? 1 : 0)
 
+#define SetMask(reg, mask, val) (reg = (reg & mask) | val);
+
 // Access PORT, DDR and PIN
 #define xPORT(port) (_PORT(port))
 #define xDDR(port)  (_DDR(port))
@@ -106,7 +108,6 @@ inline void ADC_TRG_TIMER1_COMPB(void)    { ADCSRB = (ADCSRB & 0b00000111) | 0b1
 inline void ADC_TRG_TIMER1_OVF(void)      { ADCSRB = (ADCSRB & 0b00000111) | 0b110; }
 inline void ADC_TRG_TIMER1_CPT(void)      { ADCSRB = (ADCSRB & 0b00000111) | 0b111; }
 
-
 // AVR TWI (I2C -------------------------------------------------------------
 #ifdef TWCR
 inline void I2C_Enable(bool enable)       { if (enable) BitSet(TWCR, TWEN); else BitClear(TWCR, TWEN); }
@@ -117,6 +118,7 @@ inline void I2C_Wait_Completion(void)     { while(I2C_Is_Busy()) {} }
 #endif
 
 // AVR Timer 0 (8 bit) ------------------------------------------------------
+
 // Clock source
 inline void TIMER0_CLK_DISSABLE(void)     { TCCR0B &= 0b11111000; }        // Disable timer
 inline void TIMER0_CLK_PRES_1(void)       { TCCR0B = (TCCR0B & 0b11111000) | 0b00000001; }  // Select prescaler 1/1
@@ -196,8 +198,6 @@ inline void TIMER1_OM_NORMAL(void)        { TCCR0A &= 0b00111111; }             
 inline void TIMER1_OM_TOGGLE(void)        { TCCR0A = (TCCR0A & 0b00111111) | 0b01000000; } // Toggle OC0A on compare match
 inline void TIMER1_OM_CLEAR(void)         { TCCR0A = (TCCR0A & 0b00111111) | 0b10000000; } // Clear OC0A on compare match
 inline void TIMER1_OM_SET(void)           { TCCR0A = (TCCR0A & 0b00111111) | 0b11000000; } // Set OC0A on compare match
-
-
 
 #ifdef TIMSK1
 // AVR Timer 1 (16 bit) -----------------------------------------------------

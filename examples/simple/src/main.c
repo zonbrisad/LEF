@@ -1,6 +1,6 @@
 /**
  *---------------------------------------------------------------------------
- * @brief    A simple LEF test
+ * @brief    A simple LEF test for Arduino
  *
  * @file     main.c
  * @author   Peter Malmberg <peter.malmberg@gmail.com>
@@ -23,7 +23,7 @@
  * Rotary clk  = PC0
  * Rotary data = PC1
  * Pot         = ADC5
- * Systick     = Pxx
+ * Systick     = PB2
  */
 
 #include <avr/io.h>
@@ -52,7 +52,7 @@ static const uint32_t UART_BAUD_RATE = 57600;
 #define PIN_LED_GREEN B,3
 #define PIN_ROT_CLK C, 0
 #define PIN_ROT_DATA C,1
-#define PIN_SYSTICK C,2
+#define PIN_SYSTICK D,4
 
 typedef enum {
   EVENT_Timer1 = 0,
@@ -220,7 +220,6 @@ ISR(PCINT1_vect) {
 }
 
 ISR(TIMER1_COMPA_vect) {
-    TIMER1_RELOAD(0);
 
     LEF_Timer_update(&timer1);
     LEF_Timer_update(&timer2);
@@ -256,6 +255,7 @@ void hw_init(void) {
     // Timer 1 (16 bit)
     TIMER1_CLK_PRES_256();  // set prescaler to 1/1024
     TIMER1_OCA_SET(625);
+    TIMER1_MODE_CTC();
     TIMER1_OCA_IE();  // enable output compare A interrupt
 
     // set_sleep_mode(SLEEP_MODE_IDLE);
@@ -294,8 +294,8 @@ void hw_init(void) {
 
     TIMER0_CLK_PRES_1();
     TIMER0_OCA_SET(250);
-    //	TIMER0_WGM_PWM();
-    TIMER0_WGM_FAST_PWM();
+    //	TIMER0_MODE_PWM();
+    TIMER0_MODE_FAST_PWM();
     TIMER0_OM_CLEAR();
     sei();
 }
@@ -340,9 +340,6 @@ int main() {
         if (evOn) LEF_Print_event(&event);
 
         switch (event.id) {
-                /*		 case LEF_SYSTICK_EVENT:
-                                        break;
-                */
             case EVENT_Button:  // Handle button press event
                 LEF_Print_event(&event);
                 if (event.func == 1) {
@@ -361,8 +358,6 @@ int main() {
                 printf("Clk = %d   Dt = %d\n", gpio_read(PIN_ROT_CLK),
                        gpio_read(PIN_ROT_DATA));
 
-                // event.id = LEF_EVENT_TEST;
-                //	LEF_Send(&event);
                 break;
             case EVENT_Rotary:  // Handle rotary event
                 LEF_Buzzer_set(LEF_BUZZER_BLIP);
@@ -391,8 +386,6 @@ int main() {
                 printf("Testevent\n");
                 break;
         }
-
-        // sleep_cpu();
     }
     return 0;
 }
