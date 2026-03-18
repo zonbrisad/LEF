@@ -215,29 +215,30 @@ void cmd_adc(char* args) {
     ADC_IE();
 }
 
-ISR(PCINT1_vect) {
-    LEF_Rotary_update(&rotary, gpio_read(PIN_ROT_CLK), gpio_read(PIN_ROT_DATA));
-}
+// ISR(PCINT1_vect) {
+//     LEF_Rotary_update(&rotary, gpio_read(PIN_ROT_CLK), gpio_read(PIN_ROT_DATA));
+// }
 
 ISR(TIMER1_COMPA_vect) {
-
+    
     LEF_Timer_update(&timer1);
     LEF_Timer_update(&timer2);
-
+    
     ARDUINO_LED_SET(LEF_Led_update(&led1));
-
+    
     uint8_t ch = LEF_LedRG_update(&ledrg);
     gpio_write(PIN_LED_RED, (ch & 0x01));
     gpio_write(PIN_LED_GREEN, (ch & 0x02));
-
-    TIMER0_OCA_SET(255 - LEF_LedA_update(&leda));
-
+    
+    TIMER0_OCA(255 - LEF_LedA_update(&leda));
+    
     LEF_Button_update(&button1, !gpio_read(PIN_BUTTON));
-
+    
     gpio_write(PIN_BUZZER, !LEF_Buzzer_update());
-
+    
     gpio_toggle(PIN_SYSTICK);
-
+    
+    // LEF_Rotary_update(&rotary, !gpio_read(PIN_ROT_CLK), !gpio_read(PIN_ROT_DATA));
     ADC_START();
 }
 
@@ -246,17 +247,21 @@ ISR(ADC_vect) {
     LEF_Pot_update(&pot, val);
 }
 
+ISR(TIMER2_COMPA_vect) {
+    LEF_Rotary_update(&rotary, gpio_read(PIN_ROT_CLK), gpio_read(PIN_ROT_DATA));
+}
+
 void hw_init(void) {
     stdout = &mystdout;
     uart_init(UART_BAUD_SELECT(UART_BAUD_RATE, F_CPU));
 
     ARDUINO_LED_INIT();
 
-    // Timer 1 (16 bit)
+    // Timer 1 OCA at 10 ms intervall (systick)
     TIMER1_CLK_PRES_256();  // set prescaler to 1/1024
-    TIMER1_OCA_SET(625);
-    TIMER1_MODE_CTC();
-    TIMER1_OCA_IE();  // enable output compare A interrupt
+    TIMER1_OCA(625);
+    TIMER1_WGM_CTC();
+    TIMER1_OCA_INT(true);  // enable output compare A interrupt
 
     // set_sleep_mode(SLEEP_MODE_IDLE);
     // sleep_enable();
@@ -281,10 +286,10 @@ void hw_init(void) {
     gpio_init(PIN_ROT_DATA, 0, true);
 
     // Pin Change Mask Register 1
-    PCMSK1 |= (1 << PCINT8);
+    // PCMSK1 |= (1 << PCINT8);
 
-    // Enable Pin change interrupt
-    PCICR |= (1 << PCIE1);
+    // // Enable Pin change interrupt
+    // PCICR |= (1 << PCIE1);
 
     ADC_ENABLE();
     ADC_REF_AVCC();
@@ -293,10 +298,18 @@ void hw_init(void) {
     ADC_IE();
 
     TIMER0_CLK_PRES_1();
-    TIMER0_OCA_SET(250);
+    TIMER0_OCA(250);
     //	TIMER0_MODE_PWM();
-    TIMER0_MODE_FAST_PWM();
-    TIMER0_OM_CLEAR();
+    TIMER0_WGM_FAST_PWM();
+    TIMER0_OCA_COM_CLEAR();
+    // TIMER0_OCA_COM_TOGGLE();
+
+    // Timer 2 OCA at 1ms intervall
+    TIMER2_CLK_PRES_64();
+    TIMER2_OCA(249);
+    TIMER2_WGM_CTC();
+    TIMER2_OCA_INT(true);
+
     sei();
 }
 
@@ -379,7 +392,7 @@ int main() {
             case EVENT_Pot:
                 val = LEF_Pot_state(&pot);
                 printf("Pot changed %d\n", val);
-                TIMER0_OCA_SET(val / 4);
+                TIMER0_OCA(val / 4);
                 break;
 
             case LEF_EVENT_TEST:
