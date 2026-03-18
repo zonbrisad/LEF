@@ -50,11 +50,11 @@
 #define _GET(type, port, bit) (BitCheck((type##port), bit))
 
 // AVR Reset causes ---------------------------------------------------------
-inline bool IS_POWER_ON_RESET(void)       { return MCUSR & (1<<PORF); }
-inline bool IS_BROWN_OUT_RESET(void)      { return MCUSR & (1<<BORF); }
-inline bool IS_WATCH_DOG_RESET(void)      { return MCUSR & (1<<WDRF); }
+inline bool IS_POWER_ON_RESET(void)       { return MCUSR & (1<<PORF);  }
+inline bool IS_BROWN_OUT_RESET(void)      { return MCUSR & (1<<BORF);  }
+inline bool IS_WATCH_DOG_RESET(void)      { return MCUSR & (1<<WDRF);  }
 inline bool IS_EXTERNAL_RESET(void)       { return MCUSR & (1<<EXTRF); }
-inline void CLEAR_RESETS(void)            { MCUSR = 0; }
+inline void CLEAR_RESETS(void)            { MCUSR = 0;                 }
 
 // Reset MCU with watchdog --------------------------------------------------
 
@@ -69,9 +69,7 @@ inline void ADC_START(void)               { ADCSRA |= (1<<ADSC); }   // Start si
 inline void ADC_IE(void)                  { ADCSRA |= (1<<ADIE); }   // Enable ADC interrupt
 inline void ADC_ID(void)                  { ADCSRA &= ~(1<<ADIE); }  // Disable ADC interrupt
 
-#if defined(__AVR_ATmega1280__) || defined(__AVR_ATmega1281__) || \
-defined(__AVR_ATmega2560__) || defined(__AVR_ATmega2561__)
-
+#if defined(__AVR_ATmega1280__) || defined(__AVR_ATmega1281__) || defined(__AVR_ATmega2560__) || defined(__AVR_ATmega2561__)
 inline void ADC_MUX(uint8_t channel)  { 
     if (channel > 7) BitSet(ADCSRB, MUX5); else BitClear(ADCSRB, MUX5);
     ADMUX = (ADMUX & 0b11100000) | (channel & 0b00000111);
@@ -157,9 +155,13 @@ inline void TIMER0_COM_TOGGLE(void)        { TCCR0A = (TCCR0A & 0b00111111) | 0b
 inline void TIMER0_COM_CLEAR(void)         { TCCR0A = (TCCR0A & 0b00111111) | 0b10000000; } // Clear OC0A on compare match
 inline void TIMER0_COM_SET(void)           { TCCR0A = (TCCR0A & 0b00111111) | 0b11000000; } // Set OC0A on compare match
 
-#ifdef TIMSK1
-// AVR Timer 1 (16 bit) -----------------------------------------------------
+#if defined(__AVR_ATtiny85__) || defined(__AVR_ATtiny45__) || defined(__AVR_ATtiny25__)
+#define TIMER0_PIN_OC0A B,0
+#define TIMER0_PIN_OC0B B,1
+#endif
 
+// AVR Timer 1 (16 bit) -----------------------------------------------------
+#ifdef TIMSK1
 // Clock source
 inline void TIMER1_CLK_NONE(void)         { TCCR1B &= 0b11111000; }                        // Disable timer
 inline void TIMER1_CLK_PRES_1(void)       { TCCR1B = (TCCR1B & 0b11111000) | 0b00000001; } // Select prescaler 1/1            
@@ -247,11 +249,11 @@ inline void TIMER2_RELOAD(uint8_t tcnt)   { TCNT2 = tcnt; }           // Reload 
 
 
 
-inline void ARDUINO_LED_INIT(void)   { gpio_init(ARDUINO_LED_PIN, 1, 0); }
-inline void ARDUINO_LED_SET(bool on) { gpio_write(ARDUINO_LED_PIN, on); }
-inline void ARDUINO_LED_ON(void)     { gpio_write(ARDUINO_LED_PIN, 1); }
-inline void ARDUINO_LED_OFF(void)    { gpio_write(ARDUINO_LED_PIN, 0); }
-inline void ARDUINO_LED_TOGGLE(void) { gpio_toggle(ARDUINO_LED_PIN); }
+inline void ARDUINO_LED_INIT(void)   { gpio_init(ARDUINO_LED_PIN, 1, 0);  }
+inline void ARDUINO_LED_SET(bool on) { gpio_write(ARDUINO_LED_PIN, on);   }
+inline void ARDUINO_LED_ON(void)     { gpio_write(ARDUINO_LED_PIN, 1);    }
+inline void ARDUINO_LED_OFF(void)    { gpio_write(ARDUINO_LED_PIN, 0);    }
+inline void ARDUINO_LED_TOGGLE(void) { gpio_toggle(ARDUINO_LED_PIN);      }
 inline bool ARDUINO_LED_IS_ON(void)  { return gpio_read(ARDUINO_LED_PIN); }
 
 
