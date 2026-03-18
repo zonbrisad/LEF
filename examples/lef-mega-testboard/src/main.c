@@ -414,12 +414,6 @@ ISR(PCINT1_vect) {
 ISR(TIMER1_COMPA_vect) {
     char ch;
 
-    TIMER1_RELOAD(0);
-
-    // ARDUINO_LED_TOGGLE();
-    //	event.id = LEF_SYSTICK_EVENT;
-    //	LEF_QueueWait(&StdQueue, &event);
-
     LEF_Timer_update(&timer1);
     LEF_Timer_update(&timer2);
     LEF_Timer_update(&timer_a);
@@ -494,6 +488,7 @@ void hw_init(void) {
     TIMER1_OCA_SET(624);
     // TIMER1_CLK_PRES_64(); // alternative for 10ms that gives good accuracy
     // TIMER1_OCA_SET(2499);
+    TIMER1_MODE_CTC();
     TIMER1_OCA_IE();  // enable output compare A interrupt
 
     //   TIMER0_CLK_PRES_1();
@@ -615,8 +610,6 @@ int main(void) {
                 printf_P(PSTR("Testevent\n"));
                 break;
         }
-
-        // sleep_cpu();
     }
 
     return 0;
