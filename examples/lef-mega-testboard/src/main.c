@@ -428,7 +428,7 @@ ISR(TIMER1_COMPA_vect) {
     gpio_write(LED_RED_PIN, (ch & 0x01));
     gpio_write(LED_GREEN_PIN, (ch & 0x02));
 
-    TIMER0_OCA_SET(255 - LEF_LedA_update(&leda));
+    TIMER0_OCA(255 - LEF_LedA_update(&leda));
 
     LEF_Button_update(&button1, !gpio_read(BUTTON1_PIN));
     LEF_Button_update(&button2, !gpio_read(BUTTON2_PIN));
@@ -460,7 +460,6 @@ void hw_init(void) {
     gpio_init(LED_RED_PIN, 1, 0);
     gpio_init(LED_GREEN_PIN, 1, 0);
 
-    // printf("Button1: %d\n", gpio_read(BUTTON1_PIN));
     gpio_init(BUTTON1_PIN, false , true);
     gpio_init(BUTTON2_PIN, false , true);
     gpio_init(BUTTON3_PIN, false , true);
@@ -484,15 +483,12 @@ void hw_init(void) {
 
     // Timer 1 (16 bit) 10ms intervall on OCA1 interrupt 
     // (used for LEF system timer)
-    // 
-    TIMER1_CLK_PRES_256();  // set prescaler to 1/256
-    TIMER1_OCA_SET(624);
-    // TIMER1_CLK_PRES_64(); // alternative for 10ms that gives good accuracy
-    // TIMER1_OCA_SET(2499);
+    TIMER1_CLK_PRES_64(); // alternative for 10ms that gives good accuracy
+    TIMER1_OCA(2499);
     TIMER1_MODE_CTC();        // Clear timer on compare (on OC1A)
     TIMER1_COM_OC1A_TOGGLE(); // toggle OC1A pin when compare
     gpio_init(PIN_OC1A, true, false);
-    TIMER1_OCA_IE();  // enable output compare A interrupt
+    TIMER1_OCA_INT(true);  // enable output compare A interrupt
 
     //   TIMER0_CLK_PRES_1();
     //   TIMER0_OCA_SET(250);
@@ -596,7 +592,7 @@ int main(void) {
             case EVENT_Pot:
                 val = LEF_Pot_state(&pot);
                 //printf("Pot changed %d\n", val);
-                TIMER0_OCA_SET(val / 4);
+                TIMER0_OCA(val / 4);
                 char buf[41];
                 LEF_Led_set(&led1, (val > 100));
                 LEF_Led_set(&led2, (val > 300));
