@@ -141,9 +141,9 @@ inline void TIMER0_OCA_ID(void)           { TIMSK &= ~(1<<OCIE0A); }      // Dis
 inline void TIMER0_OCB_IE(void)           { TIMSK |= (1<<OCIE0B); }       // Enable output compare B interrupt
 inline void TIMER0_OCB_ID(void)           { TIMSK &= ~(1<<OCIE0B); }      // Disable output compare B interrupt
 
-inline void TIMER0_OCA_SET(uint8_t x)     { OCR0A = x; }                  // Set output compare A register
-inline void TIMER0_OCB_SET(uint8_t x)     { OCR0B = x; }                  // Set output compare B register
-inline void TIMER0_RELOAD(uint8_t x)      { TCNT0 = x; }                  // Reload timer register
+inline void TIMER0_OCA_SET(uint8_t ocr)   { OCR0A = ocr; }                  // Set output compare A register
+inline void TIMER0_OCB_SET(uint8_t ocr)   { OCR0B = ocr; }                  // Set output compare B register
+inline void TIMER0_RELOAD(uint8_t tcnt)   { TCNT0 = tcnt; }                  // Reload timer register
 
 // Waveform generation mode
 inline void TIMER0_MODE_NORMAL(void)      { TCCR0A = (TCCR0A & 0b11111100) | 0b00000000; }
@@ -151,11 +151,11 @@ inline void TIMER0_MODE_PWM(void)         { TCCR0A = (TCCR0A & 0b11111100) | 0b0
 inline void TIMER0_MODE_CTC(void)         { TCCR0A = (TCCR0A & 0b11111100) | 0b00000010; } // CTC
 inline void TIMER0_MODE_FAST_PWM(void)    { TCCR0A = (TCCR0A & 0b11111100) | 0b00000011; } // Fast PWM
 
-// Output modes
-inline void TIMER0_OM_NORMAL(void)        { TCCR0A &= 0b00111111; }                        // OC0A disconnected
-inline void TIMER0_OM_TOGGLE(void)        { TCCR0A = (TCCR0A & 0b00111111) | 0b01000000; } // Toggle OC0A on compare match
-inline void TIMER0_OM_CLEAR(void)         { TCCR0A = (TCCR0A & 0b00111111) | 0b10000000; } // Clear OC0A on compare match
-inline void TIMER0_OM_SET(void)           { TCCR0A = (TCCR0A & 0b00111111) | 0b11000000; } // Set OC0A on compare match
+// Compare Output Mode
+inline void TIMER0_COM_NORMAL(void)        { TCCR0A &= 0b00111111; }                        // OC0A disconnected
+inline void TIMER0_COM_TOGGLE(void)        { TCCR0A = (TCCR0A & 0b00111111) | 0b01000000; } // Toggle OC0A on compare match
+inline void TIMER0_COM_CLEAR(void)         { TCCR0A = (TCCR0A & 0b00111111) | 0b10000000; } // Clear OC0A on compare match
+inline void TIMER0_COM_SET(void)           { TCCR0A = (TCCR0A & 0b00111111) | 0b11000000; } // Set OC0A on compare match
 
 #ifdef TIMSK1
 // AVR Timer 1 (16 bit) -----------------------------------------------------
@@ -178,9 +178,9 @@ inline void TIMER1_OCA_ID(void)           { TIMSK1 &= ~(1<<OCIE1A); }      // Di
 inline void TIMER1_OCB_IE(void)           { TIMSK1 |= (1<<OCIE1B); }       // Enable output compare B interrupt
 inline void TIMER1_OCB_ID(void)           { TIMSK1 &= ~(1<<OCIE1B); }      // Disable output compare B interrupt
                                                              
-inline void TIMER1_OCA_SET(uint16_t x)    { OCR1AH = (uint8_t) ((uint16_t)x>>8); OCR1AL = (uint8_t) ((uint16_t)x & 0xff); } // Set output compare A register
-inline void TIMER1_OCB_SET(uint16_t x)    { OCR1BH = (uint8_t) ((uint16_t)x>>8); OCR1BL = (uint8_t) ((uint16_t)x & 0xff); } // Set output compare B register                                                           
-inline void TIMER1_RELOAD(uint16_t x)     { TCNT1H = (uint8_t) ((uint16_t)x>>8); TCNT1L = (uint8_t)((uint16_t)x & 0xff); } // Reload timer register
+inline void TIMER1_OCA_SET(uint16_t ocr)  { OCR1AH = (uint8_t) ((uint16_t)ocr>>8); OCR1AL = (uint8_t) ((uint16_t)ocr & 0xff); } // Set output compare A register
+inline void TIMER1_OCB_SET(uint16_t ocr)  { OCR1BH = (uint8_t) ((uint16_t)ocr>>8); OCR1BL = (uint8_t) ((uint16_t)ocr & 0xff); } // Set output compare B register                                                           
+inline void TIMER1_RELOAD(uint16_t tcnt)  { TCNT1H = (uint8_t) ((uint16_t)tcnt>>8); TCNT1L = (uint8_t)((uint16_t)tcnt & 0xff); } // Reload timer register
 
 // inline void TIMER1_MODE_NORMAL(void)       { TCCR1A = (TCCR1A & 0b11111100) | 0b00000000; TCCR1B = (TCCR1B & 0b11100111) | (WGM12 }
 inline void TIMER1_MODE_NORMAL(void)      { BitClear(TCCR1A, WGM10); 
@@ -196,8 +196,17 @@ inline void TIMER1_MODE_CTC(void)         { BitClear(TCCR1A, WGM10);
     
 }
 
+// Compare Output Mode (non-PWM) (what happens to pin when compare match)
+inline void TIMER1_COM_OC1A_NORMAL(void)  { TCCR1A = (TCCR1A & 0b00111111) | 0b00000000;}
+inline void TIMER1_COM_OC1A_TOGGLE(void)  { TCCR1A = (TCCR1A & 0b00111111) | 0b01000000;}
+inline void TIMER1_COM_OC1A_CLEAR(void)   { TCCR1A = (TCCR1A & 0b00111111) | 0b10000000;}
+inline void TIMER1_COM_OC1A_SET(void)     { TCCR1A = (TCCR1A & 0b00111111) | 0b11000000;}
 
-                                                              
+#define PIN_OC1A B,5
+#define PIN_OC1B B,6
+#define PIN_OC1C B,7
+
+
 // AVR Timer 2 (8 bit) ------------------------------------------------------
 
 // Clock source
@@ -218,9 +227,9 @@ inline void TIMER2_OCA_ID(void)           { TIMSK2 &= ~(1<<OCIE0A); } // Disable
 inline void TIMER2_OCB_IE(void)           { TIMSK2 |= (1<<OCIE0B); }  // Enable output compare B interrupt
 inline void TIMER2_OCB_ID(void)           { TIMSK2 &= ~(1<<OCIE0B); } // Disable output compare B interrupt
 
-inline void TIMER2_OCA_SET(uint8_t x)     { OCR2A = x; }              // Set output compare A register
-inline void TIMER2_OCB_SET(uint8_t x)     { OCR2B = x; }              // Set output compare B register
-inline void TIMER2_RELOAD(uint8_t x)      { TCNT2 = x; }              // Reload timer register
+inline void TIMER2_OCA_SET(uint8_t oca)   { OCR2A = oca; }            // Set output compare A register
+inline void TIMER2_OCB_SET(uint8_t oca)   { OCR2B = oca; }            // Set output compare B register
+inline void TIMER2_RELOAD(uint8_t tcnt)   { TCNT2 = tcnt; }           // Reload timer register
 #endif
 // Arduino specific ---------------------------------------------------------
 

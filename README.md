@@ -78,6 +78,9 @@ Components for:
 - Use C23 when available
 - Helper functions for argument parsing in CLI
 - Improved filtering out ANSI terminal sequences
+- PWM component
+- Error handling via messages
+- Timed queue, where an queueelement is sent after a certain time
 
 ## Links
 

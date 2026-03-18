@@ -31,6 +31,8 @@
  * LED Red = PK3 (ADC11)
  * LED Green = PK2 (ADC10)
  *
+ * OC1A (sys timer tick) = PB5
+ *
  * Rotary Clk  = NC
  * Rotary Data = NC
  *
@@ -43,7 +45,6 @@
  * - D6 = PF2 (ADC2)
  * - D7 = PF1 (ADC1)
  */
-
 
 // Include ------------------------------------------------------------------
 
@@ -488,7 +489,9 @@ void hw_init(void) {
     TIMER1_OCA_SET(624);
     // TIMER1_CLK_PRES_64(); // alternative for 10ms that gives good accuracy
     // TIMER1_OCA_SET(2499);
-    TIMER1_MODE_CTC();
+    TIMER1_MODE_CTC();        // Clear timer on compare (on OC1A)
+    TIMER1_COM_OC1A_TOGGLE(); // toggle OC1A pin when compare
+    gpio_init(PIN_OC1A, true, false);
     TIMER1_OCA_IE();  // enable output compare A interrupt
 
     //   TIMER0_CLK_PRES_1();
