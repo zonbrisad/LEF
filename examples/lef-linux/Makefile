@@ -1,12 +1,12 @@
 # Hey Emacs, this is a -*- makefile -*-
 #----------------------------------------------------------------------------
 #
-# Brief:   A simple LEF test
+# Brief:   Test of runing LEF in linux
 # 
-# Name:    simple
+# Name:    lef-linux
 # Author:  Peter Malmberg <peter.malmberg@gmail.com>
 # Date:    
-# Org:     PMG
+# Org:     ACME
 # 
 # License: MIT
 # 
@@ -15,37 +15,25 @@
 #----------------------------------------------------------------------------
 
 # Target platform (linux, win32, avr, arm, osx)
-TARGET_PLATFORM = avr
+TARGET_PLATFORM = linux
 
 # Project License (GPL, GPLv2, MIT, BSD, Apache, etc.) 
 LICENSE = MIT
 
 # Target file name (without extension).
-TARGET = simple
+TARGET = lef-linux
 
 # List C, C++ and assembler source files here. (C/C++ dependencies are automatically generated.)
 SRC = src/main.c \
-      src/uart.c \
-      src/LEF/LEF.c \
-      src/LEF/LEF_Queue.c \
-      src/LEF/LEF_Led.c \
-      src/LEF/LEF_LedA.c \
-      src/LEF/LEF_LedRG.c \
-      src/LEF/LEF_Timer.c \
-      src/LEF/LEF_Button.c \
-      src/LEF/LEF_Buzzer.c \
-      src/LEF/LEF_Cli.c \
-      src/LEF/LEF_Cli_History.c \
-      src/LEF/LEF_Rotary.c \
-      src/LEF/LEF_Pot.c
-
+		src/LEF_linux.c 
+#		src/LEF/LEF_Timer.c
 
 # List C, C++ and assembler library/3rd party source files here. (C/C++ dependencies are automatically generated.)
 LSRC =	
 
 # Include directories
-INCLUDE = src 
-INCLUDE += src/LEF
+INCLUDE = src\
+          src/LEF
 
 # Libraries to link
 LIB   = -lm 
@@ -71,12 +59,12 @@ OUTDIR = output
 OPT = 2
 
 # Compiler flag to set the C and C++ Standard level.
-# [ gnu99 gnu11 c++98 c++03 c++11 c++14 ] 
-CSTANDARD   = gnu99
+# [ gnu99 gnu11 c++98 c++03 c++11 c++14 c++17 c++23] 
+CSTANDARD   = gnu11
 CPPSTANDARD = c++11
 
 # C Macro definitions
-CDEFS = ARDUINO
+CDEFS = 
 
 # C++ Macro definitions
 CPPDEFS = 
@@ -88,11 +76,6 @@ CPPDEFS =
 # 3 = maximal debug information
 DEBUG=0
 
-# MCU name
-MCU = atmega328p
-
-# MCU frequency. (1000000  1843200  2000000 3686400 4000000 7372800 8000000 11059200 14745600)
-F_CPU = 16000000
 
 #
 # Compiler and Linker options
@@ -127,7 +110,7 @@ CFLAGS += -Wmissing-prototypes   # if a function is missing its prototype
 CFLAGS += -Wredundant-decls      # Warn if something is declared more than ones
 CFLAGS += -Wunreachable-code     # if code is not used
 CFLAGS += -Wshadow               # if local variable has same name as global
-CFLAGS += -Wformat=1             # check printf and scanf for problems
+CFLAGS += -Wformat=2             # check printf and scanf for problems
 #CFLAGS += -Wno-format-nonliteral # 
 CFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void pointer
 #CFLAGS += -Wsign-compare
@@ -191,75 +174,36 @@ ASFLAGS  += $(MPFLAGS)
 # Platform specific options
 #============================================================================
 
-# Atmel AVR options ---------------------------------------------------------
-CFLAGS   += -mmcu=$(MCU)
-CPPFLAGS += -mmcu=$(MCU)
-ASFLAGS  += -mmcu=$(MCU)
+ # Linux options -------------------------------------------------------------
 
-# Output format. (can be srec, ihex, binary) --------------------------------
-FORMAT = ihex
-
-# Debugging format.
-#     Native formats for AVR-GCC's -g are dwarf-2 [default] or stabs.
-#     AVR Studio 4.10 requires dwarf-2.
-#     AVR [Extended] COFF format requires stabs, plus an avr-objcopy run.
-DEBUG = dwarf-2
-
-CDEFS   += F_CPU=$(F_CPU)UL
-ADEFS   += F_CPU=$(F_CPU)UL
-CPPDEFS += F_CPU=$(F_CPU)UL
+# Target filename
+TRGFILE=$(OUTDIR)/$(TARGET)
 
 # Toolchain base directory
 TCHAIN_BASE=/usr/bin
-# Toolchain prefix 
-TCHAIN_PREFIX=avr-
 
-TRGFILE=$(OUTDIR)/$(TARGET).elf
+# Toolchain prefix 
+TCHAIN_PREFIX=
+
+# Handle pkg-config libraries -----------------------------------------------
+CFLAGS   += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
+CPPFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
+LDFLAGS  += $(foreach X, $(PKGLIBS), $(shell pkg-config --libs $(X))   )
 
 # Size flags ----------------------------------------------------------------
-SIZEFLAGS = --mcu=$(MCU) --format=avr  # format = {sysv|berkeley}
+SIZEFLAGS = --format=berkley  # format = {sysv|berkeley}
 
 # objdump flags -------------------------------------------------------------
 ODFLAGS  = -h  # Display the contents of the section headers  
 ODFLAGS += -S  # Intermix source code with disassembly
-ODFLAGS += -z  #
-#ODFLAGS += -r  # Display the relocation entries in the file
+ODFLAGS += -C  #
+ODFLAGS += -r  # Display the relocation entries in the file
+
+# Output format. (can be srec, ihex, binary) --------------------------------
+FORMAT = ihex
 
 # object copy flags ---------------------------------------------------------
-OCFLAGS = -O $(FORMAT) -R .eeprom -R .fuse -R .lock -R .signature
-
-# Library Options -----------------------------------------------------------
-# Minimalistic printf version
-PRINTF_LIB_MIN = -Wl,-u,vfprintf -lprintf_min
-
-# Floating point printf version (requires MATH_LIB = -lm below)
-PRINTF_LIB_FLOAT = -Wl,-u,vfprintf -lprintf_flt
-
-# If this is left blank, then it will use the Standard printf version.
-PRINTF_LIB = 
-#PRINTF_LIB = $(PRINTF_LIB_MIN)
-#PRINTF_LIB = $(PRINTF_LIB_FLOAT)
-
-# Minimalistic scanf version
-SCANF_LIB_MIN = -Wl,-u,vfscanf -lscanf_min
-
-# Floating point + %[ scanf version (requires MATH_LIB = -lm below)
-SCANF_LIB_FLOAT = -Wl,-u,vfscanf -lscanf_flt
-
-# If this is left blank, then it will use the Standard scanf version.
-SCANF_LIB = 
-#SCANF_LIB = $(SCANF_LIB_MIN)
-#SCANF_LIB = $(SCANF_LIB_FLOAT)
-
-MATH_LIB = -lm
-
-# List any extra directories to look for libraries here.
-#     Each directory must be seperated by a space.
-#     Use forward slashes for directory separators.
-#     For a directory that has spaces, enclose it in quotes.
-EXTRALIBDIRS = 
-
-LDFLAGS += $(PRINTF_LIB) $(SCANF_LIB) $(MATH_LIB)
+OCFLAGS = -O $(FORMAT) 
 
 #
 # Tool settings
@@ -457,13 +401,11 @@ all: begin build finished end ##D Build project (default)
 nc: C_FILTER:= 
 nc: all   ##D Build with no color filter on compiler output
 
-build: elf hex lss sym size
+build: elf lss sym size
 
 elf: $(TRGFILE)
 lss: $(OUTDIR)/$(TARGET).lss
 sym: $(OUTDIR)/$(TARGET).sym
-hex: $(OUTDIR)/$(TARGET).hex
-eep: $(OUTDIR)/$(TARGET).eep
 
 begin:
 	@echo -e $(MSG_BEGIN)
@@ -550,26 +492,6 @@ strip: $(TRGFILE) ##D Strip target binary from symbols
 	@echo -e $(MSG_STRIP)
 	@$(STRIP) $(TRGFILE)
 
-#
-# AVR specific targets
-#============================================================================
-
-coff: $(TRGFILE)
-	@echo
-	@echo -e $(MSG_COFF)"\n             $(E_FG_BR_CYAN)" $(TARGET).cof "$(E_RESET)"
-	$(COFFCONVERT) -O coff-avr $< $(TARGET).cof
-
-extcoff: $(TRGFILE)
-	@echo
-	@echo -e $(MSG_EXTENDED_COFF)"\n             $(E_FG_BR_CYAN)" $(TARGET).cof "$(E_RESET)"
-	@$(COFFCONVERT) -O coff-ext-avr $< $(TARGET).cof
-
-%.eep: $(TRGFILE)
-	@echo
-	@echo -en $(MSG_EEPROM)"\n               "
-	@echo -e $@ $(F_SOURCE)
-	@$(OBJCOPY) -j .eeprom --set-section-flags=.eeprom="alloc,load" \
-	--change-section-lma .eeprom=0 --no-change-warnings -O $(FORMAT) $< $@ || exit 0
 
 
 # Include the dependency files.
@@ -578,49 +500,45 @@ extcoff: $(TRGFILE)
 
 ##- Run/debug
 
-#
-# AVR simulator
-#============================================================================
-.PHONY: sim term
+run:    ##D Run application
+	@$(OUTDIR)/$(TARGET)
 
-# QEMU machine type		
-# To list supported machines type: qemu-system-avr -machine help
-# Machines:  
-#      arduino-duemilanove (ATmega168) 
-#      arduino-uno         (ATmega328)
-#      arduino-mega        (ATmega1280)
-#      mega2560
-#
-QMACHINE = arduino-uno
 
-# tcp port for QEMU virtual serial port
-QPORT = 5678
+GDBOPTS = --tui                  # activate text user interface (tui)
+GDBOPTS += -ex 'break main'      # Set a breakpoint at main function
+GDBOPTS += -ex 'set print pretty on' # easy to read code printouts 
+GDBOPTS += -ex 'set print array on'  # easy to read array printout 
 
-sim: ##D Run program in qemu AVR simulator
-	@echo 
-	@echo Starting QEMU avr simulator. Connect to tcp port $(QPORT). 
-	@echo
-	@qemu-system-avr -machine $(QMACHINE) -bios $(TRGFILE) -serial tcp::$(QPORT),server=on,wait=off -nographic
-	
-term: ##D Connect to QEMU virtual serial port via telnet terminal 
-	@$(MPUTILS) sermon $(QPORT)
+debug: ##D Debug program
+
+	@$(GDB) $(GDBOPTS) $(TRGFILE) 
 
 ##- Install
 
-#
-# Avrdude
-#============================================================================
-AVRDUDE_PORT = /dev/ttyUSB1
+# Install options -----------------------------------------------------------
+.PHONY: install 
 
-flash: ##D Write program to MCU flash with avrdude
-# 	@$(MPUTILS) arduino-flash $(OUTDIR)/$(TARGET).hex $(MCU) $(AVRDUDE_PORT)
-	@$(MPUTILS) avr_flash_arduino $(OUTDIR)/$(TARGET).hex $(MCU) $(AVRDUDE_PORT) 
+# Install directory
+INSTALL_DIR      = ~/bin
 
-flash_wait: ##D Start non blocking flash write loop 
-	@$(MPUTILS) arduino-flash-wait $(OUTDIR)/$(TARGET).hex $(MCU) $(AVRDUDE_PORT)
+# Owner of binary
+INSTALL_OWNER    = $${USER}
 
-mpterm: ##D Start mpterm
-	@$(MPUTILS) start_mpterm  $(OUTDIR)/$(TARGET).hex $(MCU) $(AVRDUDE_PORT)
+# Group owner of binary
+# #INSTALL_GROUP    = $${USER}
+INSTALL_GROUP    = users
+
+# Install options
+INSTALL_OPTIONS =  --owner ${INSTALL_OWNER}
+INSTALL_OPTIONS += --group ${INSTALL_GROUP}
+INSTALL_OPTIONS += -D
+INSTALL_OPTIONS += --preserve-timestamps
+#INSTALL_OPTIONS += --verbose
+
+install: $(TRGFILE) ##D Install program
+	@echo -e $(MSG_INSTALLING) "$(E_BR_GREEN)$(TARGET) $(E_END)"
+	@${INSTALL} ${INSTALL_OPTIONS} $(TRGFILE) ${INSTALL_DIR}
+
 
 ##- Utils
 
@@ -681,17 +599,6 @@ backup: ##D Make an incremental backup
 
 # Project options -----------------------------------------------------------
 .PHONY: newc newcpp newclass 
-
-##- Create
-
-newc:  ##D Create a new C module
-	@${MPTEMPLATE} newc --outdir src 
-
-#newcpp:  ## Create a new C++ module
-#	@${CTEMPLATE} newcpp --outdir src --author "$(AUTHOR)" --license "$(LICENSE)"
-
-#newclass:  ## Create a new C++ class
-#	@${MPTEMPLATE} newclass --outdir src --author "$(AUTHOR)" --license "$(LICENSE)"	
 		
 #
 # Help information
@@ -845,10 +752,6 @@ AST +=--preserve-date
 
 PSRCH = $(PSRC:%.c=%.h) 
 
-astyle: ##D Format source to conform to a standard
-	@$(ASTYLE) $(AST) src/*.c src/*.cpp src/*.h
-
-	
 # Listing of phony targets.
 .PHONY : all clean gccversion build begin finished end elf lss sym archive edit help backup list-src list-flags run
 

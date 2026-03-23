@@ -20,6 +20,24 @@
             ]
         },
         {
+            "name": "ATMega128",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/usr/lib/avr/include"
+            ],
+            "defines": [
+                "__AVR_ATmega128__",    // important for <avr/io.h> to pick correct device
+            ],
+            "compilerPath": "/usr/bin/avr-gcc",
+            "cStandard": "c11",
+            "cppStandard": "gnu++17",
+            "intelliSenseMode": "linux-gcc-x64",
+            "compilerArgs": [
+                "-mmcu=atmega128",                  // critical: tells compiler & IntelliSense the target MCU
+                "-DF_CPU=16000000UL"                 // very common for Arduino Uno
+            ]
+        },
+        {
             "name": "ATMega328P",
             "includePath": [
                 "${workspaceFolder}/**",
@@ -56,7 +74,43 @@
                 "-mmcu=attiny85",                  // critical: tells compiler & IntelliSense the target MCU
                 "-DF_CPU=16000000UL"                 // very common for Arduino Uno
             ]
-        }
+        },
+        {
+            "name": "Linux GCC",
+            "includePath": [
+                "${workspaceFolder}/**",           // your project files (recursive)
+                "/usr/include",
+                "/usr/local/include",
+                "/usr/include/glib-2.0",
+                "/usr/lib/x86_64-linux-gnu/glib-2.0/include",
+                "/usr/include/gtk-4.0"
+            ],
+            "defines": [
+                "_POSIX_C_SOURCE 199309L"
+                // "_DEBUG",              // uncomment when debugging
+                // "USE_FEATURE_X=1",
+                // "NDEBUG"               // for release builds
+            ],
+            "compilerPath": "/usr/bin/gcc", 
+            "cStandard": "c23",                    // or "c11", "gnu17", "c23"
+            "cppStandard": "c++20",                // very common in 2025–2026
+            "intelliSenseMode": "linux-gcc-x64",
+            "browse": {
+                "path": [
+                    "${workspaceFolder}/**",
+                    "/usr/include",
+                    "/usr/local/include"
+                ],
+                "limitSymbolsToIncludedHeaders": true
+            },
+
+            "compilerArgs": [
+                // Optional: extra flags passed to the compiler for IntelliSense
+                // "-Wall",
+                // "-Wextra",
+                // "-pedantic"
+            ]
+        }   
     ],
     "version": 4
 }
