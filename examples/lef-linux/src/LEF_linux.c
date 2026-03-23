@@ -111,12 +111,9 @@ void event_init(void) {
 }
 
 void event_close(void) {
-   
     event_array_free(&event_array);
     close(epfd);
 }
-
-
 
 
 ev_timer_t* event_add_timer(int id, char* name, size_t intervall) {

@@ -70,7 +70,6 @@ void LEF_QueueSend(LEF_EventQueue *queue,  LEF_Event *event) {
 //    return;
 
   LEF_ATOMIC_BLOCK() {
-  //LEF_EnterCritical();
 	  LEF_element_cpy(&queue->que[queue->head], event);
 
     queue->cnt++;
@@ -78,7 +77,6 @@ void LEF_QueueSend(LEF_EventQueue *queue,  LEF_Event *event) {
     if (queue->head>=LEF_QUEUE_LENGTH)
       queue->head = 0;
     }
-   //LEF_ExitCritical();
 }
 
 void LEF_QueueWait(LEF_EventQueue *queue, LEF_Event *event) {

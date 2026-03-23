@@ -66,11 +66,15 @@ extern "C" {
 #define LEF_SYSTICK_EVENT 255
 	
 // Macros -----------------------------------------------------------------
-	
+
+#if defined(__ARM_LINUX__) || defined(unix) || defined(__unix__) || defined(__unix)
+
 #define LEF_ATOMIC_BLOCK()
-	
+
 #define lefprintf(...)   printf( __VA_ARGS__)
 #define lefstrcpy(d, s)  strcpy(d,s)
+
+#endif
 
 // if avr GCC use printf_P to store format strings in flash instead of RAM
 #ifdef __AVR__   
