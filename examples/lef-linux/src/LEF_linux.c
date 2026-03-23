@@ -29,43 +29,28 @@
 #include <sys/epoll.h>
 #include <sys/timerfd.h>
 
-int event_array_add(event_array_t* arr, const ev_timer_t* item);
-void event_array_free(event_array_t* arr);
+// int event_array_add(event_array_t* arr, const ev_timer_t* item);
+// void event_array_free(event_array_t* arr);
 
-void timer_init(ev_timer_t* timer, size_t id, char* name, size_t intervall_s,
-                size_t intervall_us);
+// void timer_init(ev_timer_t* timer, size_t id, char* name, size_t intervall_s,
+//                 size_t intervall_us);
 
 static int epfd = 0;
 static event_array_t event_array;
 struct epoll_event* events = NULL;
 
 
-void event_init() {
-    epfd = epoll_create1(0);
-    event_array_init(&event_array);
-    if (epfd == -1) {
-        perror("epoll_create1");
-        exit(EXIT_FAILURE);
-    }
-}
-
-void event_close() {
-    for (size_t i = 0; i < event_array.count; i++) {
-        close(event_array.items[i].tfd);
-    }
-    close(epfd);
-}
-
-void event_array_init(event_array_t* array) {
+static void event_array_init(event_array_t* array) {
     array->items = NULL;
     array->count = 0;
     array->capacity = 0;
 }
 
-int event_array_add(event_array_t* arr, const ev_timer_t* item) {
+static int event_array_add(event_array_t* arr, const ev_timer_t* item) {
     if (arr->count >= arr->capacity) {
         int new_cap = arr->capacity == 0 ? 4 : arr->capacity * 2;
-        ev_timer_t* new_items = realloc(arr->items, new_cap * sizeof(ev_timer_t));
+        ev_timer_t* new_items =
+            realloc(arr->items, new_cap * sizeof(ev_timer_t));
         if (!new_items) return -1;  // allocation failed
 
         arr->items = new_items;
@@ -77,14 +62,17 @@ int event_array_add(event_array_t* arr, const ev_timer_t* item) {
     return 0;  // success
 }
 
-void event_array_free(event_array_t* arr) {
-    free(arr->items);
+static void event_array_free(event_array_t* arr) {
     arr->items = NULL;
     arr->count = 0;
     arr->capacity = 0;
+    for (size_t i = 0; i < arr->count; i++) {
+        close(arr->items[i].tfd);
+    }
+    free(arr->items);
 }
 
-void timer_init(ev_timer_t* timer, size_t id, char* name, size_t intervall_s,
+static void timer_init(ev_timer_t* timer, size_t id, char* name, size_t intervall_s,
                 size_t intervall_us) {
     timer->tfd = timerfd_create(CLOCK_MONOTONIC, 0);
     if (timer->tfd == -1) {
@@ -113,6 +101,23 @@ void timer_init(ev_timer_t* timer, size_t id, char* name, size_t intervall_s,
     }
 }
 
+void event_init(void) {
+    epfd = epoll_create1(0);
+    event_array_init(&event_array);
+    if (epfd == -1) {
+        perror("epoll_create1");
+        exit(EXIT_FAILURE);
+    }
+}
+
+void event_close(void) {
+   
+    event_array_free(&event_array);
+    close(epfd);
+}
+
+
+
 
 ev_timer_t* event_add_timer(int id, char* name, size_t intervall) {
     ev_timer_t* timer;
@@ -123,7 +128,7 @@ ev_timer_t* event_add_timer(int id, char* name, size_t intervall) {
     return timer;
 }
 
-int event_get_id(int tfd) {
+static int event_get_id(int tfd) {
     for (size_t i = 0; i < event_array.count; i++) {
         if (event_array.items[i].tfd == tfd) return event_array.items[i].id;
     }

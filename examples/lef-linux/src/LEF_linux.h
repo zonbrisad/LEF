@@ -21,17 +21,17 @@ typedef struct {
 } event_array_t;
 
 
-void event_init();
+void event_init(void);
 
 int event_wait(void);
 
-void event_close();
+void event_close(void);
 
-int event_get_id(int tfd);
+//int event_get_id(int tfd);
 
 ev_timer_t* event_add_timer(int id, char* name, size_t intervall);
 
-void event_array_init(event_array_t* array);
+// void event_array_init(event_array_t* array);
 
 
 
