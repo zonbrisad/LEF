@@ -31,7 +31,6 @@
 #define LEF_SYSTEM_AVR
 #endif
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -41,10 +40,13 @@ extern "C" {
 #include <stdlib.h>
 #include <stdbool.h>
 	
-// AVR specific includes
 #ifdef LEF_SYSTEM_AVR
 #include <util/atomic.h>
 #include <avr/pgmspace.h>
+#endif
+
+#ifdef LEF_SYSTEM_LINUX
+#include "LEF_linux.h"
 #endif
 
 #include "LEF_Button.h"
@@ -59,7 +61,6 @@ extern "C" {
 #include "LEF_Rotary.h"
 #include "LEF_Timer.h"
 #include "LEF_Types.h"
-#include "LEF_linux.h"
 
 // Controls --------------------------------------------------------------
 

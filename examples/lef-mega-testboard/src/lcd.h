@@ -55,6 +55,19 @@
 #include <avr/pgmspace.h>
 #endif
 
+typedef enum {
+    HD44780_MSG_E,
+    HD44780_MSG_RS,
+    HD44780_MSG_RW,
+    HD44780_MSG_E_Toggle,
+    HD44780_MSG_Data,
+    HD44780_MSG_delay_ms,
+    HD44780_MSG_delay_us,
+
+} HD44780_LCD;
+
+typedef void (*lcd_pins)(HD44780_LCD msg, uint16_t data);
+
 /**@{*/
 
 /*

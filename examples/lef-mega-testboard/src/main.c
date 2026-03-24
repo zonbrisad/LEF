@@ -83,15 +83,6 @@ static const uint32_t UART_BAUD_RATE = 57600;
 
 #define POT_ADC 8
 
-
-// inline void ROT_INIT(void) {
-//     // Configure rotary encoder pins as inputs with pull-ups
-//     DDRC &= ~((1 << PC0) | (1 << PC1)); // Clear bits to set as input
-//     PORTC |= (1 << PC0) | (1 << PC1);   // Enable pull-up resistors
-// }
-// inline uint8_t ROT_CLK(void)  { return PINC & (1 << PC0); }
-// inline uint8_t ROT_DATA(void) { return PINC & (1 << PC1); }
-
 typedef enum {
     EVENT_Timer1 = 0,
     EVENT_Timer2,
@@ -103,37 +94,6 @@ typedef enum {
     EVENT_Pot
 } Events;
 
-void hw_init(void);
-
-void cmd_brp(char* args);
-void cmdDBeep(char* args);
-void cmdTBeep(char* args);
-void cmdBuzon(char* args);
-void cmdBuzoff(char* args);
-void cmdBeep(char* args);
-void cmdSBeep(char* args);
-void cmdLBeep(char* args);
-void cmd_blink(char* args);
-void cmd_dblink(char* args);
-void cmd_tblink(char* args);
-void cmdLedOn(char* args);
-void cmdLedOff(char* args);
-void cmdEvOn(char* args);
-void cmdEvOff(char* args);
-void cmdHelp(char* args);
-void cmd_disk(char* args);
-void cmd_adc(char* args);
-void cmd_adc_mon(char* args);
-void cmd_reset(char* args);
-void cmd_lcd_on(char* args);
-void cmd_lcd_off(char* args);
-void cmd_lcd_cursor_on(char* args);
-void cmd_lcd_clear(char* args);
-void cmd_lcd_home(char* args);
-void cmd_lcd_test(char* args);
-void cmd_lcd_test_move(char *args);
-void cmd_lcd_move_right(char *args);
-void cmd_lcd_move_left(char *args);
 
 LEF_Timer timer1;
 LEF_Timer timer2;
@@ -155,162 +115,129 @@ bool evOn = false;
 static FILE mystdout =
     FDEV_SETUP_STREAM((void*)uart_putc, NULL, _FDEV_SETUP_WRITE);
 
-const PROGMEM LEF_CliCmd cmdTable[] = {
-    LEF_CLI_LABEL("Buzzer"),
-    {cmdBuzon, "buzon", "Buzzer on"},
-    {cmdBuzoff, "buzoff", "Buzzer off"},
-    {cmdBeep, "beep", "Make a beep"},
-    {cmdSBeep, "sbeep", "Make a short beep"},
-    {cmdLBeep, "lbeep", "Make a long beep"},
-    {cmdDBeep, "dbeep", "Make a double beep"},
-    {cmdTBeep, "tbeep", "Make a tripple beep"},
-    {cmd_disk, "disk", "Sound as dishwasher"},
-    {cmd_brp, "brp", "BRP sound"},
-    LEF_CLI_LABEL("Led"),
-    {cmdLedOn, "ledon", "Turn led on"},
-    {cmdLedOff, "ledoff", "Turn led off"},
-    {cmd_blink, "blink", "Make led blink once"},
-    {cmd_dblink, "dblink", "Make led blink twice"},
-    {cmd_tblink, "tblink", "Make led blink three times"},
-    LEF_CLI_LABEL("LCD"),
-    {cmd_lcd_on, "lcdon", "Turn LCD on"},
-    {cmd_lcd_off, "lcdoff", "Turn LCD off"},
-    {cmd_lcd_cursor_on, "lcdcuron", "Turn LCD cursor on"},
-    {cmd_lcd_clear, "lcdclr", "Clear LCD"},
-    {cmd_lcd_home, "lcdh", "Move cursor to home pos"},
-    {cmd_lcd_move_right, "lcdr", "Move text right"},
-    {cmd_lcd_move_left, "lcdl", "Move text left"},
-    {cmd_lcd_test, "lcdt1", "Run LCD test"},
-    {cmd_lcd_test_move, "lcdtm", "Run LCD move test"},
+void hw_init(void);
 
-    LEF_CLI_LABEL("Misc"),
-    {cmdEvOn, "evon", "Turn event on"},
-    {cmdEvOff, "evoff", "Turn event off"},
-    {cmd_adc, "adc", "Read adc inputs"},
-    {cmd_adc_mon, "adcmon", "Monitor adc inputs"},
-    {cmd_reset, "reset", "Reset the system"},
-    LEF_CLI_CMD(cmdHelp, "help", "Show help")};
-
-void cmd_brp(char* args) {
+static void cmd_brp(char* args) {
     printf_P(PSTR("Brp args = %s\n"), args);
     LEF_Buzzer_set(LEF_BUZZER_BRP);
 }
 
-void cmd_disk(char* args) {
+static void cmd_disk(char* args) {
     UNUSED(args);
     LEF_Buzzer_beep(100, 10, 3);
 }
 
-void cmdTBeep(char* args) {
+static void cmdTBeep(char* args) {
     UNUSED(args);
     LEF_Buzzer_set(LEF_BUZZER_TRIPPLE_BEEP);
 }
 
-void cmdDBeep(char* args) {
+static void cmdDBeep(char* args) {
     UNUSED(args);
     LEF_Buzzer_set(LEF_BUZZER_DOUBLE_BEEP);
 }
 
-void cmdBuzon(char* args) {
+static void cmd_buz_on(char* args) {
     UNUSED(args);
     LEF_Buzzer_set(LEF_BUZZER_ON);
 }
 
-void cmdBuzoff(char* args) {
+static void cmdBuzoff(char* args) {
     UNUSED(args);
     LEF_Buzzer_set(LEF_BUZZER_OFF);
 }
 
-void cmdBeep(char* args) {
+static void cmdBeep(char* args) {
     UNUSED(args);
     LEF_Buzzer_set(LEF_BUZZER_BEEP);
 }
 
-void cmdSBeep(char* args) {
+static void cmdSBeep(char* args) {
     UNUSED(args);
     LEF_Buzzer_set(LEF_BUZZER_SHORT_BEEP);
 }
 
-void cmdLBeep(char* args) {
+static void cmdLBeep(char* args) {
     UNUSED(args);
     LEF_Buzzer_set(LEF_BUZZER_LONG_BEEP);
 }
 
-void cmd_blink(char* args) {
+static void cmd_blink(char* args) {
     UNUSED(args);
     LEF_Led_set(&led1, LED_SINGLE_BLINK);
 }
 
-void cmd_dblink(char* args) {
+static void cmd_dblink(char* args) {
     UNUSED(args);
     LEF_Led_set(&led1, LED_DOUBLE_BLINK);
 }
 
-void cmd_tblink(char* args) {
+static void cmd_tblink(char* args) {
     UNUSED(args);
     LEF_Led_set(&led1, LED_TRIPPLE_BLINK);
 }
 
-void cmdLedOn(char* args) {
+static void cmdLedOn(char* args) {
     UNUSED(args);
     LEF_Led_set(&led1, LED_ON);
 }
 
-void cmdLedOff(char* args) {
+static void cmdLedOff(char* args) {
     UNUSED(args);
     LEF_Led_set(&led1, LED_OFF);
 }
 
-void cmdEvOn(char* args) {
+static void cmdEvOn(char* args) {
     UNUSED(args);
     evOn = true;
 }
 
-void cmdEvOff(char* args) {
+static void cmdEvOff(char* args) {
     UNUSED(args);
     evOn = false;
 }
 
-void cmdHelp(char* args) {
+static void cmdHelp(char* args) {
     UNUSED(args);
     LEF_Cli_print();
 }
 
-void cmd_lcd_on(char* args) {
+static void cmd_lcd_on(char* args) {
     UNUSED(args);
     lcd_on();
 }
 
-void cmd_lcd_off(char* args) {
+static void cmd_lcd_off(char* args) {
     UNUSED(args);
     lcd_off();
 }
 
-void cmd_lcd_cursor_on(char* args) {
+static void cmd_lcd_cursor_on(char* args) {
     UNUSED(args);
     lcd_on_cursor();
 }
 
-void cmd_lcd_clear(char* args) {
+static void cmd_lcd_clear(char* args) {
     UNUSED(args);
     lcd_clear();
 }
-void cmd_lcd_home(char* args) {
+
+static void cmd_lcd_home(char* args) {
     UNUSED(args);
     lcd_home();
 }
 
-void cmd_lcd_move_right(char* args) {
+static void cmd_lcd_move_right(char* args) {
     UNUSED(args);
     lcd_move_right();
 }
 
-void cmd_lcd_move_left(char* args) {
+static void cmd_lcd_move_left(char* args) {
     UNUSED(args);
     lcd_move_left();
 }
 
-void cmd_lcd_test(char* args) {
+static void cmd_lcd_test(char* args) {
     UNUSED(args);
     lcd_clear();
     lcd_puts_P("Line 1\n");
@@ -319,7 +246,7 @@ void cmd_lcd_test(char* args) {
     lcd_puts_P("Line 4\n");
 }
 
-void cmd_lcd_test_move(char* args) {
+static void cmd_lcd_test_move(char* args) {
     UNUSED(args);
     lcd_clear();
     lcd_puts_P("Some text to move");
@@ -361,9 +288,9 @@ inline void wait_event(LEF_Event *event) {
         break;
     }
     return;
-}  
+}
 
-void cmd_adc(char* args) {
+static void cmd_adc(char* args) {
     UNUSED(args);
 
     LEF_Pot_enable(&pot, false);
@@ -375,7 +302,7 @@ void cmd_adc(char* args) {
     LEF_Pot_enable(&pot, true);
 }
 
-void cmd_adc_mon(char* args) {
+static void cmd_adc_mon(char* args) {
     UNUSED(args);
     LEF_Event event;
     
@@ -401,11 +328,47 @@ void cmd_adc_mon(char* args) {
     LEF_Pot_enable(&pot, true);
 }
 
-
-void cmd_reset(char* args) {
+static void cmd_reset(char* args) {
     UNUSED(args);
     RESET();
 }
+
+const PROGMEM LEF_CliCmd cmdTable[] = {
+    LEF_CLI_LABEL("Buzzer"),
+    {cmd_buz_on, "buzon", "Buzzer on"},
+    {cmdBuzoff, "buzoff", "Buzzer off"},
+    {cmdBeep, "beep", "Make a beep"},
+    {cmdSBeep, "sbeep", "Make a short beep"},
+    {cmdLBeep, "lbeep", "Make a long beep"},
+    {cmdDBeep, "dbeep", "Make a double beep"},
+    {cmdTBeep, "tbeep", "Make a tripple beep"},
+    {cmd_disk, "disk", "Sound as dishwasher"},
+    {cmd_brp, "brp", "BRP sound"},
+    LEF_CLI_LABEL("Led"),
+    {cmdLedOn, "ledon", "Turn led on"},
+    {cmdLedOff, "ledoff", "Turn led off"},
+    {cmd_blink, "blink", "Make led blink once"},
+    {cmd_dblink, "dblink", "Make led blink twice"},
+    {cmd_tblink, "tblink", "Make led blink three times"},
+    LEF_CLI_LABEL("LCD"),
+    {cmd_lcd_on, "lcdon", "Turn LCD on"},
+    {cmd_lcd_off, "lcdoff", "Turn LCD off"},
+    {cmd_lcd_cursor_on, "lcdcuron", "Turn LCD cursor on"},
+    {cmd_lcd_clear, "lcdclr", "Clear LCD"},
+    {cmd_lcd_home, "lcdh", "Move cursor to home pos"},
+    {cmd_lcd_move_right, "lcdr", "Move text right"},
+    {cmd_lcd_move_left, "lcdl", "Move text left"},
+    {cmd_lcd_test, "lcdt1", "Run LCD test"},
+    {cmd_lcd_test_move, "lcdtm", "Run LCD move test"},
+
+    LEF_CLI_LABEL("Misc"),
+    {cmdEvOn, "evon", "Turn event on"},
+    {cmdEvOff, "evoff", "Turn event off"},
+    {cmd_adc, "adc", "Read adc inputs"},
+    {cmd_adc_mon, "adcmon", "Monitor adc inputs"},
+    {cmd_reset, "reset", "Reset the system"},
+    LEF_CLI_CMD(cmdHelp, "help", "Show help")
+};
 
 ISR(PCINT1_vect) {
     char ch = PINC;
@@ -599,6 +562,13 @@ int main(void) {
                 LEF_Led_set(&led3, (val > 500));
                 LEF_Led_set(&led4, (val > 800));
                 
+                lcd_gotoxy(0,2);
+                for (int i=0;i<20;i++){
+                    if (1023/20*i < val)
+                        lcd_putc('#');
+                    else
+                        lcd_putc(' ');
+                }
                 lcd_gotoxy(0,3);
                 sprintf_P(buf,PSTR("   Pot value %4d"), val);
                 lcd_puts(buf);

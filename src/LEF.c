@@ -98,7 +98,7 @@ void LEF_add_systimer(char* name, size_t intervall, LEF_Callback callback) {
 #else 
 
 void LEF_Wait(LEF_Event *event) {
-	return LEF_QueueWait(&StdQueue, event);
+	return LEF_QueueWait(&lef_std_queue, event);
 }
 
 #endif

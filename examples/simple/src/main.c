@@ -67,7 +67,7 @@ void hw_init(void);
 void cmd_brp(char *args);
 void cmdDBeep(char *args);
 void cmdTBeep(char *args);
-void cmdBuzon(char *args);
+void cmd_buz_on(char *args);
 void cmdBuzoff(char *args);
 void cmdBeep(char *args);
 void cmdSBeep(char *args);
@@ -97,7 +97,7 @@ static FILE mystdout = FDEV_SETUP_STREAM((void*)uart_putc, NULL, _FDEV_SETUP_WRI
  
 const PROGMEM LEF_CliCmd cmdTable[] = {
 	LEF_CLI_LABEL("Buzzer"),
-	{cmdBuzon,   "buzon",    "Buzzer on"},
+	{cmd_buz_on,   "buzon",    "Buzzer on"},
 	{cmdBuzoff,  "buzoff",   "Buzzer off"},
 	{cmdBeep,    "beep",     "Make a beep"},	
 	{cmdSBeep,   "sbeep",    "Make a short beep"},
@@ -137,7 +137,7 @@ void cmdDBeep(char* args) {
     LEF_Buzzer_set(LEF_BUZZER_DOUBLE_BEEP);
 }
 
-void cmdBuzon(char* args) {
+void cmd_buz_on(char* args) {
     UNUSED(args);
     LEF_Buzzer_set(LEF_BUZZER_ON);
 }
