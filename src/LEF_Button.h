@@ -22,7 +22,7 @@
         
 #pragma once
 
-#include "LEF.h"
+#include "LEF_Types.h"
 
 #ifdef __cplusplus
 extern "C"

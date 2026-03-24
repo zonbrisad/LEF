@@ -25,16 +25,16 @@ TARGET = lef-linux
 
 # List C, C++ and assembler source files here. (C/C++ dependencies are automatically generated.)
 SRC = src/main.c \
-		src/LEF_linux.c \
 		src/LEF/LEF.c \
 		src/LEF/LEF_Queue.c \
-		src/LEF/LEF_Timer.c
+		src/LEF/LEF_Timer.c \
+		src/LEF/LEF_linux.c
 
 # List C, C++ and assembler library/3rd party source files here. (C/C++ dependencies are automatically generated.)
 LSRC =	
 
 # Include directories
-INCLUDE = src\
+INCLUDE = src \
           src/LEF
 
 # Libraries to link

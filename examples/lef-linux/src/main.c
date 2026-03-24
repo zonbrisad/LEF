@@ -22,8 +22,10 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
-#include "LEF_linux.h"
 
+#include "LEF_linux.h"
+#include "LEF_Types.h"
+#include "LEF.h"
 // Macros -------------------------------------------------------------------
 
 
@@ -33,41 +35,46 @@
 // Datatypes ----------------------------------------------------------------
 typedef enum { 
     EVENT_Print1, 
+    EVENT_Timer1, 
+    EVENT_Timer2, 
+    EVENT_Callback,
     EVENT_Print4, 
     EVENT_Counter
 } Events;
 
 // Variables ----------------------------------------------------------------
 
+LEF_Timer timer_1;
+LEF_Timer timer_2;
 
 // Code ---------------------------------------------------------------------
 
-int main(int argc, char *argv[]) {
-    uint64_t counter = 0;
+static void my_callback() {
+    LEF_Timer_update(&timer_1);
+    LEF_Timer_update(&timer_2);
+}
 
+int main(void) {
+    LEF_Event event;
+
+    LEF_init();
+    LEF_Timer_init(&timer_1, EVENT_Timer1);
+    LEF_Timer_init(&timer_2, EVENT_Timer2);
+    LEF_Timer_start_repeat(&timer_1, 100);
+    LEF_Timer_start_repeat(&timer_2, 500);
+    
     event_init();
-    event_add_timer(EVENT_Counter, "Timer count 10ms", 30);
-    event_add_timer(EVENT_Print1, "Timer print 1s", 1000);
-    event_add_timer(EVENT_Print4, "Timer print 4s", 4000);
-
+    LEF_add_systimer("Systick", 10, my_callback);
+    
     while (true) {
-        int ev = event_wait();
-        // printf("E %d\n", ev);
-        switch (ev) {
-            case EVENT_Counter:
-                counter++;
-                break;
-            case EVENT_Print1:
-                printf("Counter val: %lu\n", counter);
-                break;
-            case EVENT_Print4:
-                printf("Print 4\n");
-                break;
-            default:
-                printf("Def: %d\n", ev);
+        LEF_Wait(&event);
+        // printf("Event id: %d\n", event.id);
+        switch (event.id) {
+            case EVENT_Timer1: printf("Timer 1\n"); break;
+            case EVENT_Timer2: printf("Timer 2\n"); break;
         }
     }
-
+    
     event_close();
     return 0;
 }

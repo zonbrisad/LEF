@@ -192,7 +192,7 @@ void LEF_CliTest(void) {
 	LEF_TimerStartRepeat(&Timer1, 300);
 	while (1) {
 
-		LEF_QueueWait(&StdQueue, &dst);
+		LEF_QueueWait(&lef_std_queue, &dst);
 
 		if (dst.id == EVENT_TIMER1) {
 			if (str[i]!= '\0') {

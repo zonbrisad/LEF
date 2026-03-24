@@ -31,19 +31,12 @@ extern "C" {
 
 // Includes ---------------------------------------------------------------
 
-#include "LEF.h"
+#include "LEF_Types.h"
+#include "LEF_Config.h"
 
 // Macros -----------------------------------------------------------------
 	
 // Typedefs ---------------------------------------------------------------
-
-typedef uint8_t LEF_EventId;
-typedef uint8_t LEF_EventFunc;
-
-typedef struct {
-	LEF_EventId id;
-	LEF_EventFunc func;
-} LEF_Event;
 
 typedef struct {
 	LEF_Event que[LEF_QUEUE_LENGTH];            // queue it self
