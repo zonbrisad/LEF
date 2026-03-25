@@ -63,6 +63,8 @@ typedef enum {
     HD44780_MSG_Data,
     HD44780_MSG_delay_ms,
     HD44780_MSG_delay_us,
+    HD44780_MSG_Data_dir,
+
 
 } HD44780_LCD;
 
