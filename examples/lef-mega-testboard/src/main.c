@@ -115,8 +115,6 @@ bool evOn = false;
 static FILE mystdout =
     FDEV_SETUP_STREAM((void*)uart_putc, NULL, _FDEV_SETUP_WRITE);
 
-void hw_init(void);
-
 static void cmd_brp(char* args) {
     printf_P(PSTR("Brp args = %s\n"), args);
     LEF_Buzzer_set(LEF_BUZZER_BRP);
@@ -410,7 +408,56 @@ ISR(ADC_vect) {
     LEF_Pot_update(&pot, ADC_VALUE());
 }
 
-void hw_init(void) {
+
+static uint16_t LCD_Handler(HD44780_LCD msg, uint16_t data_arg) {
+    uint16_t result = 0;
+    switch (msg) {
+        case HD44780_MSG_INIT:
+            gpio_init(LCD_E_PIN, true, false);
+            gpio_init(LCD_RW_PIN, true, false);
+            gpio_init(LCD_RS_PIN, true, false);
+            break;
+        case HD44780_MSG_GPIO_DATA_DIRECTION:
+            gpio_direction(LCD_DATA4_PIN, data_arg);
+            gpio_direction(LCD_DATA5_PIN, data_arg);
+            gpio_direction(LCD_DATA6_PIN, data_arg);
+            gpio_direction(LCD_DATA7_PIN, data_arg);
+            break;
+        case HD44780_MSG_GPIO_DATA_READ:
+            if (gpio_read(LCD_DATA4_PIN)) result |= 0x01;
+            if (gpio_read(LCD_DATA5_PIN)) result |= 0x02;
+            if (gpio_read(LCD_DATA6_PIN)) result |= 0x04;
+            if (gpio_read(LCD_DATA7_PIN)) result |= 0x08;
+            break;    
+        case HD44780_MSG_GPIO_DATA_WRITE:
+            gpio_write(LCD_DATA7_PIN, data_arg & 0x80);
+            gpio_write(LCD_DATA6_PIN, data_arg & 0x40);
+            gpio_write(LCD_DATA5_PIN, data_arg & 0x20);
+            gpio_write(LCD_DATA4_PIN, data_arg & 0x10);
+            break;    
+        case HD44780_MSG_GPIO_E:
+            gpio_write(LCD_E_PIN, data_arg);
+            break;
+        case HD44780_MSG_GPIO_E_TOGGLE:
+            gpio_write(LCD_E_PIN, 1);
+            _delay_us(LCD_DELAY_ENABLE_PULSE);
+            gpio_write(LCD_E_PIN, 0);
+            break;
+        case HD44780_MSG_GPIO_RW:
+            gpio_write(LCD_RW_PIN, data_arg);
+            break;
+        case HD44780_MSG_GPIO_RS:
+            gpio_write(LCD_RS_PIN, data_arg);
+            break;
+        case HD44780_MSG_DELAY_E:
+            _delay_us(LCD_DELAY_ENABLE_PULSE);
+            break;
+        default: break;
+    }
+    return result;
+}
+
+static void hw_init(void) {
     stdout = &mystdout;
     uart_init(UART_BAUD_SELECT(UART_BAUD_RATE, F_CPU));
 
@@ -459,7 +506,8 @@ void hw_init(void) {
     //   TIMER0_WGM_FAST_PWM();
     //   TIMER0_OM_CLEAR();
 
-    lcd_init(LCD_DISP_ON);
+    // lcd_init(LCD_DISP_ON);
+    lcd_init(LCD_Handler, LCD_DISP_ON);
     lcd_clear();
     lcd_puts_P("   LEF Mega Test\n");
 
@@ -491,9 +539,6 @@ int main(void) {
     LEF_Pot_init(&pot, EVENT_Pot);
     LEF_Buzzer_init();
     LEF_CLI_INIT(cmdTable);
-    
-    // LEF_LedA_init(&leda, LEDA_ON);
-    // LEF_LedA_init(&leda, LEDA_OFF_SOFT);
     
     hw_init();
 
@@ -563,7 +608,7 @@ int main(void) {
                 LEF_Led_set(&led4, (val > 800));
                 
                 lcd_gotoxy(0,2);
-                for (int i=0;i<20;i++){
+                for (uint16_t i=0;i<20;i++){
                     if (1023/20*i < val)
                         lcd_putc('#');
                     else

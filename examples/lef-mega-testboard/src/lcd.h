@@ -56,19 +56,20 @@
 #endif
 
 typedef enum {
-    HD44780_MSG_E,
-    HD44780_MSG_RS,
-    HD44780_MSG_RW,
-    HD44780_MSG_E_Toggle,
-    HD44780_MSG_Data,
+    HD44780_MSG_INIT,
+    HD44780_MSG_GPIO_E,
+    HD44780_MSG_GPIO_RS,
+    HD44780_MSG_GPIO_RW,
+    HD44780_MSG_GPIO_E_TOGGLE,
+    HD44780_MSG_GPIO_DATA_READ,
+    HD44780_MSG_GPIO_DATA_WRITE,
+    HD44780_MSG_GPIO_DATA_DIRECTION,
     HD44780_MSG_delay_ms,
     HD44780_MSG_delay_us,
-    HD44780_MSG_Data_dir,
-
-
+    HD44780_MSG_DELAY_E,
 } HD44780_LCD;
 
-typedef void (*lcd_pins)(HD44780_LCD msg, uint16_t data);
+typedef uint16_t (*hd4470_callback)(HD44780_LCD msg, uint16_t data);
 
 /**@{*/
 
@@ -125,13 +126,13 @@ typedef void (*lcd_pins)(HD44780_LCD msg, uint16_t data);
  *  
  */
 
-#define LCD_DATA4_PIN F, 4        /**< pin for 4bit data bit 0  */
-#define LCD_DATA5_PIN F, 3        /**< pin for 4bit data bit 1  */
-#define LCD_DATA6_PIN F, 2        /**< pin for 4bit data bit 2  */
-#define LCD_DATA7_PIN F, 1        /**< pin for 4bit data bit 3  */
-#define LCD_RS_PIN F, 7           /**< pin for RS line         */
-#define LCD_RW_PIN F, 6           /**< pin for Read/Write line */
-#define LCD_E_PIN F, 5            /**< pin for Enable line     */
+#define LCD_DATA4_PIN F,4        /**< pin for 4bit data bit 0  */
+#define LCD_DATA5_PIN F,3        /**< pin for 4bit data bit 1  */
+#define LCD_DATA6_PIN F,2        /**< pin for 4bit data bit 2  */
+#define LCD_DATA7_PIN F,1        /**< pin for 4bit data bit 3  */
+#define LCD_RS_PIN F,7           /**< pin for RS line         */
+#define LCD_RW_PIN F,6           /**< pin for Read/Write line */
+#define LCD_E_PIN F,5            /**< pin for Enable line     */
 
 /**
  * @name Definitions of delays
@@ -217,7 +218,9 @@ typedef void (*lcd_pins)(HD44780_LCD msg, uint16_t data);
                     \b LCD_DISP_ON_CURSOR_BLINK display on, cursor on flashing             
  @return  none
 */
-extern void lcd_init(uint8_t dispAttr);
+extern void lcd_init_old(uint8_t dispAttr);
+
+extern void lcd_init(hd4470_callback callback, uint8_t dispAttr);
 
 /**
  @brief    Send LCD controller instruction command

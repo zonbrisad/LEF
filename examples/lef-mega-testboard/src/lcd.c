@@ -24,102 +24,36 @@
 *****************************************************************************/
 #include "lcd.h"
 
-#if defined(__AVR__)
-#include <avr/io.h>
-#include <avr/pgmspace.h>
-#include <util/delay.h>
-#endif
 #include <inttypes.h>
 #include <stdbool.h>
 
+#if defined(__AVR__)
+#include <avr/pgmspace.h>
+#include <util/delay.h>
+#endif
 
-// Macros to edit PORT, DDR and PIN
-#define gpio_mode(x, y) (y ? _SET(DDR, x) : _CLEAR(DDR, x))
-#define gpio_write(x, y) (y ? _SET(PORT, x) : _CLEAR(PORT, x))
-#define gpio_read(x) (_GET(PIN, x))
-#define gpio_toggle(x) (_TOGGLE(PORT, x))
-
-// General use bit manipulating commands
-#define BitSet(x, y) (x |= (1UL << y))
-#define BitClear(x, y) (x &= (~(1UL << y)))
-#define BitToggle(x, y) (x ^= (1UL << y))
-#define BitCheck(x, y) (x & (1UL << y) ? 1 : 0)
-
-// Access PORT, DDR and PIN
-#define xPORT(port) (_PORT(port))
-#define xDDR(port) (_DDR(port))
-#define xPIN(port) (_PIN(port))
-
-#define _PORT(port) (xPORT##port)
-#define _DDR(port) (xDDR##port)
-#define _PIN(port) (xPIN##port)
-
-#define _SET(type, port, bit) (BitSet((type##port), bit))
-#define _CLEAR(type, port, bit) (BitClear((type##port), bit))
-#define _TOGGLE(type, port, bit) (BitToggle((type##port), bit))
-#define _GET(type, port, bit) (BitCheck((type##port), bit))
 
 /*************************************************************************
 delay for a minimum of <us> microseconds
 the number of loops is calculated at compile-time from MCU clock frequency
 *************************************************************************/
+
+hd4470_callback lcd_callback;
+
 static inline void lcd_delay(uint16_t us) { _delay_us(us); }
+// static inline void lcd_e_delay(void) { lcd_delay(LCD_DELAY_ENABLE_PULSE);}
+// inline void lcd_delay(uint16_t us) { lcd_callback(HD44780_MSG_delay_us, us); }
+// inline void lcd_e_delay(void) { lcd_callback(HD44780_MSG_delay_us, LCD_DELAY_ENABLE_PULSE);}
 
-static inline void lcd_e_delay(void) { lcd_delay(LCD_DELAY_ENABLE_PULSE);}
-inline void lcd_e_set(bool state)  { gpio_write(LCD_E_PIN, state); }
-inline void lcd_rw_set(bool state) { gpio_write(LCD_RW_PIN, state); }
-inline void lcd_rs_set(bool state) { gpio_write(LCD_RS_PIN, state); }
-
-
-inline void lcd_data_direction(bool write) {
-    if (write) {
-        /* configure data pins as output */
-        gpio_mode(LCD_DATA4_PIN, 1);
-        gpio_mode(LCD_DATA5_PIN, 1);
-        gpio_mode(LCD_DATA6_PIN, 1);
-        gpio_mode(LCD_DATA7_PIN, 1);
-    } else {
-        /* configure data pins as input */
-        gpio_mode(LCD_DATA4_PIN, 0);
-        gpio_mode(LCD_DATA5_PIN, 0);
-        gpio_mode(LCD_DATA6_PIN, 0);
-        gpio_mode(LCD_DATA7_PIN, 0);
-    }
-}
-
-inline void lcd_data_write(uint8_t data) {
-    gpio_write(LCD_DATA7_PIN, data & 0x80);
-    gpio_write(LCD_DATA6_PIN, data & 0x40);
-    gpio_write(LCD_DATA5_PIN, data & 0x20);
-    gpio_write(LCD_DATA4_PIN, data & 0x10);
-}
-
-inline uint8_t lcd_data_read(void) {
-    uint8_t data = 0;
-
-    if (gpio_read(LCD_DATA4_PIN)) data |= 0x01;
-    if (gpio_read(LCD_DATA5_PIN)) data |= 0x02;
-    if (gpio_read(LCD_DATA6_PIN)) data |= 0x04;
-    if (gpio_read(LCD_DATA7_PIN)) data |= 0x08;
-
-    return data;
-}
-
-inline void lcd_init_pins(void) {
-    /* configure control pins as output */
-    gpio_mode(LCD_RS_PIN, 1);
-    gpio_mode(LCD_RW_PIN, 1);
-    gpio_mode(LCD_E_PIN, 1);
-
-    lcd_data_direction(true);
-    lcd_data_write(0b11110000);
-}
-
-static inline void lcd_e_toggle(void) {
-    lcd_e_set(1);
-    lcd_e_delay();
-    lcd_e_set(0);
-}
+static inline void lcd_e_delay(void)       { lcd_callback(HD44780_MSG_DELAY_E, 0);}
+inline void lcd_init_gpio(void)            { lcd_callback(HD44780_MSG_INIT, 0); }  // initiate gpio pins
+inline void lcd_e_set(bool state)          { lcd_callback(HD44780_MSG_GPIO_E, state); }
+inline void lcd_e_toggle(void)             { lcd_callback(HD44780_MSG_GPIO_E_TOGGLE, 0); }
+inline void lcd_rw_set(bool state)         { lcd_callback(HD44780_MSG_GPIO_RW, state); }
+inline void lcd_rs_set(bool state)         { lcd_callback(HD44780_MSG_GPIO_RS, state); }
+inline void lcd_data_direction(bool write) { lcd_callback(HD44780_MSG_GPIO_DATA_DIRECTION, write);}
+inline void lcd_data_write(uint8_t data)   { lcd_callback(HD44780_MSG_GPIO_DATA_WRITE, data); }
+inline uint8_t lcd_data_read(void)         { return lcd_callback(HD44780_MSG_GPIO_DATA_READ, 0); }
 
 #if LCD_LINES == 1
 #define LCD_FUNCTION_DEFAULT LCD_FUNCTION_4BIT_1LINE
@@ -384,40 +318,27 @@ void lcd_puts_p(const char* progmem_s) {
 } /* lcd_puts_p */
 
 
-/*************************************************************************
-Initialize display and select type of cursor
-Input:    dispAttr LCD_DISP_OFF            display off
-                   LCD_DISP_ON             display on, cursor off
-                   LCD_DISP_ON_CURSOR      display on, cursor on
-                   LCD_DISP_CURSOR_BLINK   display on, cursor on flashing
-Returns:  none
-*************************************************************************/
-void lcd_init(uint8_t dispAttr) {
-    /*
-     *  Initialize LCD to 4 bit I/O mode
-     */
-    
-    lcd_init_pins();
+extern void lcd_init(hd4470_callback callback, uint8_t dispAttr) {
+    lcd_callback = callback;
+
+    lcd_init_gpio();            // initiate gpio pins
+    lcd_data_direction(true);
+    lcd_data_write(0b11110000);
 
     lcd_delay(LCD_DELAY_BOOTUP); /* wait 16ms or more after power-on       */
 
-    /* initial write to lcd is 8bit */
-    lcd_data_write(LCD_INIT_SEQ);
-    
-    lcd_e_toggle();
-    lcd_delay(LCD_DELAY_INIT); /* delay, busy flag can't be checked here */
-    
-    /* repeat last command */
-    lcd_e_toggle();
-    lcd_delay(LCD_DELAY_INIT_REP); /* delay, busy flag can't be checked here */
-    
-    /* repeat last command a third time */
-    lcd_e_toggle();
-    lcd_delay(LCD_DELAY_INIT_REP); /* delay, busy flag can't be checked here */
-    
-    /* now configure for 4bit mode */
-    lcd_data_write(LCD_4BIT_MODE);
+    lcd_data_write(LCD_INIT_SEQ); /* initial write to lcd is 8bit */
 
+    lcd_e_toggle();
+    lcd_delay(LCD_DELAY_INIT);  /* delay, busy flag can't be checked here */
+
+    lcd_e_toggle();
+    lcd_delay(LCD_DELAY_INIT_REP); /* repeat last command, delay, busy flag can't be checked here */
+
+    lcd_e_toggle();
+    lcd_delay(LCD_DELAY_INIT_REP); /* repat third time. delay, busy flag can't be checked here */
+
+    lcd_data_write(LCD_4BIT_MODE); /* now configure for 4bit mode */
     lcd_e_toggle();
     lcd_delay(LCD_DELAY_INIT_4BIT); /* some displays need this additional delay */
 
@@ -436,5 +357,13 @@ void lcd_init(uint8_t dispAttr) {
     lcd_clear();                   /* display clear                */
     lcd_command(LCD_MODE_DEFAULT); /* set entry mode               */
     lcd_command(dispAttr);         /* display/cursor control       */
+}
 
-} /* lcd_init */
+/*************************************************************************
+Initialize display and select type of cursor
+Input:    dispAttr LCD_DISP_OFF            display off
+                   LCD_DISP_ON             display on, cursor off
+                   LCD_DISP_ON_CURSOR      display on, cursor on
+                   LCD_DISP_CURSOR_BLINK   display on, cursor on flashing
+Returns:  none
+*************************************************************************/
