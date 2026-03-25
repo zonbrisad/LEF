@@ -250,7 +250,7 @@ static void cmd_lcd_test_move(char* args) {
     lcd_puts_P("Some text to move");
     _delay_ms(300);
     lcd_home();
-    lcd_command(LCD_MOVE_DISP_RIGHT);
+    lcd_command(HD44780_MOVE_DISPLAY_RIGHT);
 }
 
 static inline void adc_print_all(bool print_header) {
@@ -407,7 +407,13 @@ ISR(TIMER1_COMPA_vect) {
 ISR(ADC_vect) {
     LEF_Pot_update(&pot, ADC_VALUE());
 }
-
+#define LCD_DATA4_PIN F, 4 /**< pin for 4bit data bit 0  */
+#define LCD_DATA5_PIN F, 3 /**< pin for 4bit data bit 1  */
+#define LCD_DATA6_PIN F, 2 /**< pin for 4bit data bit 2  */
+#define LCD_DATA7_PIN F, 1 /**< pin for 4bit data bit 3  */
+#define LCD_RS_PIN F, 7    /**< pin for RS line         */
+#define LCD_RW_PIN F, 6    /**< pin for Read/Write line */
+#define LCD_E_PIN F, 5     /**< pin for Enable line     */
 
 static uint16_t LCD_Handler(HD44780_LCD msg, uint16_t data_arg) {
     uint16_t result = 0;
@@ -440,7 +446,7 @@ static uint16_t LCD_Handler(HD44780_LCD msg, uint16_t data_arg) {
             break;
         case HD44780_MSG_GPIO_E_TOGGLE:
             gpio_write(LCD_E_PIN, 1);
-            _delay_us(LCD_DELAY_ENABLE_PULSE);
+            _delay_us(HD44780_DELAY_ENABLE_PULSE);
             gpio_write(LCD_E_PIN, 0);
             break;
         case HD44780_MSG_GPIO_RW:
@@ -450,7 +456,7 @@ static uint16_t LCD_Handler(HD44780_LCD msg, uint16_t data_arg) {
             gpio_write(LCD_RS_PIN, data_arg);
             break;
         case HD44780_MSG_DELAY_E:
-            _delay_us(LCD_DELAY_ENABLE_PULSE);
+            _delay_us(HD44780_DELAY_ENABLE_PULSE);
             break;
         default: break;
     }
@@ -507,7 +513,8 @@ static void hw_init(void) {
     //   TIMER0_OM_CLEAR();
 
     // lcd_init(LCD_DISP_ON);
-    lcd_init(LCD_Handler, LCD_DISP_ON);
+    lcd_init(LCD_Handler, HD44780_ON);
+    // lcd_init(LCD_Handler, LCD_DISP_ON);
     lcd_clear();
     lcd_puts_P("   LEF Mega Test\n");
 

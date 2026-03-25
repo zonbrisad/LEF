@@ -40,12 +40,8 @@ the number of loops is calculated at compile-time from MCU clock frequency
 
 hd4470_callback lcd_callback;
 
-static inline void lcd_delay(uint16_t us) { _delay_us(us); }
-// static inline void lcd_e_delay(void) { lcd_delay(LCD_DELAY_ENABLE_PULSE);}
-// inline void lcd_delay(uint16_t us) { lcd_callback(HD44780_MSG_delay_us, us); }
-// inline void lcd_e_delay(void) { lcd_callback(HD44780_MSG_delay_us, LCD_DELAY_ENABLE_PULSE);}
-
-static inline void lcd_e_delay(void)       { lcd_callback(HD44780_MSG_DELAY_E, 0);}
+static inline void lcd_delay(uint16_t us)         { _delay_us(us); }
+inline void lcd_e_delay(void)              { lcd_callback(HD44780_MSG_DELAY_E, 0);}
 inline void lcd_init_gpio(void)            { lcd_callback(HD44780_MSG_INIT, 0); }  // initiate gpio pins
 inline void lcd_e_set(bool state)          { lcd_callback(HD44780_MSG_GPIO_E, state); }
 inline void lcd_e_toggle(void)             { lcd_callback(HD44780_MSG_GPIO_E_TOGGLE, 0); }
@@ -55,13 +51,13 @@ inline void lcd_data_direction(bool write) { lcd_callback(HD44780_MSG_GPIO_DATA_
 inline void lcd_data_write(uint8_t data)   { lcd_callback(HD44780_MSG_GPIO_DATA_WRITE, data); }
 inline uint8_t lcd_data_read(void)         { return lcd_callback(HD44780_MSG_GPIO_DATA_READ, 0); }
 
-#if LCD_LINES == 1
-#define LCD_FUNCTION_DEFAULT LCD_FUNCTION_4BIT_1LINE
+#if HD44780_LINES == 1
+#define LCD_FUNCTION_DEFAULT HD44780_FUNC_4BIT_LINE
 #else
-#define LCD_FUNCTION_DEFAULT LCD_FUNCTION_4BIT_2LINES
+#define LCD_FUNCTION_DEFAULT HD44780_FUNC_4BIT_2LINES
 #endif
 
-#if LCD_CONTROLLER_KS0073
+#if HD44780_CONTROLLER_KS0073
 #if LCD_LINES == 4
 
 #define KS0073_EXTENDED_FUNCTION_REGISTER_ON \
@@ -107,9 +103,8 @@ static uint8_t lcd_read(uint8_t rs) {
 
     lcd_rs_set(rs);
     lcd_rw_set(1);    /* RW=1  read mode      */
-    
-    // set data pins as inputs
-    lcd_data_direction(false);
+
+    lcd_data_direction(false);  // set data pins as inputs
 
     /* read high nibble first */
     lcd_e_set(1);
@@ -136,16 +131,16 @@ static uint8_t lcd_waitbusy(void) {
     register uint8_t c;
 
     /* wait until busy flag is cleared */
-    while ((c = lcd_read(0)) & (1 << LCD_BUSY)) {
+    while ((c = lcd_read(0)) & HD44780_BUSY_FLAG) {
     }
 
     /* the address counter is updated 4us after the busy flag is cleared */
-    lcd_delay(LCD_DELAY_BUSY_FLAG);
+    lcd_delay(HD44780_DELAY_BUSY_FLAG);
 
     /* now read the address counter */
     return (lcd_read(0));  // return address counter
 
-} /* lcd_waitbusy */
+}
 
 /*************************************************************************
 Move cursor to the start of next line or to the first line if the cursor
@@ -154,16 +149,16 @@ is already on the last line.
 static inline void lcd_newline(uint8_t pos) {
     register uint8_t addressCounter;
 
-#if LCD_LINES == 1
+#if HD44780_LINES == 1
     addressCounter = 0;
 #endif
-#if LCD_LINES == 2
+#if HD44780_LINES == 2
     if (pos < (LCD_START_LINE2))
         addressCounter = LCD_START_LINE2;
     else
         addressCounter = LCD_START_LINE1;
 #endif
-#if LCD_LINES == 4
+#if HD44780_LINES == 4
 #if KS0073_4LINES_MODE
     if (pos < LCD_START_LINE2)
         addressCounter = LCD_START_LINE2;
@@ -174,23 +169,21 @@ static inline void lcd_newline(uint8_t pos) {
     else
         addressCounter = LCD_START_LINE1;
 #else
-    if (pos < LCD_START_LINE3)
-        addressCounter = LCD_START_LINE2;
-    else if ((pos >= LCD_START_LINE2) && (pos < LCD_START_LINE4))
-        addressCounter = LCD_START_LINE3;
-    else if ((pos >= LCD_START_LINE3) && (pos < LCD_START_LINE2))
-        addressCounter = LCD_START_LINE4;
+    if (pos < HD44780_START_LINE3)
+        addressCounter = HD44780_START_LINE2;
+    else if ((pos >= HD44780_START_LINE2) && (pos < HD44780_START_LINE4))
+        addressCounter = HD44780_START_LINE3;
+    else if ((pos >= HD44780_START_LINE3) && (pos < HD44780_START_LINE2))
+        addressCounter = HD44780_START_LINE4;
     else
-        addressCounter = LCD_START_LINE1;
+        addressCounter = HD44780_START_LINE1;
 #endif
 #endif
-    lcd_command((1 << LCD_DDRAM) + addressCounter);
+    lcd_command(HD44780_CMD_DDRAM + addressCounter);
+    // lcd_command((1 << LCD_DDRAM) + addressCounter);
 
-} /* lcd_newline */
+} 
 
-/*
-** PUBLIC FUNCTIONS
-*/
 
 /*************************************************************************
 Send LCD controller instruction command
@@ -219,27 +212,27 @@ Input:    x  horizontal position  (0: left most position)
 Returns:  none
 *************************************************************************/
 void lcd_gotoxy(uint8_t x, uint8_t y) {
-#if LCD_LINES == 1
-    lcd_command((1 << LCD_DDRAM) + LCD_START_LINE1 + x);
+#if HD44780_LINES == 1
+    lcd_command( HD44780_DDRAM + LCD_START_LINE1 + x);
 #endif
-#if LCD_LINES == 2
+#if HD44780_LINES == 2
     if (y == 0)
-        lcd_command((1 << LCD_DDRAM) + LCD_START_LINE1 + x);
+        lcd_command( HD44780_DDRAM + LCD_START_LINE1 + x);
     else
-        lcd_command((1 << LCD_DDRAM) + LCD_START_LINE2 + x);
+        lcd_command( HD44780_DDRAM + LCD_START_LINE2 + x);
 #endif
-#if LCD_LINES == 4
+#if HD44780_LINES == 4
     if (y == 0)
-        lcd_command((1 << LCD_DDRAM) + LCD_START_LINE1 + x);
+        lcd_command(HD44780_CMD_DDRAM + HD44780_START_LINE1 + x);
     else if (y == 1)
-        lcd_command((1 << LCD_DDRAM) + LCD_START_LINE2 + x);
+        lcd_command(HD44780_CMD_DDRAM + HD44780_START_LINE2 + x);
     else if (y == 2)
-        lcd_command((1 << LCD_DDRAM) + LCD_START_LINE3 + x);
+        lcd_command(HD44780_CMD_DDRAM + HD44780_START_LINE3 + x);
     else /* y==3 */
-        lcd_command((1 << LCD_DDRAM) + LCD_START_LINE4 + x);
+        lcd_command(HD44780_CMD_DDRAM + HD44780_START_LINE4 + x);
 #endif
 
-} /* lcd_gotoxy */
+}
 
 /*************************************************************************
 *************************************************************************/
@@ -258,26 +251,26 @@ void lcd_putc(char c) {
     if (c == '\n') {
         lcd_newline(pos);
     } else {
-#if LCD_WRAP_LINES == 1
-#if LCD_LINES == 1
-        if (pos == LCD_START_LINE1 + LCD_DISP_LENGTH) {
-            lcd_write((1 << LCD_DDRAM) + LCD_START_LINE1, 0);
+#if HD44780_WRAP_LINES == 1
+#if HD44780_LINES == 1
+        if (pos == HD44780_START_LINE1 + HD44780_DISP_LENGTH) {
+            lcd_write((1 << HD44780_CMD_DDRAM) + HD44780_START_LINE1, 0);
         }
-#elif LCD_LINES == 2
-        if (pos == LCD_START_LINE1 + LCD_DISP_LENGTH) {
-            lcd_write((1 << LCD_DDRAM) + LCD_START_LINE2, 0);
-        } else if (pos == LCD_START_LINE2 + LCD_DISP_LENGTH) {
-            lcd_write((1 << LCD_DDRAM) + LCD_START_LINE1, 0);
+#elif HD44780_LINES == 2
+        if (pos == HD44780_START_LINE1 + HD44780_DISP_LENGTH) {
+            lcd_write((1 << HD44780_CMD_DDRAM) + HD44780_START_LINE2, 0);
+        } else if (pos == HD44780_START_LINE2 + HD44780_DISP_LENGTH) {
+            lcd_write((1 << HD44780_CMD_DDRAM) + HD44780_START_LINE1, 0);
         }
-#elif LCD_LINES == 4
-        if (pos == LCD_START_LINE1 + LCD_DISP_LENGTH) {
-            lcd_write((1 << LCD_DDRAM) + LCD_START_LINE2, 0);
-        } else if (pos == LCD_START_LINE2 + LCD_DISP_LENGTH) {
-            lcd_write((1 << LCD_DDRAM) + LCD_START_LINE3, 0);
-        } else if (pos == LCD_START_LINE3 + LCD_DISP_LENGTH) {
-            lcd_write((1 << LCD_DDRAM) + LCD_START_LINE4, 0);
-        } else if (pos == LCD_START_LINE4 + LCD_DISP_LENGTH) {
-            lcd_write((1 << LCD_DDRAM) + LCD_START_LINE1, 0);
+#elif HD44780_LINES == 4
+        if (pos == HD44780_START_LINE1 + HD44780_DISP_LENGTH) {
+            lcd_write((1 << HD44780_CMD_DDRAM) + HD44780_START_LINE2, 0);
+        } else if (pos == HD44780_START_LINE2 + HD44780_DISP_LENGTH) {
+            lcd_write((1 << HD44780_CMD_DDRAM) + HD44780_START_LINE3, 0);
+        } else if (pos == HD44780_START_LINE3 + HD44780_DISP_LENGTH) {
+            lcd_write((1 << HD44780_CMD_DDRAM) + HD44780_START_LINE4, 0);
+        } else if (pos == HD44780_START_LINE4 + HD44780_DISP_LENGTH) {
+            lcd_write((1 << HD44780_CMD_DDRAM) + HD44780_START_LINE1, 0);
         }
 #endif
         lcd_waitbusy();
@@ -285,7 +278,7 @@ void lcd_putc(char c) {
         lcd_write(c, 1);
     }
 
-} /* lcd_putc */
+} 
 
 /*************************************************************************
 Display string without auto linefeed
@@ -300,8 +293,9 @@ void lcd_puts(const char* s) {
         lcd_putc(c);
     }
 
-} /* lcd_puts */
+} 
 
+#if defined(__AVR__)
 /*************************************************************************
 Display string from program memory without auto linefeed
 Input:     string from program memory be be displayed
@@ -315,8 +309,8 @@ void lcd_puts_p(const char* progmem_s) {
         lcd_putc(c);
     }
 
-} /* lcd_puts_p */
-
+} 
+#endif 
 
 extern void lcd_init(hd4470_callback callback, uint8_t dispAttr) {
     lcd_callback = callback;
@@ -325,22 +319,22 @@ extern void lcd_init(hd4470_callback callback, uint8_t dispAttr) {
     lcd_data_direction(true);
     lcd_data_write(0b11110000);
 
-    lcd_delay(LCD_DELAY_BOOTUP); /* wait 16ms or more after power-on       */
+    lcd_delay(HD44780_DELAY_BOOTUP); /* wait 16ms or more after power-on */
 
-    lcd_data_write(LCD_INIT_SEQ); /* initial write to lcd is 8bit */
-
-    lcd_e_toggle();
-    lcd_delay(LCD_DELAY_INIT);  /* delay, busy flag can't be checked here */
+    lcd_data_write(HD44780_INIT_SEQ); /* initial write to lcd is 8bit */
 
     lcd_e_toggle();
-    lcd_delay(LCD_DELAY_INIT_REP); /* repeat last command, delay, busy flag can't be checked here */
+    lcd_delay(HD44780_DELAY_INIT); /* delay, busy flag can't be checked here */
 
     lcd_e_toggle();
-    lcd_delay(LCD_DELAY_INIT_REP); /* repat third time. delay, busy flag can't be checked here */
+    lcd_delay(HD44780_DELAY_INIT_REP); /* repeat last command, delay, busy flag can't be checked here */
 
-    lcd_data_write(LCD_4BIT_MODE); /* now configure for 4bit mode */
     lcd_e_toggle();
-    lcd_delay(LCD_DELAY_INIT_4BIT); /* some displays need this additional delay */
+    lcd_delay(HD44780_DELAY_INIT_REP); /* repat third time. delay, busy flag can't be checked here */
+
+    lcd_data_write(HD44780_4BIT_MODE); /* now configure for 4bit mode */
+    lcd_e_toggle();
+    lcd_delay(HD44780_DELAY_INIT_4BIT); /* some displays need this additional delay */
 
     /* from now the LCD only accepts 4 bit I/O, we can use lcd_command() */
 
@@ -353,9 +347,9 @@ extern void lcd_init(hd4470_callback callback, uint8_t dispAttr) {
 #else
     lcd_command(LCD_FUNCTION_DEFAULT); /* function set: display lines  */
 #endif
-    lcd_command(LCD_DISP_OFF);     /* display off                  */
+    lcd_command(HD44780_OFF);     /* display off                  */
     lcd_clear();                   /* display clear                */
-    lcd_command(LCD_MODE_DEFAULT); /* set entry mode               */
+    lcd_command(HD44780_MODE_DEFAULT); /* set entry mode               */
     lcd_command(dispAttr);         /* display/cursor control       */
 }
 
