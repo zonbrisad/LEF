@@ -91,11 +91,7 @@ typedef uint16_t (*hd4470_callback)(HD44780_LCD msg, uint16_t data);
 #define HD44780_LINES           4     /**< number of visible lines of the display */
 #define HD44780_DISP_LENGTH    20     /**< visibles characters per line of the display */
 #define HD44780_LINE_LENGTH  0x40     /**< internal line length of the display    */
-#define HD44780_START_LINE1  0x00     /**< DDRAM address of first char of line 1 */
-#define HD44780_START_LINE2  0x40     /**< DDRAM address of first char of line 2 */
-#define HD44780_START_LINE3  0x14     /**< DDRAM address of first char of line 3 */
-#define HD44780_START_LINE4  0x54     /**< DDRAM address of first char of line 4 */
-#define HD44780_WRAP_LINES      0     /**< 0: no wrap, 1: wrap at end of visibile line */
+#define HD44780_WRAP_LINES      1     /**< 0: no wrap, 1: wrap at end of visibile line */
 
 /**
  * @name Definitions for 4-bit IO mode
@@ -140,6 +136,50 @@ typedef uint16_t (*hd4470_callback)(HD44780_LCD msg, uint16_t data);
  * The constants define the various LCD controller instructions which can be passed to the 
  * function lcd_command(), see HD44780 data sheet for a complete description.
  */
+/*
+ * HD44780 instructions table
+ *
+ * Instruction         RS R/W DB7 DB6 DB5 DB4 DB3 DB2 DB1 DB0  Description
+ * Clear display       0   0   0   0   0   0   0   0   0   1   Clear entire display
+ * Return home         0   0   0   0   0   0   0   0   1   -   Return cursor to home
+ * Entry mode set      0   0   0   0   0   0   0   1  I/D  S   Set cursor move direction(I/D) and 
+ *                                                             specifies display shift (S)
+ * Display control     0   0   0   0   0   0   1   D   C   B   Sets entire display (D) on/off, 
+ *                                                             cursor on/off (C), and 
+ *                                                             blinking of cursor position character (B).
+ * Cursor/display move 0   0   0   0   0   1  S/C R/L  -   -   Moves cursor and shifts display 
+ *                                                             without changing DDRAM contents.
+ * Function set        0   0   0   0   1   DL  N   F   -   -   Sets interface data length (DL), 
+ *                                                             number of display lines (N), 
+ *                                                             and character font (F).
+ * Set CGRAM address   0   0   0   1  ACG ACG ACG ACG ACG ACG  Sets CGRAM address 
+ * Set DDRAM address   0   0   1  ADD ADD ADD ADD ADD ADD ADD  Sets DDRAM address
+ * Busyflag & address  0   1   BF  AC  AC  AC  AC  AC  AC  AC  Reads busy flag (BF), and
+ *                                                             address counter (AC)
+ * I/D = 1:  Increment
+ * I/D = 0:  Decrement
+ * S   = 1:  Accompanies display shift
+ * S/C = 1:  Display shift
+ * S/C = 0:  Cursor move
+ * R/L = 1:  Shift to the right
+ * R/L = 0:  Shift to the left
+ * DL  = 1:  8 bits
+ * DL  = 0:  4 bits
+ * N   = 1:  2 lines
+ * N   = 0:  1 line
+ * F   = 1:  5x10 dots
+ * F   = 0:  5x8 dots
+ * BF  = 1:  Internaly operating (busy)
+ * BF  = 0:  Instructions acceptable (not busy)
+ *        
+ * 
+ * DDRAM: Display Data Ram
+ * CGRAM: Character Generator RAM
+ * ACG:   CGRAM address
+ * ADD:   DDRAM address
+ * AC: Address Counter                                                            
+ */
+
 
 #define HD44780_CMD_CLEAR         0b00000001
 #define HD44780_CMD_HOME          0b00000010
@@ -191,43 +231,6 @@ typedef uint16_t (*hd4470_callback)(HD44780_LCD msg, uint16_t data);
 #define HD44780_INIT_SEQ           0b00110000  
 #define HD44780_4BIT_MODE          0b00100000  // Put LCD in 4 bit mode
 
-/*
- * HD44780 instructions table
- *
- * Instruction         RS R/W DB7 DB6 DB5 DB4 DB3 DB2 DB1 DB0  Description
- * Clear display       0   0   0   0   0   0   0   0   0   1   Clear entire display
- * Return home         0   0   0   0   0   0   0   0   1   -   Return cursor to home
- * Entry mode set      0   0   0   0   0   0   0   1  I/D  S   Set cursor move direction(I/D) and 
- *                                                             specifies display shift (S)
- * Display control     0   0   0   0   0   0   1   D   C   B   Sets entire display (D) on/off, 
- *                                                             cursor on/off (C), and 
- *                                                             blinking of cursor position character (B).
- * Cursor/display move 0   0   0   0   0   1  S/C R/L  -   -   Moves cursor and shifts display 
- *                                                             without changing DDRAM contents.
- * Function set        0   0   0   0   1   DL  N   F   -   -   Sets interface data length (DL), 
- *                                                             number of display lines (N), 
- *                                                             and character font (F).
- * Set CGRAM address   0   0   0   1  ACG ACG ACG ACG ACG ACG  Sets CGRAM address
- * Set DDRAM address   0   0   1  ADD ADD ADD ADD ADD ADD ADD  Sets DDRAM address
- * Busyflag & address  0   1   BF  AC  AC  AC  AC  AC  AC  AC  Reads busy flag (BF), and
- *                                                             address counter (AC)
- *                                                             
- */
-
-
-// #define LCD_FUNCTION          5      /* DB5: function set                   */
-// #define LCD_FUNCTION_8BIT     4      /*   DB4: set 8BIT mode (0->4BIT mode) */
-// #define LCD_FUNCTION_2LINES   3      /*   DB3: two lines (0->one line)      */
-// #define LCD_FUNCTION_10DOTS   2      /*   DB2: 5x10 font (0->5x7 font)      */
-// #define LCD_CGRAM             6      /* DB6: set CG RAM address             */
-// #define LCD_DDRAM             7      /* DB7: set DD RAM address             */
-// #define LCD_BUSY              7      /* DB7: LCD is busy                    */
-
-/* function set: set interface data length and number of display lines */
-// #define LCD_FUNCTION_4BIT_1LINE  0x20   /* 4-bit interface, single line, 5x7 dots */
-// #define LCD_FUNCTION_4BIT_2LINES 0x28   /* 4-bit interface, dual line,   5x7 dots */
-// #define LCD_FUNCTION_8BIT_1LINE  0x30   /* 8-bit interface, single line, 5x7 dots */
-// #define LCD_FUNCTION_8BIT_2LINES 0x38   /* 8-bit interface, dual line,   5x7 dots */
 
 
 /**

@@ -32,7 +32,6 @@
 #include <util/delay.h>
 #endif
 
-
 /*************************************************************************
 delay for a minimum of <us> microseconds
 the number of loops is calculated at compile-time from MCU clock frequency
@@ -40,8 +39,8 @@ the number of loops is calculated at compile-time from MCU clock frequency
 
 hd4470_callback lcd_callback;
 
-static inline void lcd_delay(uint16_t us)         { _delay_us(us); }
-inline void lcd_e_delay(void)              { lcd_callback(HD44780_MSG_DELAY_E, 0);}
+static inline void lcd_delay(uint16_t us)  { _delay_us(us); }
+inline void lcd_e_delay(void)              { lcd_callback(HD44780_MSG_DELAY_E, 0); }
 inline void lcd_init_gpio(void)            { lcd_callback(HD44780_MSG_INIT, 0); }  // initiate gpio pins
 inline void lcd_e_set(bool state)          { lcd_callback(HD44780_MSG_GPIO_E, state); }
 inline void lcd_e_toggle(void)             { lcd_callback(HD44780_MSG_GPIO_E_TOGGLE, 0); }
@@ -50,6 +49,20 @@ inline void lcd_rs_set(bool state)         { lcd_callback(HD44780_MSG_GPIO_RS, s
 inline void lcd_data_direction(bool write) { lcd_callback(HD44780_MSG_GPIO_DATA_DIRECTION, write);}
 inline void lcd_data_write(uint8_t data)   { lcd_callback(HD44780_MSG_GPIO_DATA_WRITE, data); }
 inline uint8_t lcd_data_read(void)         { return lcd_callback(HD44780_MSG_GPIO_DATA_READ, 0); }
+
+
+#if HD44780_CONTROLLER_KS0073
+static uint8_t line_offsets[] = {0x00, 0x20, 0x40, 0x60};
+#else
+static uint8_t line_offsets[] = {0x00, 0x40, 0x14, 0x54};
+#endif
+
+
+#define HD44780_START_LINE1  line_offsets[0]
+#define HD44780_START_LINE2  line_offsets[1]
+#define HD44780_START_LINE3  line_offsets[2]
+#define HD44780_START_LINE4  line_offsets[3]
+
 
 #if HD44780_LINES == 1
 #define LCD_FUNCTION_DEFAULT HD44780_FUNC_4BIT_LINE
@@ -153,21 +166,21 @@ static inline void lcd_newline(uint8_t pos) {
     addressCounter = 0;
 #endif
 #if HD44780_LINES == 2
-    if (pos < (LCD_START_LINE2))
-        addressCounter = LCD_START_LINE2;
+    if (pos < (HD44780_START_LINE2))
+        addressCounter = HD44780_START_LINE2;
     else
-        addressCounter = LCD_START_LINE1;
+        addressCounter = HD44780_START_LINE1;
 #endif
 #if HD44780_LINES == 4
 #if KS0073_4LINES_MODE
-    if (pos < LCD_START_LINE2)
-        addressCounter = LCD_START_LINE2;
-    else if ((pos >= LCD_START_LINE2) && (pos < LCD_START_LINE3))
-        addressCounter = LCD_START_LINE3;
-    else if ((pos >= LCD_START_LINE3) && (pos < LCD_START_LINE4))
-        addressCounter = LCD_START_LINE4;
+    if (pos < HD44780_START_LINE2)
+        addressCounter = HD44780_START_LINE2;
+    else if ((pos >= HD44780_START_LINE2) && (pos < HD44780_START_LINE3))
+        addressCounter = HD44780_START_LINE3;
+    else if ((pos >= HD44780_START_LINE3) && (pos < HD44780_START_LINE4))
+        addressCounter = HD44780_START_LINE4;
     else
-        addressCounter = LCD_START_LINE1;
+        addressCounter = HD44780_START_LINE1;
 #else
     if (pos < HD44780_START_LINE3)
         addressCounter = HD44780_START_LINE2;
@@ -180,8 +193,6 @@ static inline void lcd_newline(uint8_t pos) {
 #endif
 #endif
     lcd_command(HD44780_CMD_DDRAM + addressCounter);
-    // lcd_command((1 << LCD_DDRAM) + addressCounter);
-
 } 
 
 
@@ -212,26 +223,7 @@ Input:    x  horizontal position  (0: left most position)
 Returns:  none
 *************************************************************************/
 void lcd_gotoxy(uint8_t x, uint8_t y) {
-#if HD44780_LINES == 1
-    lcd_command( HD44780_DDRAM + LCD_START_LINE1 + x);
-#endif
-#if HD44780_LINES == 2
-    if (y == 0)
-        lcd_command( HD44780_DDRAM + LCD_START_LINE1 + x);
-    else
-        lcd_command( HD44780_DDRAM + LCD_START_LINE2 + x);
-#endif
-#if HD44780_LINES == 4
-    if (y == 0)
-        lcd_command(HD44780_CMD_DDRAM + HD44780_START_LINE1 + x);
-    else if (y == 1)
-        lcd_command(HD44780_CMD_DDRAM + HD44780_START_LINE2 + x);
-    else if (y == 2)
-        lcd_command(HD44780_CMD_DDRAM + HD44780_START_LINE3 + x);
-    else /* y==3 */
-        lcd_command(HD44780_CMD_DDRAM + HD44780_START_LINE4 + x);
-#endif
-
+    lcd_command(HD44780_CMD_DDRAM + line_offsets[y] + x);
 }
 
 /*************************************************************************
@@ -254,23 +246,23 @@ void lcd_putc(char c) {
 #if HD44780_WRAP_LINES == 1
 #if HD44780_LINES == 1
         if (pos == HD44780_START_LINE1 + HD44780_DISP_LENGTH) {
-            lcd_write((1 << HD44780_CMD_DDRAM) + HD44780_START_LINE1, 0);
+            lcd_write((HD44780_CMD_DDRAM) + HD44780_START_LINE1, 0);
         }
 #elif HD44780_LINES == 2
         if (pos == HD44780_START_LINE1 + HD44780_DISP_LENGTH) {
-            lcd_write((1 << HD44780_CMD_DDRAM) + HD44780_START_LINE2, 0);
+            lcd_write((HD44780_CMD_DDRAM) + HD44780_START_LINE2, 0);
         } else if (pos == HD44780_START_LINE2 + HD44780_DISP_LENGTH) {
-            lcd_write((1 << HD44780_CMD_DDRAM) + HD44780_START_LINE1, 0);
+            lcd_write((HD44780_CMD_DDRAM) + HD44780_START_LINE1, 0);
         }
 #elif HD44780_LINES == 4
         if (pos == HD44780_START_LINE1 + HD44780_DISP_LENGTH) {
-            lcd_write((1 << HD44780_CMD_DDRAM) + HD44780_START_LINE2, 0);
+            lcd_write((HD44780_CMD_DDRAM) + HD44780_START_LINE2, 0);
         } else if (pos == HD44780_START_LINE2 + HD44780_DISP_LENGTH) {
-            lcd_write((1 << HD44780_CMD_DDRAM) + HD44780_START_LINE3, 0);
+            lcd_write((HD44780_CMD_DDRAM) + HD44780_START_LINE3, 0);
         } else if (pos == HD44780_START_LINE3 + HD44780_DISP_LENGTH) {
-            lcd_write((1 << HD44780_CMD_DDRAM) + HD44780_START_LINE4, 0);
+            lcd_write((HD44780_CMD_DDRAM) + HD44780_START_LINE4, 0);
         } else if (pos == HD44780_START_LINE4 + HD44780_DISP_LENGTH) {
-            lcd_write((1 << HD44780_CMD_DDRAM) + HD44780_START_LINE1, 0);
+            lcd_write((HD44780_CMD_DDRAM) + HD44780_START_LINE1, 0);
         }
 #endif
         lcd_waitbusy();

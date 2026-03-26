@@ -50,13 +50,13 @@
 
 #include "main.h"
 
+#include <stdio.h>
+#include <stdlib.h>
 #include <avr/interrupt.h>
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 #include <avr/sleep.h>
 #include <avr/wdt.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <util/atomic.h>
 #include <util/delay.h>
 
@@ -235,13 +235,58 @@ static void cmd_lcd_move_left(char* args) {
     lcd_move_left();
 }
 
-static void cmd_lcd_test(char* args) {
+static void cmd_lcd_test1(char* args) {
     UNUSED(args);
     lcd_clear();
-    lcd_puts_P("Line 1\n");
+    lcd_puts_P("   Testing newline\n");
     lcd_puts_P("Line 2\n");
     lcd_puts_P("Line 3\n");
     lcd_puts_P("Line 4\n");
+    lcd_puts_P("Line 5\n");
+}
+
+static void cmd_lcd_test2(char* args) {
+    UNUSED(args);
+    lcd_clear();
+    lcd_gotoxy(3,0);
+    lcd_puts_P("Testing gotoxy");
+    lcd_gotoxy(1,1);
+    lcd_puts_P("Line 2");
+    lcd_gotoxy(10,2);
+    lcd_puts_P("Line 3");
+    lcd_gotoxy(14,3);
+    lcd_puts_P("Line 4");
+}
+
+static void cmd_lcd_test3(char* args) {
+    UNUSED(args);
+    lcd_clear();
+    // lcd_gotoxy(5,0);
+    lcd_puts_P("Testing wrap");
+    for (int i=0; i<20; i++) {
+        lcd_putc('X');
+    }
+}
+/*
+** constant definitions
+*/
+static const PROGMEM unsigned char copyRightChar[] = {
+    0x07, 0x08, 0x13, 0x14, 0x14, 0x13, 0x08, 0x07,
+    0x00, 0x10, 0x08, 0x08, 0x08, 0x08, 0x10, 0x00
+};
+
+static void cmd_lcd_test_cc(char* args) {
+    UNUSED(args);
+    lcd_clear();
+    lcd_puts_P("  Custom char test");
+
+    lcd_command(HD44780_CMD_CGRAM); /* set CG RAM start address 0 */
+    for (int i = 0; i < 16; i++) {
+        lcd_data(pgm_read_byte_near(&copyRightChar[i]));
+    }
+    lcd_gotoxy(0,2);
+    lcd_putc(0);
+    lcd_putc(1);
 }
 
 static void cmd_lcd_test_move(char* args) {
@@ -356,7 +401,10 @@ const PROGMEM LEF_CliCmd cmdTable[] = {
     {cmd_lcd_home, "lcdh", "Move cursor to home pos"},
     {cmd_lcd_move_right, "lcdr", "Move text right"},
     {cmd_lcd_move_left, "lcdl", "Move text left"},
-    {cmd_lcd_test, "lcdt1", "Run LCD test"},
+    {cmd_lcd_test1, "lcdt1", "Testing newlines"},
+    {cmd_lcd_test2, "lcdt2", "Testing gotoxy"},
+    {cmd_lcd_test3, "lcdt3", "Testing wrap"},
+    {cmd_lcd_test_cc, "lcdcc", "Testing custom character"},
     {cmd_lcd_test_move, "lcdtm", "Run LCD move test"},
 
     LEF_CLI_LABEL("Misc"),
