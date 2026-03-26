@@ -38,6 +38,7 @@ the number of loops is calculated at compile-time from MCU clock frequency
 *************************************************************************/
 
 hd4470_callback lcd_callback;
+bool lcd_wrap = false;
 
 static inline void lcd_delay(uint16_t us)  { _delay_us(us); }
 inline void lcd_e_delay(void)              { lcd_callback(HD44780_MSG_DELAY_E, 0); }
@@ -192,7 +193,7 @@ static inline void lcd_newline(uint8_t pos) {
         addressCounter = HD44780_START_LINE1;
 #endif
 #endif
-    lcd_command(HD44780_CMD_DDRAM + addressCounter);
+    lcd_command(HD44780_INST_DDRAM + addressCounter);
 } 
 
 
@@ -223,7 +224,7 @@ Input:    x  horizontal position  (0: left most position)
 Returns:  none
 *************************************************************************/
 void lcd_gotoxy(uint8_t x, uint8_t y) {
-    lcd_command(HD44780_CMD_DDRAM + line_offsets[y] + x);
+    lcd_command(HD44780_INST_DDRAM + line_offsets[y] + x);
 }
 
 /*************************************************************************
@@ -242,34 +243,34 @@ void lcd_putc(char c) {
     pos = lcd_waitbusy();  // read busy-flag and address counter
     if (c == '\n') {
         lcd_newline(pos);
-    } else {
-#if HD44780_WRAP_LINES == 1
+        return;
+
+    if (lcd_wrap) {}
 #if HD44780_LINES == 1
         if (pos == HD44780_START_LINE1 + HD44780_DISP_LENGTH) {
-            lcd_write((HD44780_CMD_DDRAM) + HD44780_START_LINE1, 0);
+            lcd_write((HD44780_INST_DDRAM) + HD44780_START_LINE1, 0);
         }
 #elif HD44780_LINES == 2
         if (pos == HD44780_START_LINE1 + HD44780_DISP_LENGTH) {
-            lcd_write((HD44780_CMD_DDRAM) + HD44780_START_LINE2, 0);
+            lcd_write((HD44780_INST_DDRAM) + HD44780_START_LINE2, 0);
         } else if (pos == HD44780_START_LINE2 + HD44780_DISP_LENGTH) {
-            lcd_write((HD44780_CMD_DDRAM) + HD44780_START_LINE1, 0);
+            lcd_write((HD44780_INST_DDRAM) + HD44780_START_LINE1, 0);
         }
 #elif HD44780_LINES == 4
-        if (pos == HD44780_START_LINE1 + HD44780_DISP_LENGTH) {
-            lcd_write((HD44780_CMD_DDRAM) + HD44780_START_LINE2, 0);
-        } else if (pos == HD44780_START_LINE2 + HD44780_DISP_LENGTH) {
-            lcd_write((HD44780_CMD_DDRAM) + HD44780_START_LINE3, 0);
-        } else if (pos == HD44780_START_LINE3 + HD44780_DISP_LENGTH) {
-            lcd_write((HD44780_CMD_DDRAM) + HD44780_START_LINE4, 0);
-        } else if (pos == HD44780_START_LINE4 + HD44780_DISP_LENGTH) {
-            lcd_write((HD44780_CMD_DDRAM) + HD44780_START_LINE1, 0);
+        if (pos == (HD44780_START_LINE1 + HD44780_DISP_LENGTH-1)) {
+            lcd_write(HD44780_INST_DDRAM + HD44780_START_LINE2, 0);
+        } else if (pos == (HD44780_START_LINE2 + HD44780_DISP_LENGTH-1)) {
+            lcd_write(HD44780_INST_DDRAM + HD44780_START_LINE3, 0);
+        } else if (pos == (HD44780_START_LINE3 + HD44780_DISP_LENGTH-1)) {
+            lcd_write(HD44780_INST_DDRAM + HD44780_START_LINE4, 0);
+        } else if (pos == (HD44780_START_LINE4 + HD44780_DISP_LENGTH-1)) {
+            lcd_write(HD44780_INST_DDRAM + HD44780_START_LINE1, 0);
         }
 #endif
         lcd_waitbusy();
-#endif
-        lcd_write(c, 1);
     }
-
+    
+    lcd_write(c, 1);
 } 
 
 /*************************************************************************

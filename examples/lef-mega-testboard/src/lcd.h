@@ -50,6 +50,7 @@
 #pragma once
 
 #include <inttypes.h>
+#include <stdbool.h>
 
 #if defined(__AVR__)
 #include <avr/pgmspace.h>
@@ -181,31 +182,31 @@ typedef uint16_t (*hd4470_callback)(HD44780_LCD msg, uint16_t data);
  */
 
 
-#define HD44780_CMD_CLEAR         0b00000001
-#define HD44780_CMD_HOME          0b00000010
-#define HD44780_CMD_ENTRY_MODE    0b00000100
-#define HD44780_CMD_CONTROL       0b00001000
-#define HD44780_CMD_MOVE          0b00010000
-#define HD44780_CMD_FUNCTION      0b00100000
-#define HD44780_CMD_CGRAM         0b01000000
-#define HD44780_CMD_DDRAM         0b10000000
+#define HD44780_INST_CLEAR          0b00000001
+#define HD44780_INST_HOME           0b00000010
+#define HD44780_INST_ENTRY_MODE     0b00000100
+#define HD44780_INST_CONTROL        0b00001000
+#define HD44780_INST_MOVE           0b00010000
+#define HD44780_INST_FUNCTION       0b00100000
+#define HD44780_INST_CGRAM          0b01000000
+#define HD44780_INST_DDRAM          0b10000000
 
-#define HD44780_BUSY_FLAG         0b10000000
+#define HD44780_BUSY_FLAG          0b10000000
 
-#define HD44780_ENTRY_DEC_NOSHIFT (HD44780_CMD_ENTRY_MODE | 0b00000000) // decrease cursor on move, display shift off
-#define HD44780_ENTRY_DEC_SHIFT   (HD44780_CMD_ENTRY_MODE | 0b00000001) // decrease cursor on move, display shift on
-#define HD44780_ENTRY_INC_NOSHIFT (HD44780_CMD_ENTRY_MODE | 0b00000010) // decrease cursor on move, display shift off
-#define HD44780_ENTRY_INC_SHIFT   (HD44780_CMD_ENTRY_MODE | 0b00000011) // decrease cursor on move, display shift on
+#define HD44780_ENTRY_DEC_NOSHIFT  (HD44780_INST_ENTRY_MODE | 0b00000000) // decrease cursor on move, display shift off
+#define HD44780_ENTRY_DEC_SHIFT    (HD44780_INST_ENTRY_MODE | 0b00000001) // decrease cursor on move, display shift on
+#define HD44780_ENTRY_INC_NOSHIFT  (HD44780_INST_ENTRY_MODE | 0b00000010) // decrease cursor on move, display shift off
+#define HD44780_ENTRY_INC_SHIFT    (HD44780_INST_ENTRY_MODE | 0b00000011) // decrease cursor on move, display shift on
 
-#define HD44780_OFF               (HD44780_CMD_CONTROL)
-#define HD44780_ON                (HD44780_CMD_CONTROL | 0b00000100)
-#define HD44780_ON_CURSOR         (HD44780_CMD_CONTROL | 0b00000110)
-#define HD44780_ON_CURSOR_BLINK   (HD44780_CMD_CONTROL | 0b00000111)
+#define HD44780_OFF                (HD44780_INST_CONTROL | 0b00000000)
+#define HD44780_ON                 (HD44780_INST_CONTROL | 0b00000100)
+#define HD44780_ON_CURSOR          (HD44780_INST_CONTROL | 0b00000110)
+#define HD44780_ON_CURSOR_BLINK    (HD44780_INST_CONTROL | 0b00000111)
 
-#define HD44780_MOVE_CURSOR_LEFT        (HD44780_CMD_MOVE)
-#define HD44780_MOVE_CURSOR_RIGHT       (HD44780_CMD_MOVE | 0b00000100)
-#define HD44780_MOVE_DISPLAY_LEFT       (HD44780_CMD_MOVE | 0b00001000)
-#define HD44780_MOVE_DISPLAY_RIGHT      (HD44780_CMD_MOVE | 0b00001100)
+#define HD44780_MOVE_CURSOR_LEFT   (HD44780_INST_MOVE | 0b00000000)
+#define HD44780_MOVE_CURSOR_RIGHT  (HD44780_INST_MOVE | 0b00000100)
+#define HD44780_MOVE_DISPLAY_LEFT  (HD44780_INST_MOVE | 0b00001000)
+#define HD44780_MOVE_DISPLAY_RIGHT (HD44780_INST_MOVE | 0b00001100)
 
 
 
@@ -217,10 +218,10 @@ typedef uint16_t (*hd4470_callback)(HD44780_LCD msg, uint16_t data);
 #define HD44780_FUNC_2LINES   0b00001000
 #define HD44780_FUNC_10DOTS   0b00000100   
 
-#define HD44780_FUNC_4BIT_1LINE      (HD44780_CMD_FUNCTION)
-#define HD44780_FUNC_4BIT_2LINES     (HD44780_CMD_FUNCTION | HD44780_FUNC_2LINES)
-#define HD44780_FUNC_8BIT_1LINE      (HD44780_CMD_FUNCTION | HD44780_FUNC_8BIT)
-#define HD44780_FUNC_8BIT_2LINES     (HD44780_CMD_FUNCTION | HD44780_FUNC_8BIT | HD44780_FUNC_2LINES)
+#define HD44780_FUNC_4BIT_1LINE      (HD44780_INST_FUNCTION)
+#define HD44780_FUNC_4BIT_2LINES     (HD44780_INST_FUNCTION | HD44780_FUNC_2LINES)
+#define HD44780_FUNC_8BIT_1LINE      (HD44780_INST_FUNCTION | HD44780_FUNC_8BIT)
+#define HD44780_FUNC_8BIT_2LINES     (HD44780_INST_FUNCTION | HD44780_FUNC_8BIT | HD44780_FUNC_2LINES)
 // #define LCD_FUNCTION_4BIT_1LINE  0x20   /* 4-bit interface, single line, 5x7 dots */
 // #define LCD_FUNCTION_4BIT_2LINES 0x28   /* 4-bit interface, dual line,   5x7 dots */
 // #define LCD_FUNCTION_8BIT_1LINE  0x30   /* 8-bit interface, single line, 5x7 dots */
@@ -231,7 +232,7 @@ typedef uint16_t (*hd4470_callback)(HD44780_LCD msg, uint16_t data);
 #define HD44780_INIT_SEQ           0b00110000  
 #define HD44780_4BIT_MODE          0b00100000  // Put LCD in 4 bit mode
 
-
+extern bool lcd_wrap;
 
 /**
  @brief    Initialize display and select type of cursor
@@ -253,12 +254,14 @@ extern void lcd_command(uint8_t cmd);
 /**
  * Clear display and set cursor to home position
  */
-inline void lcd_clear(void) { lcd_command(HD44780_CMD_CLEAR); }
+inline void lcd_clear(void) { lcd_command(HD44780_INST_CLEAR); }
+
+inline void lcd_wrap_enable(bool enable) { lcd_wrap = enable; }
 
 /**
  * Set cursor to home position
  */
-inline void lcd_home(void) { lcd_command(HD44780_CMD_HOME); }
+inline void lcd_home(void) { lcd_command(HD44780_INST_HOME); }
 
 inline void lcd_move_right(void) { lcd_command(HD44780_MOVE_DISPLAY_RIGHT); }
 inline void lcd_move_left(void) { lcd_command(HD44780_MOVE_DISPLAY_LEFT); }

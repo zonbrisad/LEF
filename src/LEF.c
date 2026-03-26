@@ -102,3 +102,52 @@ void LEF_Wait(LEF_Event *event) {
 }
 
 #endif
+
+// Create a string from a definition
+#define LEFSTRINGIZE2(s) #s
+#define LEFSTR(s) LEFSTRINGIZE2(s)
+
+static inline void lef_print_info(char* a, char* b) {
+    lefprintf("%-20s    %s\n", a, b);
+}
+void LEF_print_sysinfo(void) {
+    char buf[16];
+    
+    lefprintf("\nLEF system information\n\n");
+    lef_print_info("Build:", __DATE__ "  " __TIME__);
+    lef_print_info("C Standard:", LEFSTR(__STDC_VERSION__));
+
+#ifdef __GNUC__
+    lef_print_info("GNU C ver:", LEFSTR(__GNUC_VERSION__));
+#endif
+
+#ifdef F_CPU
+    lef_print_info("CPU Freq:", LEFSTR(F_CPU));
+#endif
+
+
+#ifdef __BIG_ENDIAN__
+    lef_print_info("Byteorder:", "big endian");
+#endif
+#ifdef __LITTLE_ENDIAN__
+    lef_print_info("Byteorder:", "little endian");
+#endif
+
+#ifdef __cplusplus
+    lef_print_info("C++:", "enabled");
+#endif
+
+#ifdef __OPTIMIZE__
+#ifdef __OPTIMIZE_SIZE__
+    lef_print_info("Optimization, size:", "Enabled");
+#else
+    lef_print_info("Optimization:", "Enabled");
+#endif
+#endif
+
+    sprintf(buf, "%d", sizeof(void*));
+    lef_print_info("Pointer size:", buf);
+
+    lef_print_info("Std queue", LEFSTR(LEF_QUEUE_LENGTH));
+    lefprintf("\n");
+}

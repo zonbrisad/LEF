@@ -250,12 +250,12 @@ static void cmd_lcd_test2(char* args) {
     lcd_clear();
     lcd_gotoxy(3,0);
     lcd_puts_P("Testing gotoxy");
+    lcd_gotoxy(6,3);
+    lcd_puts_P("Line 4");
     lcd_gotoxy(1,1);
     lcd_puts_P("Line 2");
-    lcd_gotoxy(10,2);
+    lcd_gotoxy(14,2);
     lcd_puts_P("Line 3");
-    lcd_gotoxy(14,3);
-    lcd_puts_P("Line 4");
 }
 
 static void cmd_lcd_test3(char* args) {
@@ -280,7 +280,7 @@ static void cmd_lcd_test_cc(char* args) {
     lcd_clear();
     lcd_puts_P("  Custom char test");
 
-    lcd_command(HD44780_CMD_CGRAM); /* set CG RAM start address 0 */
+    lcd_command(HD44780_INST_CGRAM); /* set CG RAM start address 0 */
     for (int i = 0; i < 16; i++) {
         lcd_data(pgm_read_byte_near(&copyRightChar[i]));
     }
@@ -296,6 +296,16 @@ static void cmd_lcd_test_move(char* args) {
     _delay_ms(300);
     lcd_home();
     lcd_command(HD44780_MOVE_DISPLAY_RIGHT);
+}
+
+static void cmd_lcd_wrap_on(char* args) {
+    UNUSED(args);
+    lcd_wrap_enable(true);
+}
+
+static void cmd_lcd_wrap_off(char* args) {
+    UNUSED(args);
+    lcd_wrap_enable(false);
 }
 
 static inline void adc_print_all(bool print_header) {
@@ -376,6 +386,11 @@ static void cmd_reset(char* args) {
     RESET();
 }
 
+static void cmd_sysinfo(char* args) {
+    UNUSED(args);
+    LEF_print_sysinfo();
+}
+
 const PROGMEM LEF_CliCmd cmdTable[] = {
     LEF_CLI_LABEL("Buzzer"),
     {cmd_buz_on, "buzon", "Buzzer on"},
@@ -406,13 +421,15 @@ const PROGMEM LEF_CliCmd cmdTable[] = {
     {cmd_lcd_test3, "lcdt3", "Testing wrap"},
     {cmd_lcd_test_cc, "lcdcc", "Testing custom character"},
     {cmd_lcd_test_move, "lcdtm", "Run LCD move test"},
-
+    {cmd_lcd_wrap_on, "wrapon", "Turn LCD wrap on"},
+    {cmd_lcd_wrap_off, "wrapoff", "Turn LCD wrap off"},
     LEF_CLI_LABEL("Misc"),
     {cmdEvOn, "evon", "Turn event on"},
     {cmdEvOff, "evoff", "Turn event off"},
     {cmd_adc, "adc", "Read adc inputs"},
     {cmd_adc_mon, "adcmon", "Monitor adc inputs"},
     {cmd_reset, "reset", "Reset the system"},
+    {cmd_sysinfo, "sysinfo", "Print LEF system information"},
     LEF_CLI_CMD(cmdHelp, "help", "Show help")
 };
 
@@ -669,8 +686,8 @@ int main(void) {
                     else
                         lcd_putc(' ');
                 }
-                lcd_gotoxy(0,3);
                 sprintf_P(buf,PSTR("   Pot value %4d"), val);
+                lcd_gotoxy(0,3);
                 lcd_puts(buf);
 
                 break;

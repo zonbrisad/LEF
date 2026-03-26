@@ -154,6 +154,7 @@ void LEF_Clear(void);
 
 uint16_t LEF_Count(void);
 
+void LEF_print_sysinfo(void);
 
 #ifdef LEF_SYSTEM_LINUX
 
@@ -167,6 +168,10 @@ uint16_t LEF_Count(void);
 void LEF_add_systimer(char* name, size_t intervall, LEF_Callback callback);
 
 #endif
+
+
+
+
 
 #ifdef __cplusplus
 } //end brace for extern "C"
