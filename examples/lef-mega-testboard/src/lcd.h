@@ -232,7 +232,7 @@ typedef uint16_t (*hd4470_callback)(HD44780_LCD msg, uint16_t data);
 #define HD44780_INIT_SEQ           0b00110000  
 #define HD44780_4BIT_MODE          0b00100000  // Put LCD in 4 bit mode
 
-extern bool lcd_wrap;
+extern volatile bool lcd_wrap;
 
 /**
  @brief    Initialize display and select type of cursor

@@ -38,7 +38,15 @@ the number of loops is calculated at compile-time from MCU clock frequency
 *************************************************************************/
 
 hd4470_callback lcd_callback;
-bool lcd_wrap = false;
+volatile bool lcd_wrap = true;
+
+#if HD44780_CONTROLLER_KS0073
+// const uint8_t line_offsets[] = {0x00, 0x20, 0x40, 0x60};
+const uint8_t line_offsets[] = {00, 32, 64, 96};
+#else
+// const uint8_t line_offsets[] = {0x00, 0x40, 0x14, 0x54};
+const uint8_t line_offsets[] = {00, 64, 20, 84};
+#endif
 
 static inline void lcd_delay(uint16_t us)  { _delay_us(us); }
 inline void lcd_e_delay(void)              { lcd_callback(HD44780_MSG_DELAY_E, 0); }
@@ -50,13 +58,6 @@ inline void lcd_rs_set(bool state)         { lcd_callback(HD44780_MSG_GPIO_RS, s
 inline void lcd_data_direction(bool write) { lcd_callback(HD44780_MSG_GPIO_DATA_DIRECTION, write);}
 inline void lcd_data_write(uint8_t data)   { lcd_callback(HD44780_MSG_GPIO_DATA_WRITE, data); }
 inline uint8_t lcd_data_read(void)         { return lcd_callback(HD44780_MSG_GPIO_DATA_READ, 0); }
-
-
-#if HD44780_CONTROLLER_KS0073
-static uint8_t line_offsets[] = {0x00, 0x20, 0x40, 0x60};
-#else
-static uint8_t line_offsets[] = {0x00, 0x40, 0x14, 0x54};
-#endif
 
 
 #define HD44780_START_LINE1  line_offsets[0]
@@ -161,7 +162,8 @@ Move cursor to the start of next line or to the first line if the cursor
 is already on the last line.
 *************************************************************************/
 static inline void lcd_newline(uint8_t pos) {
-    register uint8_t addressCounter;
+    uint8_t addressCounter;
+    // register uint8_t addressCounter;
 
 #if HD44780_LINES == 1
     addressCounter = 0;
@@ -193,6 +195,7 @@ static inline void lcd_newline(uint8_t pos) {
         addressCounter = HD44780_START_LINE1;
 #endif
 #endif
+    // printf("Newline: %d\n", addressCounter);
     lcd_command(HD44780_INST_DDRAM + addressCounter);
 } 
 
@@ -231,46 +234,45 @@ void lcd_gotoxy(uint8_t x, uint8_t y) {
 *************************************************************************/
 int lcd_getxy(void) { return lcd_waitbusy(); }
 
-
 /*************************************************************************
 Display character at current cursor position
 Input:    character to be displayed
 Returns:  none
 *************************************************************************/
 void lcd_putc(char c) {
+    //static bool newline = false;
     uint8_t pos;
 
     pos = lcd_waitbusy();  // read busy-flag and address counter
     if (c == '\n') {
         lcd_newline(pos);
+        //newline=true;
         return;
-
-    if (lcd_wrap) {}
-#if HD44780_LINES == 1
-        if (pos == HD44780_START_LINE1 + HD44780_DISP_LENGTH) {
-            lcd_write((HD44780_INST_DDRAM) + HD44780_START_LINE1, 0);
-        }
-#elif HD44780_LINES == 2
-        if (pos == HD44780_START_LINE1 + HD44780_DISP_LENGTH) {
-            lcd_write((HD44780_INST_DDRAM) + HD44780_START_LINE2, 0);
-        } else if (pos == HD44780_START_LINE2 + HD44780_DISP_LENGTH) {
-            lcd_write((HD44780_INST_DDRAM) + HD44780_START_LINE1, 0);
-        }
-#elif HD44780_LINES == 4
-        if (pos == (HD44780_START_LINE1 + HD44780_DISP_LENGTH-1)) {
-            lcd_write(HD44780_INST_DDRAM + HD44780_START_LINE2, 0);
-        } else if (pos == (HD44780_START_LINE2 + HD44780_DISP_LENGTH-1)) {
-            lcd_write(HD44780_INST_DDRAM + HD44780_START_LINE3, 0);
-        } else if (pos == (HD44780_START_LINE3 + HD44780_DISP_LENGTH-1)) {
-            lcd_write(HD44780_INST_DDRAM + HD44780_START_LINE4, 0);
-        } else if (pos == (HD44780_START_LINE4 + HD44780_DISP_LENGTH-1)) {
-            lcd_write(HD44780_INST_DDRAM + HD44780_START_LINE1, 0);
-        }
-#endif
-        lcd_waitbusy();
     }
-    
+
+    uint8_t new_pos = 255;
+    if (lcd_wrap == true) {
+        if (pos == (HD44780_START_LINE1 + HD44780_DISP_LENGTH-1)) {
+            new_pos = HD44780_START_LINE2;
+        } else if (pos == (HD44780_START_LINE2 + HD44780_DISP_LENGTH-1)) {
+            new_pos = HD44780_START_LINE3;
+        } else if (pos == (HD44780_START_LINE3 + HD44780_DISP_LENGTH-1)) {
+            new_pos = HD44780_START_LINE4;
+        } else if (pos == (HD44780_START_LINE4 + HD44780_DISP_LENGTH-1)) {
+            new_pos = HD44780_START_LINE1;
+        }
+        //printf("%d ",pos);
+        //printf("Wrap pos=%d  new_pos=%d\n", pos, new_pos);
+    }
+
+write:    
     lcd_write(c, 1);
+    //newline = false;
+    // if ((new_pos != 255) || (newline)) {
+    if (new_pos != 255) {
+        lcd_waitbusy();
+        lcd_write(HD44780_INST_DDRAM + new_pos, 0);
+    }
 } 
 
 /*************************************************************************
@@ -278,8 +280,8 @@ Display string without auto linefeed
 Input:    string to be displayed
 Returns:  none
 *************************************************************************/
+/* print string on lcd (no auto linefeed) */
 void lcd_puts(const char* s) {
-    /* print string on lcd (no auto linefeed) */
     register char c;
 
     while ((c = *s++)) {

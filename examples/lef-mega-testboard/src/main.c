@@ -238,11 +238,17 @@ static void cmd_lcd_move_left(char* args) {
 static void cmd_lcd_test1(char* args) {
     UNUSED(args);
     lcd_clear();
-    lcd_puts_P("   Testing newline\n");
+    _delay_ms(300);
+    lcd_puts_P("  Testing newline\n");
+    _delay_ms(300);
     lcd_puts_P("Line 2\n");
+    _delay_ms(300);
     lcd_puts_P("Line 3\n");
+    _delay_ms(300);
     lcd_puts_P("Line 4\n");
+    _delay_ms(300);
     lcd_puts_P("Line 5\n");
+    // _delay_ms(300);
 }
 
 static void cmd_lcd_test2(char* args) {
@@ -261,10 +267,9 @@ static void cmd_lcd_test2(char* args) {
 static void cmd_lcd_test3(char* args) {
     UNUSED(args);
     lcd_clear();
-    // lcd_gotoxy(5,0);
-    lcd_puts_P("Testing wrap");
-    for (int i=0; i<20; i++) {
+    for (int i=0; i<80; i++) {
         lcd_putc('X');
+        _delay_ms(20);
     }
 }
 /*
@@ -686,10 +691,9 @@ int main(void) {
                     else
                         lcd_putc(' ');
                 }
-                sprintf_P(buf,PSTR("   Pot value %4d"), val);
                 lcd_gotoxy(0,3);
+                sprintf_P(buf,PSTR("   Pot value %4d"), val);
                 lcd_puts(buf);
-
                 break;
 
             case LEF_EVENT_TEST:

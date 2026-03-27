@@ -110,6 +110,8 @@ void LEF_Wait(LEF_Event *event) {
 static inline void lef_print_info(char* a, char* b) {
     lefprintf("%-20s    %s\n", a, b);
 }
+
+
 void LEF_print_sysinfo(void) {
     char buf[16];
     
@@ -118,13 +120,8 @@ void LEF_print_sysinfo(void) {
     lef_print_info("C Standard:", LEFSTR(__STDC_VERSION__));
 
 #ifdef __GNUC__
-    lef_print_info("GNU C ver:", LEFSTR(__GNUC_VERSION__));
+    lef_print_info("GNU C ver:", __VERSION__);
 #endif
-
-#ifdef F_CPU
-    lef_print_info("CPU Freq:", LEFSTR(F_CPU));
-#endif
-
 
 #ifdef __BIG_ENDIAN__
     lef_print_info("Byteorder:", "big endian");
@@ -147,6 +144,24 @@ void LEF_print_sysinfo(void) {
 
     sprintf(buf, "%d", sizeof(void*));
     lef_print_info("Pointer size:", buf);
+
+#if defined(__x86_64__)
+    lef_print_info("Architecture:", "x86-64");
+#elif defined(__i386__)
+    lef_print_info("Architecture:", "x86 (32-bit)");
+#elif defined(__aarch64__)
+    lef_print_info("Architecture:", "ARM64 / AArch64");
+#elif defined(__arm__)
+    lef_print_info("Architecture:", "ARM (32-bit)");
+#elif defined(__AVR__)
+    lef_print_info("Architecture:", "AVR");
+#else
+    lef_print_info("Architecture:", "Not identified");
+#endif
+
+#ifdef F_CPU
+    lef_print_info("CPU Freq:", LEFSTR(F_CPU));
+#endif
 
     lef_print_info("Std queue", LEFSTR(LEF_QUEUE_LENGTH));
     lefprintf("\n");
