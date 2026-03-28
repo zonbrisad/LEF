@@ -25,7 +25,7 @@
     (direction ? _SET(DDR, port) : _CLEAR(DDR, port)); \
     (pullup ? _SET(PORT, port) : _CLEAR(PORT, port)); } while (0)
 
-#define gpio_direction(port, direction) (direption ? _SET(DDR, port) : _CLEAR(DDR, port))
+#define gpio_direction(port, direction) (direction ? _SET(DDR, port) : _CLEAR(DDR, port))
 #define gpio_pullup(port, pullupp) (pullupp ? _SET(PORT, port) : _CLEAR(PORT, port))
 #define gpio_write(port, val) (val ? _SET(PORT, port) : _CLEAR(PORT, port))
 #define gpio_read(port) (_GET(PIN, port))

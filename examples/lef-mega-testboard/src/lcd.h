@@ -68,9 +68,9 @@ typedef enum {
     HD44780_MSG_delay_ms,
     HD44780_MSG_delay_us,
     HD44780_MSG_DELAY_E,
-} HD44780_LCD;
+} HD44780_MSG;
 
-typedef uint16_t (*hd4470_callback)(HD44780_LCD msg, uint16_t data);
+typedef uint16_t (*hd4470_callback)(HD44780_MSG msg, uint16_t data);
 
 /**@{*/
 
@@ -92,7 +92,6 @@ typedef uint16_t (*hd4470_callback)(HD44780_LCD msg, uint16_t data);
 #define HD44780_LINES           4     /**< number of visible lines of the display */
 #define HD44780_DISP_LENGTH    20     /**< visibles characters per line of the display */
 #define HD44780_LINE_LENGTH  0x40     /**< internal line length of the display    */
-#define HD44780_WRAP_LINES      1     /**< 0: no wrap, 1: wrap at end of visibile line */
 
 /**
  * @name Definitions for 4-bit IO mode

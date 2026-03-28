@@ -4457,7 +4457,7 @@
 	)
 	(wire
 		(pts
-			(xy 71.12 176.53) (xy 71.12 172.72)
+			(xy 88.9 176.53) (xy 88.9 172.72)
 		)
 		(stroke
 			(width 0)
@@ -4557,13 +4557,23 @@
 	)
 	(wire
 		(pts
-			(xy 71.12 187.96) (xy 71.12 184.15)
+			(xy 88.9 187.96) (xy 88.9 184.15)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "26ee534a-5147-4861-97b3-927ad82c70a2")
+	)
+	(wire
+		(pts
+			(xy 181.61 38.1) (xy 199.39 38.1)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2a6a6b30-10a8-462a-9962-0b19692cc450")
 	)
 	(wire
 		(pts
@@ -4807,7 +4817,7 @@
 	)
 	(wire
 		(pts
-			(xy 59.69 180.34) (xy 67.31 180.34)
+			(xy 77.47 180.34) (xy 85.09 180.34)
 		)
 		(stroke
 			(width 0)
@@ -4874,6 +4884,16 @@
 			(type default)
 		)
 		(uuid "9f67d379-4ff8-4169-ac97-5e9e877e10ff")
+	)
+	(wire
+		(pts
+			(xy 181.61 40.64) (xy 199.39 40.64)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9f6ab57f-449c-4538-8554-27b80146810a")
 	)
 	(wire
 		(pts
@@ -5285,6 +5305,16 @@
 		)
 		(uuid "06d46b2f-eb4d-418d-8898-551bc62e2f33")
 	)
+	(label "Button2"
+		(at 238.76 128.27 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "0cf196ab-6de0-424a-a999-6da4e638a3af")
+	)
 	(label "LD6"
 		(at 35.56 171.45 0)
 		(effects
@@ -5365,6 +5395,16 @@
 		)
 		(uuid "49400185-42d0-4773-9278-3948bdd0299a")
 	)
+	(label "Button1"
+		(at 238.76 115.57 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "548b8985-812e-453c-930f-85d5e6348b3c")
+	)
 	(label "GND"
 		(at 35.56 140.97 0)
 		(effects
@@ -5415,6 +5455,16 @@
 		)
 		(uuid "71a51c29-8777-437d-9b9a-95a3b7342161")
 	)
+	(label "Button2"
+		(at 187.96 40.64 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "78429006-cd0c-4720-9b52-b4ae865edacc")
+	)
 	(label "+5V"
 		(at 157.48 182.88 0)
 		(effects
@@ -5434,6 +5484,16 @@
 			(justify left bottom)
 		)
 		(uuid "a36b22b5-9fb6-4a3a-a905-f8defcd1b0f0")
+	)
+	(label "Button3"
+		(at 187.96 38.1 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "a5f328e5-335d-4014-8423-ba90129b55aa")
 	)
 	(label "LD4"
 		(at 102.87 81.28 0)
@@ -5546,7 +5606,7 @@
 		(uuid "d204701d-0210-46e4-af0a-ee38838259e7")
 	)
 	(label "V0"
-		(at 62.23 180.34 0)
+		(at 80.01 180.34 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5564,6 +5624,16 @@
 			(justify left bottom)
 		)
 		(uuid "d790bdf5-ff01-406c-b2d8-f4d5d243639e")
+	)
+	(label "Button3"
+		(at 238.76 140.97 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "d913bf7d-fc5c-49d5-89a8-08fe5ad77ab0")
 	)
 	(label "LD2"
 		(at 35.56 161.29 0)
@@ -5624,6 +5694,16 @@
 			(justify left bottom)
 		)
 		(uuid "f189ad16-a8bc-4148-8dfb-4505c9048203")
+	)
+	(label "Button1"
+		(at 187.96 43.18 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "f8a51f2e-8215-453d-a2c6-9a76322535d9")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -5753,7 +5833,7 @@
 			(uuid "147123eb-ca72-4d5e-ab05-4ded201d231e")
 		)
 		(instances
-			(project ""
+			(project "lef-mega-testboard"
 				(path "/23172db6-2709-4b02-aaae-9ed28b7e74f3"
 					(reference "BZ1")
 					(unit 1)
@@ -5763,7 +5843,7 @@
 	)
 	(symbol
 		(lib_id "power:+5V")
-		(at 71.12 172.72 0)
+		(at 88.9 172.72 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -5772,7 +5852,7 @@
 		(fields_autoplaced yes)
 		(uuid "0b7c550e-ef2d-444f-82b5-260f1a91db8d")
 		(property "Reference" "#PWR09"
-			(at 71.12 176.53 0)
+			(at 88.9 176.53 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5781,7 +5861,7 @@
 			)
 		)
 		(property "Value" "+5V"
-			(at 71.12 167.64 0)
+			(at 88.9 167.64 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5789,7 +5869,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 71.12 172.72 0)
+			(at 88.9 172.72 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5798,7 +5878,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 71.12 172.72 0)
+			(at 88.9 172.72 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5807,7 +5887,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"+5V\""
-			(at 71.12 172.72 0)
+			(at 88.9 172.72 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5953,7 +6033,7 @@
 			(uuid "ee56454b-3b70-49e3-863d-7a905d15ed2f")
 		)
 		(instances
-			(project ""
+			(project "lef-mega-testboard"
 				(path "/23172db6-2709-4b02-aaae-9ed28b7e74f3"
 					(reference "SW2")
 					(unit 1)
@@ -6118,7 +6198,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 71.12 187.96 0)
+		(at 88.9 187.96 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -6127,7 +6207,7 @@
 		(fields_autoplaced yes)
 		(uuid "502ae804-2633-4490-bf7e-97bcb628569c")
 		(property "Reference" "#PWR010"
-			(at 71.12 194.31 0)
+			(at 88.9 194.31 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6136,7 +6216,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 71.12 193.04 0)
+			(at 88.9 193.04 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6144,7 +6224,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 71.12 187.96 0)
+			(at 88.9 187.96 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6153,7 +6233,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 71.12 187.96 0)
+			(at 88.9 187.96 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6162,7 +6242,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 71.12 187.96 0)
+			(at 88.9 187.96 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6309,7 +6389,7 @@
 			(uuid "da7d8c28-41f6-4d99-883e-d6897b29e99f")
 		)
 		(instances
-			(project ""
+			(project "lef-mega-testboard"
 				(path "/23172db6-2709-4b02-aaae-9ed28b7e74f3"
 					(reference "#PWR01")
 					(unit 1)
@@ -6386,7 +6466,7 @@
 			(uuid "8dcaeaa3-694c-4c55-bd4c-29a87ac50585")
 		)
 		(instances
-			(project ""
+			(project "lef-mega-testboard"
 				(path "/23172db6-2709-4b02-aaae-9ed28b7e74f3"
 					(reference "SW1")
 					(unit 1)
@@ -6732,7 +6812,7 @@
 			(uuid "e9e187d8-501a-42ee-a00c-6f5557ae7b42")
 		)
 		(instances
-			(project ""
+			(project "lef-mega-testboard"
 				(path "/23172db6-2709-4b02-aaae-9ed28b7e74f3"
 					(reference "D1")
 					(unit 1)
@@ -6742,7 +6822,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Potentiometer")
-		(at 71.12 180.34 180)
+		(at 88.9 180.34 180)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -6751,7 +6831,7 @@
 		(fields_autoplaced yes)
 		(uuid "ac2fd194-95a7-4b8c-8735-93f13b7268d3")
 		(property "Reference" "RV2"
-			(at 73.66 179.0699 0)
+			(at 91.44 179.0699 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6760,7 +6840,7 @@
 			)
 		)
 		(property "Value" "10K"
-			(at 73.66 181.6099 0)
+			(at 91.44 181.6099 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6769,7 +6849,7 @@
 			)
 		)
 		(property "Footprint" "Potentiometer_THT:Potentiometer_Alpha_RD902F-40-00D_Dual_Vertical"
-			(at 71.12 180.34 0)
+			(at 88.9 180.34 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6778,7 +6858,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 71.12 180.34 0)
+			(at 88.9 180.34 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6787,7 +6867,7 @@
 			)
 		)
 		(property "Description" "Potentiometer"
-			(at 71.12 180.34 0)
+			(at 88.9 180.34 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7146,7 +7226,7 @@
 			(uuid "1bdaaa98-48ba-4907-851b-36d22b75dc65")
 		)
 		(instances
-			(project ""
+			(project "lef-mega-testboard"
 				(path "/23172db6-2709-4b02-aaae-9ed28b7e74f3"
 					(reference "R1")
 					(unit 1)
@@ -7284,7 +7364,7 @@
 			(uuid "1a4a9321-c4ff-44d1-81ca-69f56c831de3")
 		)
 		(instances
-			(project ""
+			(project "lef-mega-testboard"
 				(path "/23172db6-2709-4b02-aaae-9ed28b7e74f3"
 					(reference "D6")
 					(unit 1)
@@ -7357,7 +7437,7 @@
 			(uuid "3ce4065f-0543-436e-8cd0-48e7ea2c7db5")
 		)
 		(instances
-			(project ""
+			(project "lef-mega-testboard"
 				(path "/23172db6-2709-4b02-aaae-9ed28b7e74f3"
 					(reference "RV1")
 					(unit 1)
@@ -7902,7 +7982,7 @@
 			(uuid "4117c47e-d06b-41ae-ac2a-c1c37faa2d23")
 		)
 		(instances
-			(project ""
+			(project "lef-mega-testboard"
 				(path "/23172db6-2709-4b02-aaae-9ed28b7e74f3"
 					(reference "A1")
 					(unit 1)
@@ -7968,7 +8048,7 @@
 			(uuid "94aad38a-2595-4be7-8b12-c6db0ab80acb")
 		)
 		(instances
-			(project ""
+			(project "lef-mega-testboard"
 				(path "/23172db6-2709-4b02-aaae-9ed28b7e74f3"
 					(reference "#PWR02")
 					(unit 1)
@@ -8080,7 +8160,7 @@
 			(uuid "dfe84482-8b4b-468b-af36-381b651d2a4c")
 		)
 		(instances
-			(project ""
+			(project "lef-mega-testboard"
 				(path "/23172db6-2709-4b02-aaae-9ed28b7e74f3"
 					(reference "J1")
 					(unit 1)

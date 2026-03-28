@@ -129,7 +129,7 @@ static uint8_t lcd_read(uint8_t rs) {
 
     data = data << 4;
 
-    lcd_e_delay(); /* Enable 500ns low       */
+    lcd_e_delay();  /* Enable 500ns low       */
 
     /* read low nibble */
     lcd_e_set(1);

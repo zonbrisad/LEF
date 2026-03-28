@@ -17,12 +17,12 @@
  * Hardware description:
  * - Arduino Mega 1280
  *
- * Button1 = PG5 (PWM4)
- * Button2 = PE5 (PWM3)
- * Button3 = PE4 (PWM2)
+ * Button1 = D4 PG5 (PWM4)
+ * Button2 = D3 PE5 (PWM3)
+ * Button3 = D2 PE4 (PWM2)
  *
- * Pot = PK0 (ADC8)
- * Buzzer = PK1 (ADC9)
+ * Pot     = PK0 (ADC8)
+ * Buzzer  = PK1 (ADC9)
  *
  * LED1 = PK7 (ADC15)
  * LED2 = PK6 (ADC14)
@@ -44,6 +44,8 @@
  * - D5 = PF3 (ADC3)
  * - D6 = PF2 (ADC2)
  * - D7 = PF1 (ADC1)
+ *
+ *  LEF system timer (10ms) = Timer 1 (16 bit)  OCA1 interrupt
  */
 
 // Include ------------------------------------------------------------------
@@ -485,7 +487,7 @@ ISR(ADC_vect) {
 #define LCD_RW_PIN F, 6    /**< pin for Read/Write line */
 #define LCD_E_PIN F, 5     /**< pin for Enable line     */
 
-static uint16_t LCD_Handler(HD44780_LCD msg, uint16_t data_arg) {
+static uint16_t LCD_Handler(HD44780_MSG msg, uint16_t data_arg) {
     uint16_t result = 0;
     switch (msg) {
         case HD44780_MSG_INIT:
@@ -555,11 +557,6 @@ static void hw_init(void) {
     // set_sleep_mode(SLEEP_MODE_IDLE);
     // sleep_enable();
 
-    // Pin Change Mask Register 1
-    //PCMSK1 |= (1 << PCINT8);
-
-    // Enable Pin change interrupt
-    //PCICR |= (1 << PCIE1);
 
     ADC_ENABLE();
     ADC_REF_AVCC();
@@ -569,18 +566,29 @@ static void hw_init(void) {
 
     // Timer 1 (16 bit) 10ms intervall on OCA1 interrupt 
     // (used for LEF system timer)
-    TIMER1_CLK_PRES_64(); // alternative for 10ms that gives good accuracy
-    TIMER1_OCA(2499);
-    TIMER1_MODE_CTC();        // Clear timer on compare (on OC1A)
-    TIMER1_COM_OC1A_TOGGLE(); // toggle OC1A pin when compare
+    // TIMER1_CLK_PRES_64(); // alternative for 10ms that gives good accuracy
+    // TIMER1_OCA(2499);
+    // TIMER1_MODE_CTC();        // Clear timer on compare (on OC1A)
+    // TIMER1_COM_OC1A_TOGGLE(); // toggle OC1A pin when compare
+    // TIMER1_OCA_INT(true);  // enable output compare A interrupt
     gpio_init(PIN_OC1A, true, false);
-    TIMER1_OCA_INT(true);  // enable output compare A interrupt
+
+    // Timer 1 (16 bit) alternative
+    TIMER_CLK_DIV_64(1);
+    TIMER_OCA(1, 2499);
+    TIMER_MODE_CTC(1);
+    TIMER_COM_OC_TOGGLE(1, A);
+    TIMER_OCA_INT(1, true);
+
 
     //   TIMER0_CLK_PRES_1();
     //   TIMER0_OCA_SET(250);
     // //	TIMER0_WGM_PWM();
     //   TIMER0_WGM_FAST_PWM();
     //   TIMER0_OM_CLEAR();
+
+    TIMER_CLK_DIV_8(3);
+    TIMER_OCA(3, 120);
 
     // lcd_init(LCD_DISP_ON);
     lcd_init(LCD_Handler, HD44780_ON);
