@@ -65,13 +65,13 @@ the number of loops is calculated at compile-time from MCU clock frequency
 *************************************************************************/
 static inline void lcd_delay(uint16_t us) { _delay_us(us); }
 
-static inline void lcd_e_delay(void) { lcd_delay(LCD_DELAY_ENABLE_PULSE);}
-inline void lcd_e_set(bool state)  { gpio_write(LCD_E_PIN, state); }
-inline void lcd_rw_set(bool state) { gpio_write(LCD_RW_PIN, state); }
-inline void lcd_rs_set(bool state) { gpio_write(LCD_RS_PIN, state); }
+static inline void lcd_pin_e_delay(void) { lcd_delay(LCD_DELAY_ENABLE_PULSE);}
+inline void lcd_pin_e_set(bool state)  { gpio_write(LCD_E_PIN, state); }
+inline void lcd_pin_rw_set(bool state) { gpio_write(LCD_RW_PIN, state); }
+inline void lcd_pin_rs_set(bool state) { gpio_write(LCD_RS_PIN, state); }
 
 
-inline void lcd_data_direction(bool write) {
+inline void lcd_pins_data_direction(bool write) {
     if (write) {
         /* configure data pins as output */
         gpio_mode(LCD_DATA4_PIN, 1);
@@ -87,14 +87,14 @@ inline void lcd_data_direction(bool write) {
     }
 }
 
-inline void lcd_data_write(uint8_t data) {
+inline void lcd_pins_data_write(uint8_t data) {
     gpio_write(LCD_DATA7_PIN, data & 0x80);
     gpio_write(LCD_DATA6_PIN, data & 0x40);
     gpio_write(LCD_DATA5_PIN, data & 0x20);
     gpio_write(LCD_DATA4_PIN, data & 0x10);
 }
 
-inline uint8_t lcd_data_read(void) {
+inline uint8_t lcd_pins_data_read(void) {
     uint8_t data = 0;
 
     if (gpio_read(LCD_DATA4_PIN)) data |= 0x01;
@@ -111,14 +111,14 @@ inline void lcd_init_pins(void) {
     gpio_mode(LCD_RW_PIN, 1);
     gpio_mode(LCD_E_PIN, 1);
 
-    lcd_data_direction(true);
-    lcd_data_write(0b11110000);
+    lcd_pins_data_direction(true);
+    lcd_pins_data_write(0b11110000);
 }
 
-static inline void lcd_e_toggle(void) {
-    lcd_e_set(1);
-    lcd_e_delay();
-    lcd_e_set(0);
+static inline void lcd_pin_e_toggle(void) {
+    lcd_pin_e_set(1);
+    lcd_pin_e_delay();
+    lcd_pin_e_set(0);
 }
 
 #if LCD_LINES == 1
@@ -149,17 +149,17 @@ Returns:  none
 *************************************************************************/
 static void lcd_write(uint8_t data, uint8_t rs) {
 
-    lcd_rs_set(rs);
-    lcd_rw_set(0);  /* RW=0  write mode      */
+    lcd_pin_rs_set(rs);
+    lcd_pin_rw_set(0);  /* RW=0  write mode      */
 
-    lcd_data_direction(true);
-    lcd_data_write(data);
-    lcd_e_toggle();
+    lcd_pins_data_direction(true);
+    lcd_pins_data_write(data);
+    lcd_pin_e_toggle();
         
-    lcd_data_write(data<<4);
-    lcd_e_toggle();
+    lcd_pins_data_write(data<<4);
+    lcd_pin_e_toggle();
 
-    lcd_data_write(0b11110000);
+    lcd_pins_data_write(0b11110000);
 }
 
 /*************************************************************************
@@ -171,27 +171,27 @@ Returns:  byte read from LCD controller
 static uint8_t lcd_read(uint8_t rs) {
     uint8_t data = 0;
 
-    lcd_rs_set(rs);
-    lcd_rw_set(1);    /* RW=1  read mode      */
+    lcd_pin_rs_set(rs);
+    lcd_pin_rw_set(1);    /* RW=1  read mode      */
     
     // set data pins as inputs
-    lcd_data_direction(false);
+    lcd_pins_data_direction(false);
 
     /* read high nibble first */
-    lcd_e_set(1);
-    lcd_e_delay();
-    data = lcd_data_read();
-    lcd_e_set(0);
+    lcd_pin_e_set(1);
+    lcd_pin_e_delay();
+    data = lcd_pins_data_read();
+    lcd_pin_e_set(0);
 
     data = data << 4;
 
-    lcd_e_delay(); /* Enable 500ns low       */
+    lcd_pin_e_delay(); /* Enable 500ns low       */
 
     /* read low nibble */
-    lcd_e_set(1);
-    lcd_e_delay();
-    data |= lcd_data_read();
-    lcd_e_set(0);
+    lcd_pin_e_set(1);
+    lcd_pin_e_delay();
+    data |= lcd_pins_data_read();
+    lcd_pin_e_set(0);
     return data;
 }
 
@@ -250,7 +250,7 @@ static inline void lcd_newline(uint8_t pos) {
         addressCounter = LCD_START_LINE1;
 #endif
 #endif
-    lcd_command((1 << LCD_DDRAM) + addressCounter);
+    lcd_send_command((1 << LCD_DDRAM) + addressCounter);
 
 } /* lcd_newline */
 
@@ -263,7 +263,7 @@ Send LCD controller instruction command
 Input:   instruction to send to LCD controller, see HD44780 data sheet
 Returns: none
 *************************************************************************/
-void lcd_command(uint8_t cmd) {
+void lcd_send_command(uint8_t cmd) {
     lcd_waitbusy();
     lcd_write(cmd, 0);
 }
@@ -273,7 +273,7 @@ Send data byte to LCD controller
 Input:   data to send to LCD controller, see HD44780 data sheet
 Returns: none
 *************************************************************************/
-void lcd_data(uint8_t data) {
+void lcd_send_data(uint8_t data) {
     lcd_waitbusy();
     lcd_write(data, 1);
 }
@@ -296,13 +296,13 @@ void lcd_gotoxy(uint8_t x, uint8_t y) {
 #endif
 #if LCD_LINES == 4
     if (y == 0)
-        lcd_command((1 << LCD_DDRAM) + LCD_START_LINE1 + x);
+        lcd_send_command((1 << LCD_DDRAM) + LCD_START_LINE1 + x);
     else if (y == 1)
-        lcd_command((1 << LCD_DDRAM) + LCD_START_LINE2 + x);
+        lcd_send_command((1 << LCD_DDRAM) + LCD_START_LINE2 + x);
     else if (y == 2)
-        lcd_command((1 << LCD_DDRAM) + LCD_START_LINE3 + x);
+        lcd_send_command((1 << LCD_DDRAM) + LCD_START_LINE3 + x);
     else /* y==3 */
-        lcd_command((1 << LCD_DDRAM) + LCD_START_LINE4 + x);
+        lcd_send_command((1 << LCD_DDRAM) + LCD_START_LINE4 + x);
 #endif
 
 } /* lcd_gotoxy */
@@ -402,23 +402,23 @@ void lcd_init(uint8_t dispAttr) {
     lcd_delay(LCD_DELAY_BOOTUP); /* wait 16ms or more after power-on       */
 
     /* initial write to lcd is 8bit */
-    lcd_data_write(LCD_INIT_SEQ);
+    lcd_pins_data_write(LCD_INIT_SEQ);
     
-    lcd_e_toggle();
+    lcd_pin_e_toggle();
     lcd_delay(LCD_DELAY_INIT); /* delay, busy flag can't be checked here */
     
     /* repeat last command */
-    lcd_e_toggle();
+    lcd_pin_e_toggle();
     lcd_delay(LCD_DELAY_INIT_REP); /* delay, busy flag can't be checked here */
     
     /* repeat last command a third time */
-    lcd_e_toggle();
+    lcd_pin_e_toggle();
     lcd_delay(LCD_DELAY_INIT_REP); /* delay, busy flag can't be checked here */
     
     /* now configure for 4bit mode */
-    lcd_data_write(LCD_4BIT_MODE);
+    lcd_pins_data_write(LCD_4BIT_MODE);
 
-    lcd_e_toggle();
+    lcd_pin_e_toggle();
     lcd_delay(LCD_DELAY_INIT_4BIT); /* some displays need this additional delay */
 
     /* from now the LCD only accepts 4 bit I/O, we can use lcd_command() */
@@ -430,11 +430,11 @@ void lcd_init(uint8_t dispAttr) {
     lcd_command(KS0073_4LINES_MODE);
     lcd_command(KS0073_EXTENDED_FUNCTION_REGISTER_OFF);
 #else
-    lcd_command(LCD_FUNCTION_DEFAULT); /* function set: display lines  */
+    lcd_send_command(LCD_FUNCTION_DEFAULT); /* function set: display lines  */
 #endif
-    lcd_command(LCD_DISP_OFF);     /* display off                  */
+    lcd_send_command(LCD_DISP_OFF);     /* display off                  */
     lcd_clear();                   /* display clear                */
-    lcd_command(LCD_MODE_DEFAULT); /* set entry mode               */
-    lcd_command(dispAttr);         /* display/cursor control       */
+    lcd_send_command(LCD_MODE_DEFAULT); /* set entry mode               */
+    lcd_send_command(dispAttr);         /* display/cursor control       */
 
 } /* lcd_init */

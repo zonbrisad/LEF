@@ -15,8 +15,8 @@ void i2c_start(void) {
     i2c_delay();
     sda_set(0);
     i2c_delay();
-    scl_set(0);
-    i2c_delay();
+    // scl_set(0);
+    // i2c_delay();
 }
 
 void i2c_stop(void) {

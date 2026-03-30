@@ -209,37 +209,37 @@ extern void lcd_init(uint8_t dispAttr);
  @param    cmd instruction to send to LCD controller, see HD44780 data sheet
  @return   none
 */
-extern void lcd_command(uint8_t cmd);
+extern void lcd_send_command(uint8_t cmd);
 
 /**
  * Clear display and set cursor to home position
  */
-inline void lcd_clear(void) { lcd_command(1 << LCD_CLR); }
+inline void lcd_clear(void) { lcd_send_command(1 << LCD_CLR); }
 
 /**
  * Set cursor to home position
  */
-inline void lcd_home(void) { lcd_command(1 << LCD_HOME); }
+inline void lcd_home(void) { lcd_send_command(1 << LCD_HOME); }
 
 
-inline void lcd_move_right(void) { lcd_command(LCD_MOVE_DISP_RIGHT); }
-inline void lcd_move_left(void) { lcd_command(LCD_MOVE_DISP_LEFT); }
+inline void lcd_move_right(void) { lcd_send_command(LCD_MOVE_DISP_RIGHT); }
+inline void lcd_move_left(void) { lcd_send_command(LCD_MOVE_DISP_LEFT); }
 
 
 /**
  * Turn display on
  */
-inline void lcd_on(void) { lcd_command(LCD_DISP_ON); }
+inline void lcd_on(void) { lcd_send_command(LCD_DISP_ON); }
 
 /**
  * Turn display on and show cursor
  */
-inline void lcd_on_cursor(void) { lcd_command(LCD_DISP_ON_CURSOR); }
+inline void lcd_on_cursor(void) { lcd_send_command(LCD_DISP_ON_CURSOR); }
 
 /** 
  * Turn display off     
  */
-inline void lcd_off(void) { lcd_command(LCD_DISP_OFF); }
+inline void lcd_off(void) { lcd_send_command(LCD_DISP_OFF); }
 
 /**
  @brief    Set cursor to specified position
@@ -285,7 +285,7 @@ extern void lcd_puts_p(const char *progmem_s);
  @param    data byte to send to LCD controller, see HD44780 data sheet
  @return   none
 */
-extern void lcd_data(uint8_t data);
+extern void lcd_send_data(uint8_t data);
 
 /**
  @brief macros for automatically storing string constant in program memory

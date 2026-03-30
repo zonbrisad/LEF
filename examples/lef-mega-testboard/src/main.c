@@ -124,8 +124,6 @@ static FILE mystdout =
     FDEV_SETUP_STREAM((void*)uart_putc, NULL, _FDEV_SETUP_WRITE);
 
 
-
-
 #define LCD_DATA4_PIN F, 4 /**< pin for 4bit data bit 0  */
 #define LCD_DATA5_PIN F, 3 /**< pin for 4bit data bit 1  */
 #define LCD_DATA6_PIN F, 2 /**< pin for 4bit data bit 2  */
@@ -134,7 +132,7 @@ static FILE mystdout =
 #define LCD_RW_PIN F, 6    /**< pin for Read/Write line */
 #define LCD_E_PIN F, 5     /**< pin for Enable line     */
 
-static uint16_t LCD_Handler(HD44780_MSG msg, uint16_t data_arg) {
+static uint16_t LCD_Handler_gpio(HD44780_MSG msg, uint16_t data_arg) {
     uint16_t result = 0;
     switch (msg) {
         case HD44780_MSG_INIT:
@@ -177,6 +175,14 @@ static uint16_t LCD_Handler(HD44780_MSG msg, uint16_t data_arg) {
         case HD44780_MSG_DELAY_E:
             _delay_us(HD44780_DELAY_ENABLE_PULSE);
             break;
+        case HD44780_MSG_DELAY_US:
+            data_arg = data_arg/10;
+            while (data_arg--) _delay_us(10);
+            break;
+        case HD44780_MSG_BACKLIGHT:
+            TIMER_OCA(4, (data_arg));
+            break;
+
         default: break;
     }
     return result;
@@ -244,10 +250,13 @@ static uint16_t LCD_Handler_i2c(HD44780_MSG msg, uint16_t data_arg) {
         case HD44780_MSG_BACKLIGHT:
             data_arg ? BitSet(pins, PCF_BL) : BitClear(pins, PCF_BL);
             break;
+        case HD44780_MSG_DELAY_US:
+            data_arg = data_arg / 10;
+            while (data_arg--) _delay_us(10);
+            break;
         default: break;
     }
     pcf_write(PCF_ADDR, pins);
-
     return result;
 }
 
@@ -337,6 +346,19 @@ static void cmdHelp(char* args) {
     LEF_Cli_print();
 }
 
+static void cmd_lcd_i2c(char* args) {
+    UNUSED(args);
+    lcd_init(LCD_Handler_i2c, HD44780_ON);
+    lcd_clear();
+    lcd_puts("LCD on PCF8574");
+}
+
+static void cmd_lcd_gpio(char* args) {
+    lcd_init(LCD_Handler_gpio, HD44780_ON);
+    lcd_clear();
+    lcd_puts_P("LCD on GPIO");
+}
+
 static void cmd_lcd_on(char* args) {
     UNUSED(args);
     lcd_on();
@@ -420,13 +442,13 @@ static const PROGMEM unsigned char copyRightChar[] = {
 static void cmd_lcd_test_cc(char* args) {
     UNUSED(args);
     lcd_clear();
-    lcd_puts_P("  Custom char test");
+    lcd_puts_P("Custom char test");
 
-    lcd_command(HD44780_INST_CGRAM); /* set CG RAM start address 0 */
+    lcd_send_command(HD44780_INST_CGRAM); /* set CG RAM start address 0 */
     for (int i = 0; i < 16; i++) {
-        lcd_data(pgm_read_byte_near(&copyRightChar[i]));
+        lcd_send_data(pgm_read_byte_near(&copyRightChar[i]));
     }
-    lcd_gotoxy(0,2);
+    lcd_gotoxy(0,1);
     lcd_putc(0);
     lcd_putc(1);
 }
@@ -437,17 +459,17 @@ static void cmd_lcd_test_move(char* args) {
     lcd_puts_P("Some text to move");
     _delay_ms(300);
     lcd_home();
-    lcd_command(HD44780_MOVE_DISPLAY_RIGHT);
+    lcd_send_command(HD44780_MOVE_DISPLAY_RIGHT);
 }
 
-static void cmd_lcd_wrap_on(char* args) {
+static void cmd_lcd_backlight_on(char* args) {
     UNUSED(args);
-    lcd_wrap_enable(true);
+    lcd_backlight(200);
 }
 
-static void cmd_lcd_wrap_off(char* args) {
+static void cmd_lcd_backlight_off(char* args) {
     UNUSED(args);
-    lcd_wrap_enable(false);
+    lcd_backlight(0);
 }
 
 static inline void adc_print_all(bool print_header) {
@@ -568,11 +590,7 @@ static void cmd_pcf_read(char* args) {
 //     _delay_ms(10);
 // }
 
-static void cmd_i2c_lcd(char *args) {
-    UNUSED(args);
-    lcd_init(LCD_Handler_i2c, HD44780_ON);
-    lcd_puts("I2C LCD working");
-}
+
 
 static void cmd_i2c_scan(char* args) {
     UNUSED(args);
@@ -624,6 +642,8 @@ const PROGMEM LEF_CliCmd cmdTable[] = {
     {cmd_dblink, "dblink", "Make led blink twice"},
     {cmd_tblink, "tblink", "Make led blink three times"},
     LEF_CLI_LABEL("LCD"),
+    {cmd_lcd_gpio, "lcdgpio", "Initiate LCD on GPIO"},
+    {cmd_lcd_i2c, "lcdi2c", "Initiate LCD on PCF8574"},
     {cmd_lcd_on, "lcdon", "Turn LCD on"},
     {cmd_lcd_off, "lcdoff", "Turn LCD off"},
     {cmd_lcd_cursor_on, "lcdcuron", "Turn LCD cursor on"},
@@ -636,14 +656,14 @@ const PROGMEM LEF_CliCmd cmdTable[] = {
     {cmd_lcd_test3, "lcdt3", "Testing wrap"},
     {cmd_lcd_test_cc, "lcdcc", "Testing custom character"},
     {cmd_lcd_test_move, "lcdtm", "Run LCD move test"},
-    {cmd_lcd_wrap_on, "wrapon", "Turn LCD wrap on"},
-    {cmd_lcd_wrap_off, "wrapoff", "Turn LCD wrap off"},
+    {cmd_lcd_backlight_on, "lcdblon", "LCD backlight off"},
+    {cmd_lcd_backlight_off, "lcdbloff", "LCD backlight off"},
     LEF_CLI_LABEL("I2C"),
     {cmd_i2c_test, "i2c", "i2c write test"},
     // {cmd_i2c_read_test, "i2cr", "i2c read test"},
     {cmd_i2c_scan, "i2cs", "i2c scan bus"},
     {cmd_pcf_read, "pcfr", "Read PCF8574"},
-    {cmd_i2c_lcd, "i2clcd", "Initiate LCD on PCF8574"},
+
     LEF_CLI_LABEL("Misc"),
     {cmdEvOn, "evon", "Turn event on"},
     {cmdEvOff, "evoff", "Turn event off"},
@@ -651,8 +671,7 @@ const PROGMEM LEF_CliCmd cmdTable[] = {
     {cmd_adc_mon, "adcmon", "Monitor adc inputs"},
     {cmd_reset, "reset", "Reset the system"},
     {cmd_sysinfo, "sysinfo", "Print LEF system information"},
-    LEF_CLI_CMD(cmdHelp, "help", "Show help")
-};
+    LEF_CLI_CMD(cmdHelp, "help", "Show help")};
 
 ISR(PCINT1_vect) {
     char ch = PINC;
@@ -760,9 +779,9 @@ static void hw_init(void) {
     TIMER_CLK_DIV_8(3);
     TIMER_OCA(3, 120);
 
-    lcd_init(LCD_Handler, HD44780_ON);
+    lcd_init(LCD_Handler_gpio, HD44780_ON);
     lcd_clear();
-    lcd_puts_P("   LEF Mega Test\n");
+    lcd_puts_P("   LEF Mega Test");
 
     sei();
 }
@@ -797,18 +816,7 @@ int main(void) {
 
     printf_P(PSTR("\n\nStarting LEF Arduino mega test\n\n"));
 
-    // lcd_puts_P("   LEF Mega Test\n");
-
     LEF_Buzzer_set(LEF_BUZZER_BEEP);
-
-    
-    // LCD_Handler_i2c(HD44780_MSG_INIT, 0);
-    // for (int i=0;i<20;i++) {
-    //     LCD_Handler_i2c(HD44780_MSG_BACKLIGHT, 1);
-    //     _delay_ms(100);
-    //     LCD_Handler_i2c(HD44780_MSG_BACKLIGHT, 0);
-    //     _delay_ms(100);
-    // }
 
     while (true) {
         LEF_Wait(&event);
@@ -864,10 +872,10 @@ int main(void) {
             case EVENT_Pot:
                 val = LEF_Pot_state(&pot);
                 //printf("Pot changed %d\n", val);
-                TIMER_OCA(4, (val / 4)); // set PWM on LCD backlight
-
+                //TIMER_OCA(4, (val / 4)); // set PWM on LCD backlight
+                lcd_backlight(val/4);
                 // turn on backlight if high value
-                lcd_backlight(val > 512);
+                //lcd_backlight(val > 512);
 
                 char buf[41];
                 LEF_Led_set(&led1, (val > 100));
@@ -875,15 +883,15 @@ int main(void) {
                 LEF_Led_set(&led3, (val > 500));
                 LEF_Led_set(&led4, (val > 800));
                 
-                lcd_gotoxy(0,2);
-                for (uint16_t i=0;i<20;i++) {
-                    if (1023/20*i < val)
+                lcd_gotoxy(0,0);
+                for (uint16_t i=0;i<16;i++) {
+                    if (1023/16*i < val)
                         lcd_putc('#');
                     else
                         lcd_putc(' ');
                 }
-                lcd_gotoxy(0,3);
-                sprintf_P(buf,PSTR("   Pot value %4d"), val);
+                lcd_gotoxy(0,1);
+                sprintf_P(buf,PSTR("Pot value %4d"), val);
                 lcd_puts(buf);
                 break;
 

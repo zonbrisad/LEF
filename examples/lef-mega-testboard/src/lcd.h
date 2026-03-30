@@ -1,11 +1,14 @@
-/*************************************************************************
- Title	:   C include file for the HD44780U LCD library (lcd.c)
- Author:    Peter Fleury <pfleury@gmx.ch>  http://tinyurl.com/peterfleury
- File:	    $Id: lcd.h,v 1.14.2.4 2015/01/20 17:16:07 peter Exp $
- Software:  AVR-GCC 4.x
- Hardware:  any AVR device, memory mapped mode only for AVR with 
- memory mapped interface (AT90S8515/ATmega8515/ATmega128)
- ***************************************************************************/
+/**
+ * Multiplatform software driver for HD44780 LCD.
+ * 
+ * @author Peter Malmberg
+ * 
+ * Hardware: AVR (tested), others=unknown
+ * 
+ * @brief Some basic functions for driving LCD's based on HD44780 chips.
+ * 
+ * The driver supports 4-bit IO mode only. Hardware interfacing is done via a callback function.
+ */
 
 /**
  @mainpage
@@ -65,14 +68,34 @@ typedef enum {
     HD44780_MSG_GPIO_DATA_READ,
     HD44780_MSG_GPIO_DATA_WRITE,
     HD44780_MSG_GPIO_DATA_DIRECTION,
-    HD44780_MSG_delay_ms,
-    HD44780_MSG_delay_us,
+    HD44780_MSG_DELAY_US,
     HD44780_MSG_DELAY_E,
     HD44780_MSG_BACKLIGHT,
-
 } HD44780_MSG;
 
 typedef uint16_t (*hd4470_callback)(HD44780_MSG msg, uint16_t data);
+
+/**
+ * At init a callback function must be given. It is via this function that the library
+ * interfaces with the hardware. This makes the library relatively hardware independent.
+ * The driver will "ask" the callback to perform instruction that it messages to the callback. 
+ * The different messages are listed above. The simplest is probably to implement a switch statement
+ * where the different messages are handle with case statements. Se below. 
+ *
+ * @code
+ * uint16_t my_lcd_cb(D44780_MSG msg, uint16_t data) {
+ *     switch (msg) {
+ *     case HD44780_MSG_INIT:
+ *         // Initiate gpio
+ *         break;
+ *     case HD44780_MSG_GPIO_E:
+ *         // set gpio E if data>0, clear if 0
+ *         break;    
+ *     case ...  // and so on
+ *     }
+ * }
+ * @endcode
+ */
 
 /**@{*/
 
@@ -126,12 +149,15 @@ typedef uint16_t (*hd4470_callback)(HD44780_MSG msg, uint16_t data);
  * adding \b -D_LCD_DEFINITIONS_FILE to the \b CDEFS section in the Makefile.
  * All definitions added to the file lcd_definitions.h will override the default definitions from lcd.h
  */
-#define HD44780_DELAY_BOOTUP   16000      /**< delay in micro seconds after power-on  */
-#define HD44780_DELAY_INIT      5000      /**< delay in micro seconds after initialization command sent  */
-#define HD44780_DELAY_INIT_REP    64      /**< delay in micro seconds after initialization command repeated */
-#define HD44780_DELAY_INIT_4BIT   64      /**< delay in micro seconds after setting 4-bit mode */ 
-#define HD44780_DELAY_BUSY_FLAG    4      /**< time in micro seconds the address counter is updated after busy flag is cleared */
-#define HD44780_DELAY_ENABLE_PULSE 1      /**< enable signal pulse width in micro seconds */
+#define HD44780_DELAY_BOOTUP       16000   /**< (us) delay in micro seconds after power-on  */
+#define HD44780_DELAY_INIT          5000   /**< (us) after initialization command sent  */
+#define HD44780_DELAY_INIT_REP        64   /**< (us) after initialization command repeated */
+#define HD44780_DELAY_INIT_4BIT       64   /**< (us) after setting 4-bit mode */ 
+#define HD44780_DELAY_BUSY_FLAG        4   /**< (us) time in micro seconds the address counter is updated after busy flag is cleared */
+#define HD44780_DELAY_ENABLE_PULSE     1   /**< (us) enable signal pulse width in micro seconds */
+#define HD44780_DELAY_CMD             50   // (us) 
+#define HD44780_DELAY_CMD_CLR       2000   // (us) 
+
 
 /**
  * @name Definitions for LCD command instructions
@@ -251,40 +277,40 @@ extern void lcd_init(hd4470_callback callback, uint8_t dispAttr);
  @param    cmd instruction to send to LCD controller, see HD44780 data sheet
  @return   none
 */
-extern void lcd_command(uint8_t cmd);
+extern void lcd_send_command(uint8_t cmd);
 
 /**
  * Clear display and set cursor to home position
  */
-inline void lcd_clear(void) { lcd_command(HD44780_INST_CLEAR); }
+inline void lcd_clear(void) { lcd_send_command(HD44780_INST_CLEAR); }
 
-inline void lcd_wrap_enable(bool enable) { lcd_wrap = enable; }
+// inline void lcd_wrap_enable(bool enable) { lcd_wrap = enable; }
 
 /**
  * Set cursor to home position
  */
-inline void lcd_home(void) { lcd_command(HD44780_INST_HOME); }
+inline void lcd_home(void) { lcd_send_command(HD44780_INST_HOME); }
 
-inline void lcd_move_right(void) { lcd_command(HD44780_MOVE_DISPLAY_RIGHT); }
-inline void lcd_move_left(void) { lcd_command(HD44780_MOVE_DISPLAY_LEFT); }
+inline void lcd_move_right(void) { lcd_send_command(HD44780_MOVE_DISPLAY_RIGHT); }
+inline void lcd_move_left(void) { lcd_send_command(HD44780_MOVE_DISPLAY_LEFT); }
 
 /**
  * Turn display on
  */
-inline void lcd_on(void) { lcd_command(HD44780_ON); }
+inline void lcd_on(void) { lcd_send_command(HD44780_ON); }
 
 /**
  * Turn display on and show cursor
  */
-inline void lcd_on_cursor(void) { lcd_command(HD44780_ON_CURSOR); }
+inline void lcd_on_cursor(void) { lcd_send_command(HD44780_ON_CURSOR); }
 
 /** 
  * Turn display off     
  */
-inline void lcd_off(void) { lcd_command(HD44780_OFF); }
+inline void lcd_off(void) { lcd_send_command(HD44780_OFF); }
 
 
-inline void lcd_backlight(bool on) { lcd_callback(HD44780_MSG_BACKLIGHT, on); }
+inline void lcd_backlight(uint16_t val) { lcd_callback(HD44780_MSG_BACKLIGHT, val); }
 
 /**
  @brief    Set cursor to specified position
@@ -295,7 +321,7 @@ inline void lcd_backlight(bool on) { lcd_callback(HD44780_MSG_BACKLIGHT, on); }
 */
 extern void lcd_gotoxy(uint8_t x, uint8_t y);
 
-extern int lcd_getxy(void);
+
 
 /**
  @brief    Display character at current cursor position
@@ -322,7 +348,7 @@ extern void lcd_puts(const char *s);
  @param    data byte to send to LCD controller, see HD44780 data sheet
  @return   none
  */
-extern void lcd_data(uint8_t data);
+extern void lcd_send_data(uint8_t data);
 
 #if defined(__AVR__)
 /**
