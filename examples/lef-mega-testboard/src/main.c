@@ -196,50 +196,39 @@ static uint16_t LCD_Handler(HD44780_MSG msg, uint16_t data_arg) {
 static uint16_t LCD_Handler_i2c(HD44780_MSG msg, uint16_t data_arg) {
     uint16_t result = 0;
     static uint8_t pins;
+    uint8_t data;
 
-    switch (msg) {
+        switch (msg) {
         case HD44780_MSG_INIT:
             i2c_init();
             pins = 0;
-            gpio_init(LCD_E_PIN, true, false);
-            gpio_init(LCD_RW_PIN, true, false);
-            gpio_init(LCD_RS_PIN, true, false);
             break;
         case HD44780_MSG_GPIO_DATA_DIRECTION:
-            gpio_direction(LCD_DATA4_PIN, data_arg);
-            gpio_direction(LCD_DATA5_PIN, data_arg);
-            gpio_direction(LCD_DATA6_PIN, data_arg);
-            gpio_direction(LCD_DATA7_PIN, data_arg);
-            uint8_t dir = pins;
-            dir |= (1<<PCF_D4) | (1<<PCF_D5) | (1<<PCF_D6) | (1<<PCF_D6);
             break;
         case HD44780_MSG_GPIO_DATA_READ:
-
-            // if (gpio_read(LCD_DATA4_PIN)) result |= 0x01;
-            // if (gpio_read(LCD_DATA5_PIN)) result |= 0x02;
-            // if (gpio_read(LCD_DATA6_PIN)) result |= 0x04;
-            // if (gpio_read(LCD_DATA7_PIN)) result |= 0x08;
-
-
-
-            break;    
-        case HD44780_MSG_GPIO_DATA_WRITE:
-            // gpio_write(LCD_DATA7_PIN, data_arg & 0x80);
-            // gpio_write(LCD_DATA6_PIN, data_arg & 0x40);
-            // gpio_write(LCD_DATA5_PIN, data_arg & 0x20);
-            // gpio_write(LCD_DATA4_PIN, data_arg & 0x10);
+            data = pcf_read(PCF_ADDR, (1 << PCF_D4) | (1 << PCF_D5) | (1 << PCF_D6) | (1 << PCF_D7));
             
+            if (data & (1 << PCF_D4)) 
+                result |= 0x01;
+            if (data & (1 << PCF_D5)) 
+                result |= 0x02;
+            if (data & (1 << PCF_D6)) 
+                result |= 0x04;
+            if (data & (1 << PCF_D7)) 
+                result |= 0x08;
+            break;
+        case HD44780_MSG_GPIO_DATA_WRITE:
             (data_arg & 0x10) ? BitSet(pins, PCF_D4) : BitClear(pins, PCF_D4);
             (data_arg & 0x20) ? BitSet(pins, PCF_D5) : BitClear(pins, PCF_D5);
             (data_arg & 0x40) ? BitSet(pins, PCF_D6) : BitClear(pins, PCF_D6);
             (data_arg & 0x80) ? BitSet(pins, PCF_D7) : BitClear(pins, PCF_D7);
-
             break;    
         case HD44780_MSG_GPIO_E:
             data_arg ? BitSet(pins, PCF_E) : BitClear(pins, PCF_E);
             break;
         case HD44780_MSG_GPIO_E_TOGGLE:
             BitSet(pins, PCF_E);
+            pcf_write(PCF_ADDR, pins);
             _delay_us(HD44780_DELAY_ENABLE_PULSE);
             BitClear(pins, PCF_E);
             break;
@@ -257,11 +246,7 @@ static uint16_t LCD_Handler_i2c(HD44780_MSG msg, uint16_t data_arg) {
             break;
         default: break;
     }
-
-    i2c_start();
-    i2c_write(PCF_ADDR << 1 | I2C_WRITE);
-    i2c_write(pins);
-    i2c_stop();
+    pcf_write(PCF_ADDR, pins);
 
     return result;
 }
@@ -553,39 +538,41 @@ static void cmd_i2c_test(char* args) {
         i2c_stop();
         _delay_ms(20);
     }
+// static uint16_t LCD_Handler_i2c(HD44780_MSG msg, uint16_t data_arg) {
+
 }
+
 #define ADDR2 0x22
-static void cmd_i2c_read_test(char* args) {
-    UNUSED(args);
-    uint8_t data = 0;
-    printf_P(PSTR("I2C testing...\n"));
-
-    i2c_init();
-    for (int i = 0; i<256; i++) {
-
-        data = pcf_read(ADDR2, 0xff);
-        printf_P(PSTR("D: %s\n"), int2bin8(data));
-        _delay_ms(20);
-    }
-}
-
 static void cmd_pcf_read(char* args) {
     UNUSED(args);
     uint8_t data = 0;
     printf_P(PSTR("Reading PCF8574\n"));
 
     i2c_init();
-
-    data = pcf_read(ADDR2, 0xff);
-    printf_P(PSTR("PCF: %s\n"), int2bin8(data));
-    _delay_ms(10);
+    for (int i = 0; i<256; i++) {
+        data = pcf_read(ADDR2, 0xff);
+        printf_P(PSTR("D: %s\n"), int2bin8(data));
+        _delay_ms(20);
+    }
 }
+
+// static void cmd_pcf_read(char* args) {
+//     UNUSED(args);
+//     uint8_t data = 0;
+//     printf_P(PSTR("Reading PCF8574\n"));
+
+//     i2c_init();
+
+//     data = pcf_read(ADDR2, 0xff);
+//     printf_P(PSTR("PCF: %s\n"), int2bin8(data));
+//     _delay_ms(10);
+// }
 
 static void cmd_i2c_lcd(char *args) {
     UNUSED(args);
     lcd_init(LCD_Handler_i2c, HD44780_ON);
+    lcd_puts("I2C LCD working");
 }
-
 
 static void cmd_i2c_scan(char* args) {
     UNUSED(args);
@@ -594,7 +581,7 @@ static void cmd_i2c_scan(char* args) {
 
     i2c_init();
     for (uint8_t code=1;code<15; code++) {
-        printf("%2x  ", code);
+        printf("%2x  ", (code << 3));
         for (uint8_t addr=0; addr<8; addr++) {
             uint8_t a = (code<<3) | addr;
             ack = i2c_write_init(a);
@@ -653,7 +640,7 @@ const PROGMEM LEF_CliCmd cmdTable[] = {
     {cmd_lcd_wrap_off, "wrapoff", "Turn LCD wrap off"},
     LEF_CLI_LABEL("I2C"),
     {cmd_i2c_test, "i2c", "i2c write test"},
-    {cmd_i2c_read_test, "i2cr", "i2c read test"},
+    // {cmd_i2c_read_test, "i2cr", "i2c read test"},
     {cmd_i2c_scan, "i2cs", "i2c scan bus"},
     {cmd_pcf_read, "pcfr", "Read PCF8574"},
     {cmd_i2c_lcd, "i2clcd", "Initiate LCD on PCF8574"},
@@ -813,6 +800,15 @@ int main(void) {
     // lcd_puts_P("   LEF Mega Test\n");
 
     LEF_Buzzer_set(LEF_BUZZER_BEEP);
+
+    
+    // LCD_Handler_i2c(HD44780_MSG_INIT, 0);
+    // for (int i=0;i<20;i++) {
+    //     LCD_Handler_i2c(HD44780_MSG_BACKLIGHT, 1);
+    //     _delay_ms(100);
+    //     LCD_Handler_i2c(HD44780_MSG_BACKLIGHT, 0);
+    //     _delay_ms(100);
+    // }
 
     while (true) {
         LEF_Wait(&event);

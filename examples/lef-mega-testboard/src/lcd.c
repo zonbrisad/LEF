@@ -144,9 +144,13 @@ loops while lcd is busy, returns address counter
 *************************************************************************/
 static uint8_t lcd_waitbusy(void) {
     register uint8_t c;
+    uint8_t cnt = 0;
 
     /* wait until busy flag is cleared */
     while ((c = lcd_read(0)) & HD44780_BUSY_FLAG) {
+        cnt++;
+        if (cnt > 3)
+            break;
     }
 
     /* the address counter is updated 4us after the busy flag is cleared */
