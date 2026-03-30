@@ -68,6 +68,8 @@ typedef enum {
     HD44780_MSG_delay_ms,
     HD44780_MSG_delay_us,
     HD44780_MSG_DELAY_E,
+    HD44780_MSG_BACKLIGHT,
+
 } HD44780_MSG;
 
 typedef uint16_t (*hd4470_callback)(HD44780_MSG msg, uint16_t data);
@@ -232,6 +234,7 @@ typedef uint16_t (*hd4470_callback)(HD44780_MSG msg, uint16_t data);
 #define HD44780_4BIT_MODE          0b00100000  // Put LCD in 4 bit mode
 
 extern volatile bool lcd_wrap;
+extern hd4470_callback lcd_callback;
 
 /**
  @brief    Initialize display and select type of cursor
@@ -280,6 +283,8 @@ inline void lcd_on_cursor(void) { lcd_command(HD44780_ON_CURSOR); }
  */
 inline void lcd_off(void) { lcd_command(HD44780_OFF); }
 
+
+inline void lcd_backlight(bool on) { lcd_callback(HD44780_MSG_BACKLIGHT, on); }
 
 /**
  @brief    Set cursor to specified position

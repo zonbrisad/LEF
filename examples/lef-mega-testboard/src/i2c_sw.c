@@ -4,11 +4,6 @@
 #include "def_avr.h"
 
 void i2c_init(void) {
-    // gpio_init(I2C_SCL_PIN, GPIO_INPUT, GPIO_NO_PULLUP);
-    // gpio_init(I2C_SDA_PIN, GPIO_INPUT, GPIO_NO_PULLUP);
-    
-    // gpio_write(I2C_SCL_PIN, 0);
-    // gpio_write(I2C_SDA_PIN, 0);
     i2c_pin_init();
     scl_set(1);
     sda_set(1);
@@ -36,6 +31,9 @@ void i2c_stop(void) {
 uint8_t i2c_write(uint8_t data) {
     uint8_t ack;
 
+    scl_set(0);
+    i2c_delay();
+
     for (uint8_t i = 0; i < 8; i++) {
         sda_set(data & 0x80);
 
@@ -62,7 +60,7 @@ uint8_t i2c_write(uint8_t data) {
 uint8_t i2c_read(uint8_t ack) {
     uint8_t data = 0;
 
-    // SDA_HIGH();  // release SDA for reading
+    // release SDA for reading
     sda_set(1);
 
     for (uint8_t i = 0; i < 8; i++) {
@@ -75,15 +73,39 @@ uint8_t i2c_read(uint8_t ack) {
     }
 
     // Send ACK or NACK
-    if (ack)
-        sda_set(0);
-    else
-        sda_set(1);
-
+    sda_set(!ack);
+    
     scl_set(1);
     i2c_delay();
     scl_set(0);
     sda_set(1);
 
+    return data;
+}
+
+uint8_t i2c_write_init(uint8_t address) {
+    i2c_start();
+    return i2c_write((address << 1) | I2C_WRITE);
+}
+
+uint8_t i2c_read_init(uint8_t address) {
+    i2c_start();
+    return i2c_write((address << 1) | I2C_READ);
+}
+
+
+uint8_t pcf_write(uint8_t address, uint8_t data) {
+    i2c_write_init(address);
+    i2c_write(data);
+    i2c_stop();
+}
+
+uint8_t pcf_read(uint8_t address, uint8_t mask) {
+    uint8_t data;
+    pcf_write(address, mask);
+
+    i2c_read_init(address);
+    data = i2c_read(0);
+    i2c_stop();
     return data;
 }

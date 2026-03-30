@@ -126,6 +126,145 @@ static FILE mystdout =
 
 
 
+#define LCD_DATA4_PIN F, 4 /**< pin for 4bit data bit 0  */
+#define LCD_DATA5_PIN F, 3 /**< pin for 4bit data bit 1  */
+#define LCD_DATA6_PIN F, 2 /**< pin for 4bit data bit 2  */
+#define LCD_DATA7_PIN F, 1 /**< pin for 4bit data bit 3  */
+#define LCD_RS_PIN F, 7    /**< pin for RS line         */
+#define LCD_RW_PIN F, 6    /**< pin for Read/Write line */
+#define LCD_E_PIN F, 5     /**< pin for Enable line     */
+
+static uint16_t LCD_Handler(HD44780_MSG msg, uint16_t data_arg) {
+    uint16_t result = 0;
+    switch (msg) {
+        case HD44780_MSG_INIT:
+            gpio_init(LCD_E_PIN, true, false);
+            gpio_init(LCD_RW_PIN, true, false);
+            gpio_init(LCD_RS_PIN, true, false);
+            break;
+        case HD44780_MSG_GPIO_DATA_DIRECTION:
+            gpio_direction(LCD_DATA4_PIN, data_arg);
+            gpio_direction(LCD_DATA5_PIN, data_arg);
+            gpio_direction(LCD_DATA6_PIN, data_arg);
+            gpio_direction(LCD_DATA7_PIN, data_arg);
+            break;
+        case HD44780_MSG_GPIO_DATA_READ:
+            if (gpio_read(LCD_DATA4_PIN)) result |= 0x01;
+            if (gpio_read(LCD_DATA5_PIN)) result |= 0x02;
+            if (gpio_read(LCD_DATA6_PIN)) result |= 0x04;
+            if (gpio_read(LCD_DATA7_PIN)) result |= 0x08;
+            break;    
+        case HD44780_MSG_GPIO_DATA_WRITE:
+            gpio_write(LCD_DATA7_PIN, data_arg & 0x80);
+            gpio_write(LCD_DATA6_PIN, data_arg & 0x40);
+            gpio_write(LCD_DATA5_PIN, data_arg & 0x20);
+            gpio_write(LCD_DATA4_PIN, data_arg & 0x10);
+            break;    
+        case HD44780_MSG_GPIO_E:
+            gpio_write(LCD_E_PIN, data_arg);
+            break;
+        case HD44780_MSG_GPIO_E_TOGGLE:
+            gpio_write(LCD_E_PIN, 1);
+            _delay_us(HD44780_DELAY_ENABLE_PULSE);
+            gpio_write(LCD_E_PIN, 0);
+            break;
+        case HD44780_MSG_GPIO_RW:
+            gpio_write(LCD_RW_PIN, data_arg);
+            break;
+        case HD44780_MSG_GPIO_RS:
+            gpio_write(LCD_RS_PIN, data_arg);
+            break;
+        case HD44780_MSG_DELAY_E:
+            _delay_us(HD44780_DELAY_ENABLE_PULSE);
+            break;
+        default: break;
+    }
+    return result;
+}
+
+#define PCF_RS 0
+#define PCF_RW 1
+#define PCF_E  2
+#define PCF_BL 3
+#define PCF_D4 4
+#define PCF_D5 5
+#define PCF_D6 6
+#define PCF_D7 7
+#define PCF_ADDR 0x27
+
+
+static uint16_t LCD_Handler_i2c(HD44780_MSG msg, uint16_t data_arg) {
+    uint16_t result = 0;
+    static uint8_t pins;
+
+    switch (msg) {
+        case HD44780_MSG_INIT:
+            i2c_init();
+            pins = 0;
+            gpio_init(LCD_E_PIN, true, false);
+            gpio_init(LCD_RW_PIN, true, false);
+            gpio_init(LCD_RS_PIN, true, false);
+            break;
+        case HD44780_MSG_GPIO_DATA_DIRECTION:
+            gpio_direction(LCD_DATA4_PIN, data_arg);
+            gpio_direction(LCD_DATA5_PIN, data_arg);
+            gpio_direction(LCD_DATA6_PIN, data_arg);
+            gpio_direction(LCD_DATA7_PIN, data_arg);
+            uint8_t dir = pins;
+            dir |= (1<<PCF_D4) | (1<<PCF_D5) | (1<<PCF_D6) | (1<<PCF_D6);
+            break;
+        case HD44780_MSG_GPIO_DATA_READ:
+
+            // if (gpio_read(LCD_DATA4_PIN)) result |= 0x01;
+            // if (gpio_read(LCD_DATA5_PIN)) result |= 0x02;
+            // if (gpio_read(LCD_DATA6_PIN)) result |= 0x04;
+            // if (gpio_read(LCD_DATA7_PIN)) result |= 0x08;
+
+
+
+            break;    
+        case HD44780_MSG_GPIO_DATA_WRITE:
+            // gpio_write(LCD_DATA7_PIN, data_arg & 0x80);
+            // gpio_write(LCD_DATA6_PIN, data_arg & 0x40);
+            // gpio_write(LCD_DATA5_PIN, data_arg & 0x20);
+            // gpio_write(LCD_DATA4_PIN, data_arg & 0x10);
+            
+            (data_arg & 0x10) ? BitSet(pins, PCF_D4) : BitClear(pins, PCF_D4);
+            (data_arg & 0x20) ? BitSet(pins, PCF_D5) : BitClear(pins, PCF_D5);
+            (data_arg & 0x40) ? BitSet(pins, PCF_D6) : BitClear(pins, PCF_D6);
+            (data_arg & 0x80) ? BitSet(pins, PCF_D7) : BitClear(pins, PCF_D7);
+
+            break;    
+        case HD44780_MSG_GPIO_E:
+            data_arg ? BitSet(pins, PCF_E) : BitClear(pins, PCF_E);
+            break;
+        case HD44780_MSG_GPIO_E_TOGGLE:
+            BitSet(pins, PCF_E);
+            _delay_us(HD44780_DELAY_ENABLE_PULSE);
+            BitClear(pins, PCF_E);
+            break;
+        case HD44780_MSG_GPIO_RW:
+            data_arg ? BitSet(pins, PCF_RW) : BitClear(pins, PCF_RW);
+            break;
+        case HD44780_MSG_GPIO_RS:
+            data_arg ? BitSet(pins, PCF_RS) : BitClear(pins, PCF_RS);
+            break;
+        case HD44780_MSG_DELAY_E:
+            _delay_us(HD44780_DELAY_ENABLE_PULSE);
+            break;
+        case HD44780_MSG_BACKLIGHT:
+            data_arg ? BitSet(pins, PCF_BL) : BitClear(pins, PCF_BL);
+            break;
+        default: break;
+    }
+
+    i2c_start();
+    i2c_write(PCF_ADDR << 1 | I2C_WRITE);
+    i2c_write(pins);
+    i2c_stop();
+
+    return result;
+}
 
 
 static void cmd_brp(char* args) {
@@ -401,6 +540,7 @@ static void cmd_adc_mon(char* args) {
 
 #define ADDR 0x27
 static void cmd_i2c_test(char* args) {
+    UNUSED(args);
     uint8_t data = 0;
     printf_P(PSTR("I2C testing...\n"));
 
@@ -408,53 +548,59 @@ static void cmd_i2c_test(char* args) {
     i2c_init();
     for (int i = 0; i<256; i++) {
         data = i;
-        i2c_start();
-        i2c_write(ADDR << 1 | I2C_WRITE);
+        i2c_write_init(ADDR);
         i2c_write(data);
         i2c_stop();
         _delay_ms(20);
     }
 }
-
+#define ADDR2 0x22
 static void cmd_i2c_read_test(char* args) {
+    UNUSED(args);
     uint8_t data = 0;
     printf_P(PSTR("I2C testing...\n"));
 
-    printf_P(PSTR("Port D: %s  DDR D: %s\n"), int2bin8(PIND), int2bin8(DDRD));
     i2c_init();
     for (int i = 0; i<256; i++) {
 
-        i2c_start();
-        i2c_write(ADDR << 1 | I2C_WRITE);
-        i2c_write(0xff);
-        i2c_stop();
-
-        i2c_start();
-        i2c_write(ADDR << 1 | I2C_READ);
-        data = i2c_read(0);        
-        i2c_stop();
+        data = pcf_read(ADDR2, 0xff);
         printf_P(PSTR("D: %s\n"), int2bin8(data));
-        _delay_ms(10);
+        _delay_ms(20);
     }
 }
 
+static void cmd_pcf_read(char* args) {
+    UNUSED(args);
+    uint8_t data = 0;
+    printf_P(PSTR("Reading PCF8574\n"));
+
+    i2c_init();
+
+    data = pcf_read(ADDR2, 0xff);
+    printf_P(PSTR("PCF: %s\n"), int2bin8(data));
+    _delay_ms(10);
+}
+
+static void cmd_i2c_lcd(char *args) {
+    UNUSED(args);
+    lcd_init(LCD_Handler_i2c, HD44780_ON);
+}
+
+
 static void cmd_i2c_scan(char* args) {
+    UNUSED(args);
     uint8_t ack = 0;
     printf_P(PSTR("Scaning I2C bus\n"));
 
-    // printf_P(PSTR("Port D: %s  DDR D: %s\n"), int2bin8(PIND), int2bin8(DDRD));
     i2c_init();
     for (uint8_t code=1;code<15; code++) {
         printf("%2x  ", code);
         for (uint8_t addr=0; addr<8; addr++) {
             uint8_t a = (code<<3) | addr;
-            i2c_start();
-            ack = i2c_write( (a << 1) | I2C_WRITE);
-            // ack = i2c_write(((code<<3) | addr) << 1 | I2C_READ);
+            ack = i2c_write_init(a);
             i2c_stop();
             if (ack) 
                 printf(" -- ");
-                // printf(" %2x ", a);
             else
                 printf(" %2x ", a);
         }
@@ -505,9 +651,12 @@ const PROGMEM LEF_CliCmd cmdTable[] = {
     {cmd_lcd_test_move, "lcdtm", "Run LCD move test"},
     {cmd_lcd_wrap_on, "wrapon", "Turn LCD wrap on"},
     {cmd_lcd_wrap_off, "wrapoff", "Turn LCD wrap off"},
+    LEF_CLI_LABEL("I2C"),
     {cmd_i2c_test, "i2c", "i2c write test"},
     {cmd_i2c_read_test, "i2cr", "i2c read test"},
     {cmd_i2c_scan, "i2cs", "i2c scan bus"},
+    {cmd_pcf_read, "pcfr", "Read PCF8574"},
+    {cmd_i2c_lcd, "i2clcd", "Initiate LCD on PCF8574"},
     LEF_CLI_LABEL("Misc"),
     {cmdEvOn, "evon", "Turn event on"},
     {cmdEvOff, "evoff", "Turn event off"},
@@ -556,61 +705,6 @@ ISR(TIMER1_COMPA_vect) {
 
 ISR(ADC_vect) {
     LEF_Pot_update(&pot, ADC_VALUE());
-}
-#define LCD_DATA4_PIN F, 4 /**< pin for 4bit data bit 0  */
-#define LCD_DATA5_PIN F, 3 /**< pin for 4bit data bit 1  */
-#define LCD_DATA6_PIN F, 2 /**< pin for 4bit data bit 2  */
-#define LCD_DATA7_PIN F, 1 /**< pin for 4bit data bit 3  */
-#define LCD_RS_PIN F, 7    /**< pin for RS line         */
-#define LCD_RW_PIN F, 6    /**< pin for Read/Write line */
-#define LCD_E_PIN F, 5     /**< pin for Enable line     */
-
-static uint16_t LCD_Handler(HD44780_MSG msg, uint16_t data_arg) {
-    uint16_t result = 0;
-    switch (msg) {
-        case HD44780_MSG_INIT:
-            gpio_init(LCD_E_PIN, true, false);
-            gpio_init(LCD_RW_PIN, true, false);
-            gpio_init(LCD_RS_PIN, true, false);
-            break;
-        case HD44780_MSG_GPIO_DATA_DIRECTION:
-            gpio_direction(LCD_DATA4_PIN, data_arg);
-            gpio_direction(LCD_DATA5_PIN, data_arg);
-            gpio_direction(LCD_DATA6_PIN, data_arg);
-            gpio_direction(LCD_DATA7_PIN, data_arg);
-            break;
-        case HD44780_MSG_GPIO_DATA_READ:
-            if (gpio_read(LCD_DATA4_PIN)) result |= 0x01;
-            if (gpio_read(LCD_DATA5_PIN)) result |= 0x02;
-            if (gpio_read(LCD_DATA6_PIN)) result |= 0x04;
-            if (gpio_read(LCD_DATA7_PIN)) result |= 0x08;
-            break;    
-        case HD44780_MSG_GPIO_DATA_WRITE:
-            gpio_write(LCD_DATA7_PIN, data_arg & 0x80);
-            gpio_write(LCD_DATA6_PIN, data_arg & 0x40);
-            gpio_write(LCD_DATA5_PIN, data_arg & 0x20);
-            gpio_write(LCD_DATA4_PIN, data_arg & 0x10);
-            break;    
-        case HD44780_MSG_GPIO_E:
-            gpio_write(LCD_E_PIN, data_arg);
-            break;
-        case HD44780_MSG_GPIO_E_TOGGLE:
-            gpio_write(LCD_E_PIN, 1);
-            _delay_us(HD44780_DELAY_ENABLE_PULSE);
-            gpio_write(LCD_E_PIN, 0);
-            break;
-        case HD44780_MSG_GPIO_RW:
-            gpio_write(LCD_RW_PIN, data_arg);
-            break;
-        case HD44780_MSG_GPIO_RS:
-            gpio_write(LCD_RS_PIN, data_arg);
-            break;
-        case HD44780_MSG_DELAY_E:
-            _delay_us(HD44780_DELAY_ENABLE_PULSE);
-            break;
-        default: break;
-    }
-    return result;
 }
 
 static void hw_init(void) {
@@ -775,6 +869,9 @@ int main(void) {
                 val = LEF_Pot_state(&pot);
                 //printf("Pot changed %d\n", val);
                 TIMER_OCA(4, (val / 4)); // set PWM on LCD backlight
+
+                // turn on backlight if high value
+                lcd_backlight(val > 512);
 
                 char buf[41];
                 LEF_Led_set(&led1, (val > 100));
