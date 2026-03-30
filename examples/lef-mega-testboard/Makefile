@@ -27,6 +27,7 @@ TARGET = lef-mega-testboard
 SRC = src/main.c \
       src/uart.c \
 	  src/lcd.c \
+	  src/i2c_sw.c \
       src/LEF/LEF.c \
       src/LEF/LEF_Queue.c \
       src/LEF/LEF_Timer.c \

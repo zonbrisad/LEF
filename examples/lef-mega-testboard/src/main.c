@@ -45,7 +45,12 @@
  * - D6 = PF2 (ADC2)
  * - D7 = PF1 (ADC1)
  *
+ * I2C:
+ * - SCL = PD0
+ * - SDA = PD1
+ * 
  *  LEF system timer (10ms) = Timer 1 (16 bit)  OCA1 interrupt
+ * 
  */
 
 // Include ------------------------------------------------------------------
@@ -67,6 +72,7 @@
 #include "def_avr.h"
 #include "uart.h"
 #include "lcd.h"
+#include "i2c_sw.h"
 
 // Macros -------------------------------------------------------------------
 
@@ -116,6 +122,11 @@ bool evOn = false;
 
 static FILE mystdout =
     FDEV_SETUP_STREAM((void*)uart_putc, NULL, _FDEV_SETUP_WRITE);
+
+
+
+
+
 
 static void cmd_brp(char* args) {
     printf_P(PSTR("Brp args = %s\n"), args);
@@ -388,6 +399,70 @@ static void cmd_adc_mon(char* args) {
     LEF_Pot_enable(&pot, true);
 }
 
+#define ADDR 0x27
+static void cmd_i2c_test(char* args) {
+    uint8_t data = 0;
+    printf_P(PSTR("I2C testing...\n"));
+
+    printf_P(PSTR("Port D: %s  DDR D: %s\n"), int2bin8(PIND), int2bin8(DDRD));
+    i2c_init();
+    for (int i = 0; i<256; i++) {
+        data = i;
+        i2c_start();
+        i2c_write(ADDR << 1 | I2C_WRITE);
+        i2c_write(data);
+        i2c_stop();
+        _delay_ms(20);
+    }
+}
+
+static void cmd_i2c_read_test(char* args) {
+    uint8_t data = 0;
+    printf_P(PSTR("I2C testing...\n"));
+
+    printf_P(PSTR("Port D: %s  DDR D: %s\n"), int2bin8(PIND), int2bin8(DDRD));
+    i2c_init();
+    for (int i = 0; i<256; i++) {
+
+        i2c_start();
+        i2c_write(ADDR << 1 | I2C_WRITE);
+        i2c_write(0xff);
+        i2c_stop();
+
+        i2c_start();
+        i2c_write(ADDR << 1 | I2C_READ);
+        data = i2c_read(0);        
+        i2c_stop();
+        printf_P(PSTR("D: %s\n"), int2bin8(data));
+        _delay_ms(10);
+    }
+}
+
+static void cmd_i2c_scan(char* args) {
+    uint8_t ack = 0;
+    printf_P(PSTR("Scaning I2C bus\n"));
+
+    // printf_P(PSTR("Port D: %s  DDR D: %s\n"), int2bin8(PIND), int2bin8(DDRD));
+    i2c_init();
+    for (uint8_t code=1;code<15; code++) {
+        printf("%2x  ", code);
+        for (uint8_t addr=0; addr<8; addr++) {
+            uint8_t a = (code<<3) | addr;
+            i2c_start();
+            ack = i2c_write( (a << 1) | I2C_WRITE);
+            // ack = i2c_write(((code<<3) | addr) << 1 | I2C_READ);
+            i2c_stop();
+            if (ack) 
+                printf(" -- ");
+                // printf(" %2x ", a);
+            else
+                printf(" %2x ", a);
+        }
+        printf("\n");
+    }
+}
+
+
 static void cmd_reset(char* args) {
     UNUSED(args);
     RESET();
@@ -430,6 +505,9 @@ const PROGMEM LEF_CliCmd cmdTable[] = {
     {cmd_lcd_test_move, "lcdtm", "Run LCD move test"},
     {cmd_lcd_wrap_on, "wrapon", "Turn LCD wrap on"},
     {cmd_lcd_wrap_off, "wrapoff", "Turn LCD wrap off"},
+    {cmd_i2c_test, "i2c", "i2c write test"},
+    {cmd_i2c_read_test, "i2cr", "i2c read test"},
+    {cmd_i2c_scan, "i2cs", "i2c scan bus"},
     LEF_CLI_LABEL("Misc"),
     {cmdEvOn, "evon", "Turn event on"},
     {cmdEvOff, "evoff", "Turn event off"},
@@ -581,6 +659,17 @@ static void hw_init(void) {
     TIMER_OCA_INT(1, true);
 
 
+    // Timer 4 as fast PWM on OCA Pin H3
+    TIMER_CLK_DIV_1(4);
+    // TIMER_OCA(4,100);
+    // TIMER_MODE_CTC(4);
+    // TIMER_COM_OC_TOGGLE(4,A);
+    TIMER_MODE_FAST_PWM_8BIT(4);
+    TIMER_COM_OC_CLEAR(4,A);
+    TIMER_OCA(4,200);
+    #define PIN_OCA4 H,3
+    gpio_init( PIN_OCA4, true, false);
+
     //   TIMER0_CLK_PRES_1();
     //   TIMER0_OCA_SET(250);
     // //	TIMER0_WGM_PWM();
@@ -590,9 +679,7 @@ static void hw_init(void) {
     TIMER_CLK_DIV_8(3);
     TIMER_OCA(3, 120);
 
-    // lcd_init(LCD_DISP_ON);
     lcd_init(LCD_Handler, HD44780_ON);
-    // lcd_init(LCD_Handler, LCD_DISP_ON);
     lcd_clear();
     lcd_puts_P("   LEF Mega Test\n");
 
@@ -628,6 +715,8 @@ int main(void) {
     hw_init();
 
     printf_P(PSTR("\n\nStarting LEF Arduino mega test\n\n"));
+
+    // lcd_puts_P("   LEF Mega Test\n");
 
     LEF_Buzzer_set(LEF_BUZZER_BEEP);
 
@@ -685,7 +774,8 @@ int main(void) {
             case EVENT_Pot:
                 val = LEF_Pot_state(&pot);
                 //printf("Pot changed %d\n", val);
-                TIMER0_OCA(val / 4);
+                TIMER_OCA(4, (val / 4)); // set PWM on LCD backlight
+
                 char buf[41];
                 LEF_Led_set(&led1, (val > 100));
                 LEF_Led_set(&led2, (val > 300));
@@ -693,7 +783,7 @@ int main(void) {
                 LEF_Led_set(&led4, (val > 800));
                 
                 lcd_gotoxy(0,2);
-                for (uint16_t i=0;i<20;i++){
+                for (uint16_t i=0;i<20;i++) {
                     if (1023/20*i < val)
                         lcd_putc('#');
                     else
