@@ -21,10 +21,8 @@
 hd4470_callback lcd_callback;
 
 #if HD44780_CONTROLLER_KS0073
-// const uint8_t line_offsets[] = {0x00, 0x20, 0x40, 0x60};
 const uint8_t line_offsets[] = {00, 32, 64, 96};
 #else
-// const uint8_t line_offsets[] = {0x00, 0x40, 0x14, 0x54};
 const uint8_t line_offsets[] = {00, 64, 20, 84};
 #endif
 
@@ -46,7 +44,7 @@ inline uint8_t lcd_pins_data_read(void)         { return lcd_callback(HD44780_MS
 #define HD44780_START_LINE4  line_offsets[3]
 
 
-#if HD44780_LINES == 1
+#if HD44780_DISP_LINES == 1
 #define LCD_FUNCTION_DEFAULT HD44780_FUNC_4BIT_LINE
 #else
 #define LCD_FUNCTION_DEFAULT HD44780_FUNC_4BIT_2LINES
@@ -215,4 +213,5 @@ void lcd_puts_p(const char* progmem_s) {
         lcd_putc(c);
     }
 }
+
 #endif

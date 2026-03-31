@@ -72,8 +72,8 @@ typedef uint16_t (*hd4470_callback)(HD44780_MSG msg, uint16_t data);
 /**
  * LCD geometry settings
  */
-#define HD44780_LINES           4     // Number of lines on display
-#define HD44780_DISP_LENGTH    20     // Number of columns on display
+#define HD44780_DISP_LINES            2     // Number of lines on display
+#define HD44780_DISP_COLUMNS         20     // Number of columns on display
 
 /**
  * Various bus related delays.
@@ -89,7 +89,7 @@ typedef uint16_t (*hd4470_callback)(HD44780_MSG msg, uint16_t data);
 #define HD44780_DELAY_CMD             50   // (us) delay for command or data transmition
 #define HD44780_DELAY_CMD_CLR       2000   // (us) delay for clear display or cursor home
 
-/*
+/** 
  * HD44780 LCD instructions. 
  *
  * Instruction         RS R/W DB7 DB6 DB5 DB4 DB3 DB2 DB1 DB0  Description

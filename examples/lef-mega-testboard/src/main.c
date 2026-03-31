@@ -73,6 +73,7 @@
 #include "uart.h"
 #include "lcd.h"
 #include "i2c_sw.h"
+#include "tm1637.h"
 
 // Macros -------------------------------------------------------------------
 
@@ -122,6 +123,10 @@ bool evOn = false;
 
 static FILE mystdout =
     FDEV_SETUP_STREAM((void*)uart_putc, NULL, _FDEV_SETUP_WRITE);
+
+
+
+
 
 
 #define LCD_DATA4_PIN F, 4 /**< pin for 4bit data bit 0  */
@@ -619,6 +624,20 @@ static void cmd_i2c_scan(char* args) {
     }
 }
 
+static void cmd_tm_test(char* args) {
+    UNUSED(args);
+    tm_init();
+    tm_display_number(1234);
+    for (int i = 0; i<8;i++) { 
+        tm_display_brightness(i);
+        _delay_ms(200);
+    }
+    
+    for (int i = 0; i<1000;i++) { 
+        tm_display_number(i);
+    }
+
+}
 
 static void cmd_reset(char* args) {
     UNUSED(args);
@@ -669,7 +688,7 @@ const PROGMEM LEF_CliCmd cmdTable[] = {
     {cmd_i2c_test, "i2c", "i2c write test"},
     {cmd_i2c_scan, "i2cs", "i2c scan bus"},
     {cmd_pcf_read, "pcfr", "Read PCF8574"},
-
+    {cmd_tm_test, "tmtest", "Test for TM1637 LED display"},
     LEF_CLI_LABEL("Misc"),
     {cmdEvOn, "evon", "Turn event on"},
     {cmdEvOff, "evoff", "Turn event off"},
@@ -740,7 +759,7 @@ static void hw_init(void) {
 
     // set_sleep_mode(SLEEP_MODE_IDLE);
     // sleep_enable();
-    
+
     ADC_ENABLE();
     ADC_REF_AVCC();
     ADC_PRESCALER_128();
