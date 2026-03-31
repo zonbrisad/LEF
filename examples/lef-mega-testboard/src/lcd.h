@@ -72,9 +72,8 @@ typedef uint16_t (*hd4470_callback)(HD44780_MSG msg, uint16_t data);
 /**
  * LCD geometry settings
  */
-#define HD44780_LINES           4     /**< number of visible lines of the display */
-#define HD44780_DISP_LENGTH    20     /**< visibles characters per line of the display */
-#define HD44780_LINE_LENGTH  0x40     /**< internal line length of the display    */
+#define HD44780_LINES           4     // Number of lines on display
+#define HD44780_DISP_LENGTH    20     // Number of columns on display
 
 /**
  * Various bus related delays.
@@ -83,8 +82,8 @@ typedef uint16_t (*hd4470_callback)(HD44780_MSG msg, uint16_t data);
  */
 #define HD44780_DELAY_BOOTUP       16000   // (us) delay in micro seconds after power-on 
 #define HD44780_DELAY_INIT          5000   // (us) after initialization command sent 
-#define HD44780_DELAY_INIT_REP        64   // (us) after initialization command repeated
-#define HD44780_DELAY_INIT_4BIT       64   // (us) after setting 4-bit mode 
+#define HD44780_DELAY_INIT_REP        70   // (us) after initialization command repeated
+#define HD44780_DELAY_INIT_4BIT       70   // (us) after setting 4-bit mode 
 #define HD44780_DELAY_BUSY             4   // (us) time in micro seconds the address counter is updated after busy flag is cleared
 #define HD44780_DELAY_ENABLE_PULSE     1   // (us) enable signal pulse width in micro seconds
 #define HD44780_DELAY_CMD             50   // (us) delay for command or data transmition
@@ -151,10 +150,10 @@ typedef uint16_t (*hd4470_callback)(HD44780_MSG msg, uint16_t data);
 #define HD44780_ENTRY_INC_NOSHIFT  (HD44780_INST_ENTRY_MODE | 0b00000010) // decrease cursor on move, display shift off
 #define HD44780_ENTRY_INC_SHIFT    (HD44780_INST_ENTRY_MODE | 0b00000011) // decrease cursor on move, display shift on
 
-#define HD44780_OFF                (HD44780_INST_CONTROL | 0b00000000)
-#define HD44780_ON                 (HD44780_INST_CONTROL | 0b00000100)
-#define HD44780_ON_CURSOR          (HD44780_INST_CONTROL | 0b00000110)
-#define HD44780_ON_CURSOR_BLINK    (HD44780_INST_CONTROL | 0b00000111)
+#define HD44780_MODE_OFF             (HD44780_INST_CONTROL | 0b00000000)
+#define HD44780_MODE_ON              (HD44780_INST_CONTROL | 0b00000100)
+#define HD44780_MODE_ON_CURSOR       (HD44780_INST_CONTROL | 0b00000110)
+#define HD44780_MODE_ON_CURSOR_BLINK (HD44780_INST_CONTROL | 0b00000111)
 
 #define HD44780_MOVE_CURSOR_LEFT   (HD44780_INST_MOVE | 0b00000000)
 #define HD44780_MOVE_CURSOR_RIGHT  (HD44780_INST_MOVE | 0b00000100)
@@ -212,20 +211,32 @@ inline void lcd_move_right(void) { lcd_send_command(HD44780_MOVE_DISPLAY_RIGHT);
 inline void lcd_move_left(void) { lcd_send_command(HD44780_MOVE_DISPLAY_LEFT); }
 
 /**
+ * @brief Set operating mode of display
+ * 
+ * @param mode new operating mode
+ */
+inline void lcd_mode(uint8_t mode) { lcd_send_command(mode); }
+
+/**
  * @brief Turn display on
  *
  */
-inline void lcd_on(void) { lcd_send_command(HD44780_ON); }
+inline void lcd_on(void) { lcd_send_command(HD44780_MODE_ON); }
 
 /**
  * @brief Turn display on and show cursor
  */
-inline void lcd_on_cursor(void) { lcd_send_command(HD44780_ON_CURSOR); }
+inline void lcd_on_cursor(void) { lcd_send_command(HD44780_MODE_ON_CURSOR); }
+
+/**
+ * @brief Turn display on and show cursor blinking
+ */
+inline void lcd_on_cursor_blink(void) { lcd_send_command(HD44780_MODE_ON_CURSOR_BLINK); }
 
 /**
  * @brief Turn display off
  */
-inline void lcd_off(void) { lcd_send_command(HD44780_OFF); }
+inline void lcd_off(void) { lcd_send_command(HD44780_MODE_OFF); }
 
 /**
  * @brief Control lcd backlight

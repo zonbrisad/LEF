@@ -348,13 +348,13 @@ static void cmdHelp(char* args) {
 
 static void cmd_lcd_i2c(char* args) {
     UNUSED(args);
-    lcd_init(LCD_Handler_i2c, HD44780_ON);
+    lcd_init(LCD_Handler_i2c, HD44780_MODE_ON);
     lcd_clear();
     lcd_puts("LCD on PCF8574");
 }
 
 static void cmd_lcd_gpio(char* args) {
-    lcd_init(LCD_Handler_gpio, HD44780_ON);
+    lcd_init(LCD_Handler_gpio, HD44780_MODE_ON);
     lcd_clear();
     lcd_puts_P("LCD on GPIO");
 }
@@ -372,6 +372,12 @@ static void cmd_lcd_off(char* args) {
 static void cmd_lcd_cursor_on(char* args) {
     UNUSED(args);
     lcd_on_cursor();
+}
+
+static void cmd_lcd_cursor_on_blink(char* args) {
+    UNUSED(args);
+    lcd_on_cursor_blink();
+    lcd_mode(HD44780_MODE_ON_CURSOR_BLINK);
 }
 
 static void cmd_lcd_clear(char* args) {
@@ -646,7 +652,8 @@ const PROGMEM LEF_CliCmd cmdTable[] = {
     {cmd_lcd_i2c, "lcdi2c", "Initiate LCD on PCF8574"},
     {cmd_lcd_on, "lcdon", "Turn LCD on"},
     {cmd_lcd_off, "lcdoff", "Turn LCD off"},
-    {cmd_lcd_cursor_on, "lcdcuron", "Turn LCD cursor on"},
+    {cmd_lcd_cursor_on, "lcdcuron", "Cursor on"},
+    {cmd_lcd_cursor_on_blink, "lcdcurbl", "Cursor blinking"},
     {cmd_lcd_clear, "lcdclr", "Clear LCD"},
     {cmd_lcd_home, "lcdh", "Move cursor to home pos"},
     {cmd_lcd_move_right, "lcdr", "Move text right"},
@@ -660,7 +667,6 @@ const PROGMEM LEF_CliCmd cmdTable[] = {
     {cmd_lcd_backlight_off, "lcdbloff", "LCD backlight off"},
     LEF_CLI_LABEL("I2C"),
     {cmd_i2c_test, "i2c", "i2c write test"},
-    // {cmd_i2c_read_test, "i2cr", "i2c read test"},
     {cmd_i2c_scan, "i2cs", "i2c scan bus"},
     {cmd_pcf_read, "pcfr", "Read PCF8574"},
 
@@ -734,52 +740,34 @@ static void hw_init(void) {
 
     // set_sleep_mode(SLEEP_MODE_IDLE);
     // sleep_enable();
-
-
+    
     ADC_ENABLE();
     ADC_REF_AVCC();
     ADC_PRESCALER_128();
     ADC_MUX(POT_ADC);
     ADC_IE();
-
-    // Timer 1 (16 bit) 10ms intervall on OCA1 interrupt 
-    // (used for LEF system timer)
-    // TIMER1_CLK_PRES_64(); // alternative for 10ms that gives good accuracy
-    // TIMER1_OCA(2499);
-    // TIMER1_MODE_CTC();        // Clear timer on compare (on OC1A)
-    // TIMER1_COM_OC1A_TOGGLE(); // toggle OC1A pin when compare
-    // TIMER1_OCA_INT(true);  // enable output compare A interrupt
-    gpio_init(PIN_OC1A, true, false);
-
-    // Timer 1 (16 bit) alternative
+    
+    // Timer 1 (16 bit) 10ms intervall on OCA1 interrupt (used for LEF system timer)
     TIMER_CLK_DIV_64(1);
     TIMER_OCA(1, 2499);
     TIMER_MODE_CTC(1);
     TIMER_COM_OC_TOGGLE(1, A);
     TIMER_OCA_INT(1, true);
-
-
+    gpio_init(PIN_OC1A, true, false);
+    
     // Timer 4 as fast PWM on OCA Pin H3
     TIMER_CLK_DIV_1(4);
-    // TIMER_OCA(4,100);
-    // TIMER_MODE_CTC(4);
-    // TIMER_COM_OC_TOGGLE(4,A);
     TIMER_MODE_FAST_PWM_8BIT(4);
     TIMER_COM_OC_CLEAR(4,A);
     TIMER_OCA(4,200);
     #define PIN_OCA4 H,3
     gpio_init( PIN_OCA4, true, false);
 
-    //   TIMER0_CLK_PRES_1();
-    //   TIMER0_OCA_SET(250);
-    // //	TIMER0_WGM_PWM();
-    //   TIMER0_WGM_FAST_PWM();
-    //   TIMER0_OM_CLEAR();
 
     TIMER_CLK_DIV_8(3);
     TIMER_OCA(3, 120);
 
-    lcd_init(LCD_Handler_gpio, HD44780_ON);
+    lcd_init(LCD_Handler_gpio, HD44780_MODE_ON);
     lcd_clear();
     lcd_puts_P("   LEF Mega Test");
 

@@ -29,7 +29,6 @@ const uint8_t line_offsets[] = {00, 64, 20, 84};
 #endif
 
 inline void lcd_delay(uint16_t us)              { lcd_callback(HD44780_MSG_DELAY_US, us); }
-// static inline void lcd_delay(uint16_t us)       { _delay_us(us); }
 inline void lcd_gpio_init(void)                 { lcd_callback(HD44780_MSG_INIT, 0); }  // initiate gpio pins
 inline void lcd_pin_e_delay(void)               { lcd_callback(HD44780_MSG_DELAY_E, 0); }
 inline void lcd_pin_e_set(bool state)           { lcd_callback(HD44780_MSG_GPIO_E, state); }
@@ -141,11 +140,9 @@ void lcd_send_data(uint8_t data) {
     _delay_us(HD44780_DELAY_CMD);
 }
 
-
 void lcd_gotoxy(uint8_t x, uint8_t y) {
     lcd_send_command(HD44780_INST_DDRAM + line_offsets[y] + x);
 }
-
 
 void lcd_putc(char c) {
     lcd_send_data(c);
@@ -158,8 +155,6 @@ void lcd_puts(const char* s) {
         lcd_putc(c);
     }
 } 
-
-
 
 void lcd_init(hd4470_callback callback, uint8_t mode) {
     lcd_callback = callback;
@@ -198,18 +193,17 @@ void lcd_init(hd4470_callback callback, uint8_t mode) {
 //     lcd_send_command(LCD_FUNCTION_DEFAULT); /* function set: display lines  */
 // #endif
 
-    // 
-    // lcd_send_command(HD44780_OFF);     
+
+    lcd_send_command(LCD_FUNCTION_DEFAULT); /* function set: display lines  */
+
+    //lcd_send_command(HD44780_MODE_OFF);
     lcd_off();
-    
-    // clear display
-    lcd_clear();     
-    
-    // entry mode
-    lcd_send_command(HD44780_MODE_DEFAULT);
-    
-    // display/cursor mode
-    lcd_send_command(mode);         
+
+    lcd_clear();  // clear display
+
+    lcd_send_command(HD44780_MODE_DEFAULT);  // entry mode
+
+    lcd_send_command(mode);  // display/cursor mode
 }
 
 #if defined(__AVR__)
