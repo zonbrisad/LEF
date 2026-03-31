@@ -7,52 +7,48 @@
 
 
 
-// --- Timing ---
-static void tm_delay() { _delay_us(5); }
+
 
 // --- Start condition ---
 static void tm_start() {
-    dm_dio_high();
-    tm_clk_high();
+    tm_dio(1);
+    tm_clk(1);
     tm_delay();
-    tm_dio_low();
+    tm_dio(0);
 }
 
 // --- Stop condition ---
 static void tm_stop() {
-    tm_clk_low();
+    tm_clk(0);
     tm_delay();
-    tm_dio_low();
+    tm_dio(0);
     tm_delay();
-    tm_clk_high();
+    tm_clk(1);
     tm_delay();
-    dm_dio_high();
+    tm_dio(1);
 }
 
 // --- Write byte ---
 static void tm_write(uint8_t data) {
     for (uint8_t i = 0; i < 8; i++) {
-        tm_clk_low();
+        tm_clk(0);
 
-        if (data & 0x01)
-            dm_dio_high();
-        else
-            tm_dio_low();
+        tm_dio(data & 0x01);
 
         tm_delay();
-        tm_clk_high();
+        tm_clk(1);
         tm_delay();
 
         data >>= 1;
     }
 
     // ACK (ignore for simplicity)
-    tm_clk_low();
-    dm_dio_high();
+    tm_clk(0);
+    tm_dio(1);
     tm_delay();
-    tm_clk_high();
+    tm_clk(1);
     tm_delay();
-    tm_clk_low();
+    tm_clk(0);
 }
 
 const uint8_t digit_map[] = {

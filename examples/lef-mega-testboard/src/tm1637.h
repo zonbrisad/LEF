@@ -16,18 +16,23 @@
 
 #pragma once
 
-#include "def_avr.h"
+#include <util/delay.h>
 
+#include "def_avr.h"
 /**
  * GPIO pins 
  */
 #define TM_CLK D,0
 #define TM_DIO D,1
 
-inline void tm_clk_high() { gpio_write(TM_CLK, 1); }
-inline void tm_clk_low() { gpio_write(TM_CLK, 0); }
-inline void dm_dio_high() { gpio_write(TM_DIO, 1); }
-inline void tm_dio_low() { gpio_write(TM_DIO, 0); }
+/**
+ * Timing
+ */
+inline static void tm_delay() { _delay_us(5); }
+
+
+inline void tm_clk(bool val) { gpio_write(TM_CLK, val); }
+inline void tm_dio(bool val) { gpio_write(TM_DIO, val); }
 
 inline void tm_init() {
     gpio_init(TM_CLK, GPIO_OUTPUT, GPIO_NO_PULLUP);

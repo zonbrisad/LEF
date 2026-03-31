@@ -633,8 +633,9 @@ static void cmd_tm_test(char* args) {
         _delay_ms(200);
     }
     
-    for (int i = 0; i<1000;i++) { 
+    for (int i = 0; i<=3000;i++) { 
         tm_display_number(i);
+
     }
 
 }
