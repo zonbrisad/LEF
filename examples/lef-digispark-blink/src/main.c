@@ -15,25 +15,21 @@
 
 /* Hardware description
  *
- * LED   PB1
- * TIMER PB0
+ * LED     PB1
+ * TIMER0  PB0 (OC0A)
+ * Button  PB2
  */
 
 // Include ------------------------------------------------------------------
 
 #include "main.h"
 
-#include <avr/io.h>
-#include <avr/pgmspace.h>
-#include <avr/interrupt.h>
-#include <avr/wdt.h>
-#include <avr/sleep.h>
-#include <util/delay.h>
-#include <util/atomic.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <avr/io.h>
+#include <avr/interrupt.h>
 
 #include "def_avr.h"
 #include "LEF.h"
@@ -41,12 +37,8 @@
 // Macros -------------------------------------------------------------------
 
 #define PIN_TIMER B,0 
-#define PIN_BUTTON B,5
+#define PIN_BUTTON B,2
 #define PIN_SYSTICK B,1
-
-// Prototypes ---------------------------------------------------------------
-
-void hw_init(void);
 
 // Datatypes ----------------------------------------------------------------
 
@@ -74,10 +66,9 @@ ISR(TIMER0_COMPA_vect) {
     LEF_Button_update(&button, !gpio_read(PIN_BUTTON));
 }
 
-void hw_init(void) {
+static void hw_init(void) {
     
     ARDUINO_LED_INIT();
-    // gpio_init(PIN_TIMER, true, false);
     gpio_init(PIN_BUTTON, false, true);
     
     TIMER0_CLK_PRES_1024();
@@ -96,12 +87,12 @@ int main(void) {
     LEF_Timer_start_repeat(&timer_sys, 10);
     LEF_Timer_init(&timer_e, EVENT_E);
 
-    // LEF_Led_init(&led, LED_BLIP);
+    LEF_Led_init(&led, LED_TRIPPLE_BLINK);
     LEF_Button_init(&button, EVENT_BUTTON);
+   	LEF_Timer_start_single(&timer_e, 300);
     LEF_init();
     
     hw_init();
-    // gpio_write(PIN_TIMER, true);
     
     while (true) {
         LEF_Wait(&event);
@@ -121,7 +112,7 @@ int main(void) {
                 break;
                 
             case EVENT_1s:
-                LEF_Led_set(&led, LED_SINGLE_BLINK);
+                //LEF_Led_set(&led, LED_SINGLE_BLINK);
                 break;
         }
     }

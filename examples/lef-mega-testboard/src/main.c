@@ -137,7 +137,7 @@ static FILE mystdout =
 #define LCD_RW_PIN F, 6    /**< pin for Read/Write line */
 #define LCD_E_PIN F, 5     /**< pin for Enable line     */
 
-static uint16_t LCD_Handler_gpio(HD44780_MSG msg, uint16_t data_arg) {
+static uint16_t lcd_gpio_callback(HD44780_MSG msg, uint16_t data_arg) {
     uint16_t result = 0;
     switch (msg) {
         case HD44780_MSG_INIT:
@@ -359,7 +359,7 @@ static void cmd_lcd_i2c(char* args) {
 }
 
 static void cmd_lcd_gpio(char* args) {
-    lcd_init(LCD_Handler_gpio, HD44780_MODE_ON);
+    lcd_init(lcd_gpio_callback, HD44780_MODE_ON);
     lcd_clear();
     lcd_puts_P("LCD on GPIO");
 }
@@ -787,7 +787,7 @@ static void hw_init(void) {
     TIMER_CLK_DIV_8(3);
     TIMER_OCA(3, 120);
 
-    lcd_init(LCD_Handler_gpio, HD44780_MODE_ON);
+    lcd_init(lcd_gpio_callback, HD44780_MODE_ON);
     lcd_clear();
     lcd_puts_P("   LEF Mega Test");
 

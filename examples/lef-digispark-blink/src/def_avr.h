@@ -16,13 +16,18 @@
 
 // Atmel AVR specific -------------------------------------------------------
 
+#define GPIO_OUTPUT 1
+#define GPIO_INPUT 0
+#define GPIO_PULLUP 1
+#define GPIO_NO_PULLUP 0
+
 // AVR GPIO macros
 #define gpio_init(port, direction, pullup) do {        \
     (direction ? _SET(DDR, port) : _CLEAR(DDR, port)); \
     (pullup ? _SET(PORT, port) : _CLEAR(PORT, port)); } while (0)
 
-#define gpio_direction(port, direction) (direption ? _SET(DDR, port) : _CLEAR(DDR, port))
-#define gpio_pullup(port, pullupp) (pullupp ? _SET(PORT, port) : _CLEAR(PORT, port))
+#define gpio_direction(port, direction) (direction ? _SET(DDR, port) : _CLEAR(DDR, port))
+#define gpio_pullup(port, pullup) (pullup ? _SET(PORT, port) : _CLEAR(PORT, port))
 #define gpio_write(port, val) (val ? _SET(PORT, port) : _CLEAR(PORT, port))
 #define gpio_read(port) (_GET(PIN, port))
 #define gpio_toggle(port) (_TOGGLE(PORT, port))
@@ -69,9 +74,7 @@ inline void ADC_START(void)               { ADCSRA |= (1<<ADSC); }   // Start si
 inline void ADC_IE(void)                  { ADCSRA |= (1<<ADIE); }   // Enable ADC interrupt
 inline void ADC_ID(void)                  { ADCSRA &= ~(1<<ADIE); }  // Disable ADC interrupt
 
-#if defined(__AVR_ATmega1280__) || defined(__AVR_ATmega1281__) || \
-defined(__AVR_ATmega2560__) || defined(__AVR_ATmega2561__)
-
+#if defined(__AVR_ATmega1280__) || defined(__AVR_ATmega1281__) || defined(__AVR_ATmega2560__) || defined(__AVR_ATmega2561__)
 inline void ADC_MUX(uint8_t channel)  { 
     if (channel > 7) BitSet(ADCSRB, MUX5); else BitClear(ADCSRB, MUX5);
     ADMUX = (ADMUX & 0b11100000) | (channel & 0b00000111);
@@ -269,15 +272,14 @@ inline void TIMER2_RELOAD(uint8_t x)      { TCNT2 = x; }              // Reload 
 #define ARDUINO_LED_PIN B,1
 #endif
 
-
-
-inline void ARDUINO_LED_INIT(void)   { gpio_init(ARDUINO_LED_PIN, 1, 0); }
-inline void ARDUINO_LED_SET(bool on) { gpio_write(ARDUINO_LED_PIN, on); }
-inline void ARDUINO_LED_ON(void)     { gpio_write(ARDUINO_LED_PIN, 1); }
-inline void ARDUINO_LED_OFF(void)    { gpio_write(ARDUINO_LED_PIN, 0); }
-inline void ARDUINO_LED_TOGGLE(void) { gpio_toggle(ARDUINO_LED_PIN); }
+#if defined(ARDUINO_LED_PIN)
+inline void ARDUINO_LED_INIT(void)   { gpio_init(ARDUINO_LED_PIN, 1, 0);  }
+inline void ARDUINO_LED_SET(bool on) { gpio_write(ARDUINO_LED_PIN, on);   }
+inline void ARDUINO_LED_ON(void)     { gpio_write(ARDUINO_LED_PIN, 1);    }
+inline void ARDUINO_LED_OFF(void)    { gpio_write(ARDUINO_LED_PIN, 0);    }
+inline void ARDUINO_LED_TOGGLE(void) { gpio_toggle(ARDUINO_LED_PIN);      }
 inline bool ARDUINO_LED_IS_ON(void)  { return gpio_read(ARDUINO_LED_PIN); }
-
+#endif
 
 /* Timer example code
 
