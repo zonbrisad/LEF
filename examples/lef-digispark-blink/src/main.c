@@ -46,14 +46,12 @@ typedef enum {
     EVENT_SYSTICK = 0,
     EVENT_E,
     EVENT_BUTTON,
-    EVENT_1s
 } lef_event_t;
 
 // Variables ----------------------------------------------------------------
 
 LEF_Timer  timer_sys;
 LEF_Timer  timer_e;
-LEF_Timer  timer_1s;
 LEF_Led    led;
 LEF_Button button;
 
@@ -69,27 +67,27 @@ ISR(TIMER0_COMPA_vect) {
 static void hw_init(void) {
     
     ARDUINO_LED_INIT();
-    gpio_init(PIN_BUTTON, false, true);
-    
+    gpio_init(PIN_BUTTON, false, true);	
+    gpio_init(TIMER0_PIN_OC0A, true, false);
+	
     TIMER0_CLK_PRES_1024();
     TIMER0_OCA(160);
     TIMER0_WGM_CTC();
     TIMER0_OCA_COM_TOGGLE();
     TIMER0_OCA_INT(true);
-    gpio_init(TIMER0_PIN_OC0A, true, false);
+	
     sei();  // Enable all interrupts
 }
 int main(void) {
     LEF_Event event;
-    
-    LEF_Timer_init(&timer_1s, EVENT_SYSTICK);
+
+    LEF_Timer_init(&timer_e, EVENT_E);
     LEF_Timer_init(&timer_sys, EVENT_SYSTICK);
     LEF_Timer_start_repeat(&timer_sys, 10);
-    LEF_Timer_init(&timer_e, EVENT_E);
 
     LEF_Led_init(&led, LED_TRIPPLE_BLINK);
     LEF_Button_init(&button, EVENT_BUTTON);
-   	LEF_Timer_start_single(&timer_e, 300);
+   	LEF_Timer_start_single(&timer_e, 100);
     LEF_init();
     
     hw_init();
@@ -101,19 +99,16 @@ int main(void) {
                 if (event.func != 1)
                     break;
                 LEF_Led_set(&led, LED_DOUBLE_BLINK);
-                LEF_Timer_start_single(&timer_e, 300);
+                LEF_Timer_start_single(&timer_e, 100);
                 break;
             case EVENT_E:
                 LEF_Led_set(&led, LED_BLIP);
                 break;
                 
             case EVENT_SYSTICK:
-                gpio_toggle(PIN_TIMER);
+                //gpio_toggle(PIN_TIMER);
                 break;
                 
-            case EVENT_1s:
-                //LEF_Led_set(&led, LED_SINGLE_BLINK);
-                break;
         }
     }
 }
