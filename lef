@@ -74,6 +74,11 @@ bpCat() {
 
 
 ##- Misc
+
+diff() { ##D Diff with file in LEF
+  ${BP_DIFF} "${BP_SELF_DIR}/src/$(basename ${2})" "${2}"
+}
+
 install() { # Install
   bpAddModule "${BP_SELF_DIR}/lef_init"
 }

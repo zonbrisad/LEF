@@ -80,6 +80,8 @@ extern "C" {
 
 extern LEF_EventQueue lef_std_queue;
 
+typedef void (*LEF_Callback)(void);
+
 // typedef uint8_t LEF_EventId;
 // typedef uint8_t LEF_EventFunc;
 
