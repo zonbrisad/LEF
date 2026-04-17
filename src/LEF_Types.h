@@ -35,13 +35,17 @@ extern "C" {
 // Typedefs ---------------------------------------------------------------
 
 typedef uint8_t LEF_EventId;
+
 typedef uint8_t LEF_EventFunc;
+
 
 typedef struct {
     LEF_EventId id;
     LEF_EventFunc func;
 } LEF_Event;
-	
+
+typedef bool (*LEF_EventHandler)(LEF_Event* event);
+
 #ifdef __cplusplus
 } //end brace for extern "C"
 #endif

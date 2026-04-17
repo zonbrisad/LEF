@@ -37,39 +37,80 @@
 // Variables --------------------------------------------------------------
 
 LEF_EventQueue lef_std_queue;
+LEF_Timer lef_delay_timer;
+LEF_EventHandler lef_pre_event_handler = NULL;
 
 // Prototypes -------------------------------------------------------------
 
 // Code -------------------------------------------------------------------
 
 
-// initiate LEF standard queue
 void LEF_init(void) {
-	LEF_QueueInit(&lef_std_queue);
+
+    // initiate LEF standard queue
+    LEF_QueueInit(&lef_std_queue);
+    
+    // initiate delay timer
+    LEF_Timer_init(&lef_delay_timer, LEF_EVENT_DELAY);
 }
 
-
 void LEF_Send(LEF_Event *event) {
-	return LEF_QueueSend(&lef_std_queue, event);
+    return LEF_QueueSend(&lef_std_queue, event);
 }
 
 void LEF_Send_msg(LEF_EventId id, LEF_EventFunc func) {
-	LEF_Event event;
-	event.id = id;
-	event.func = func;
-	LEF_Send(&event);
+    LEF_Event event;
+    event.id = id;
+    event.func = func;
+    LEF_Send(&event);
 }
 
 void LEF_Clear(void) {
-	return LEF_QueueClear(&lef_std_queue);
+    return LEF_QueueClear(&lef_std_queue);
 }
 
 uint16_t LEF_Count(void) {
   return LEF_QueueCnt(&lef_std_queue);
 }
 
+void LEF_systick(void) {
+    LEF_Timer_update(&lef_delay_timer);
+}
+
+void LEF_Delay(uint16_t ticks) {
+    LEF_Event event;
+
+    LEF_Timer_start_single(&lef_delay_timer, ticks);
+    while (true) {
+        LEF_Wait(&event);
+        if (event.id == LEF_EVENT_DELAY) {
+            break;
+        }
+        if (lef_pre_event_handler != NULL) {
+            lef_pre_event_handler(&event);
+        }
+    }
+}
+
 void LEF_Print_event(LEF_Event *event) {
-	printf("Event id: %3d   Event func: %3d\n", event->id, event->func);
+    printf("Event id: %3d   func: %3d\n", event->id, event->func);
+}
+
+int LEF_Run(LEF_EventHandler main_event_handler, LEF_EventHandler pre_event_handler) {
+    LEF_Event event;
+
+    lef_pre_event_handler = pre_event_handler;
+    while (true) {
+        LEF_Wait(&event);
+        if (pre_event_handler != NULL) {
+            if (!pre_event_handler(&event)) {
+                main_event_handler(&event);
+            }
+        } else {
+            main_event_handler(&event);
+        }
+    }
+    return 0;
 }
 
 #ifdef LEF_SYSTEM_LINUX
@@ -98,7 +139,7 @@ void LEF_add_systimer(char* name, size_t intervall, LEF_Callback callback) {
 #else 
 
 void LEF_Wait(LEF_Event *event) {
-	return LEF_QueueWait(&lef_std_queue, event);
+    return LEF_QueueWait(&lef_std_queue, event);
 }
 
 #endif

@@ -73,22 +73,12 @@ extern "C" {
 
 #define LEF_ERROR         240
 #define LEF_EVENT_CLI     250
+#define LEF_EVENT_DELAY   251
 #define LEF_EVENT_TEST    254
 #define LEF_SYSTICK_EVENT 255
 
 // Typedefs ---------------------------------------------------------------
 
-extern LEF_EventQueue lef_std_queue;
-
-typedef void (*LEF_Callback)(void);
-
-// typedef uint8_t LEF_EventId;
-// typedef uint8_t LEF_EventFunc;
-
-// typedef struct {
-//     LEF_EventId id;
-//     LEF_EventFunc func;
-// } LEF_Event;
 
 // Macros -----------------------------------------------------------------
 
@@ -134,7 +124,7 @@ typedef void (*LEF_Callback)(void);
 	
 // Variables --------------------------------------------------------------
 
-
+extern LEF_EventQueue lef_std_queue;
 
 // Functions --------------------------------------------------------------
 
@@ -155,7 +145,14 @@ void LEF_Wait(LEF_Event* event);
 
 void LEF_Clear(void);
 
+void LEF_systick(void);
+
+void LEF_Delay(uint16_t ticks);
+
 uint16_t LEF_Count(void);
+
+int LEF_Run(LEF_EventHandler main_event_handler,
+            LEF_EventHandler pre_event_handler);
 
 void LEF_print_sysinfo(void);
 

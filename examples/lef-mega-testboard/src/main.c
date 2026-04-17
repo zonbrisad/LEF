@@ -125,10 +125,6 @@ static FILE mystdout =
     FDEV_SETUP_STREAM((void*)uart_putc, NULL, _FDEV_SETUP_WRITE);
 
 
-
-
-
-
 #define LCD_DATA4_PIN F, 4 /**< pin for 4bit data bit 0  */
 #define LCD_DATA5_PIN F, 3 /**< pin for 4bit data bit 1  */
 #define LCD_DATA6_PIN F, 2 /**< pin for 4bit data bit 2  */
@@ -794,10 +790,99 @@ static void hw_init(void) {
     sei();
 }
 
-int main(void) {
-    LEF_Event event;
+static bool main_event_handler(LEF_Event* event) {
     uint16_t ch, val;
     uint8_t ls = LEDRG_OFF;
+
+    if (evOn) LEF_Print_event(event);
+
+    switch (event->id) {
+        case EVENT_Button1:  // Handle button press event
+            printf_P(PSTR("Button 1 event: func = %d\n"), event->func);
+            LEF_Led_set(&led1, LED_SLOW_BLINK);
+            LEF_Led_set(&led2, LED_BLINK);
+            LEF_Led_set(&led3, LED_FAST_BLINK);
+            LEF_Led_set(&led4, LED_BLIP);
+            lcd_gotoxy(0,3);
+            lcd_puts_P("Button 1 pressed");
+            break;
+            case EVENT_Button2:  // Handle button press event
+            printf_P(PSTR("Button 2 event: func = %d\n"), event->func);
+            lcd_gotoxy(0,3);
+            lcd_puts_P("Button 2 pressed");
+            break;
+        case EVENT_Button3:  // Handle button press event
+            lcd_gotoxy(0,3);
+            lcd_puts_P("Button 3 pressed");
+            if (event->func == 1) {
+                ls++;
+                if (ls >= LEDRG_LAST) ls = LEDRG_OFF;
+
+                LEF_Led_set(&led1, LED_SINGLE_BLINK);
+                LEF_LedRG_set(&ledrg, ls);
+
+                LEF_Buzzer_set(LEF_BUZZER_SHORT_BEEP);
+            }
+            if (event->func == 3) {
+                LEF_Buzzer_set(LEF_BUZZER_BRP);
+            }
+
+            printf_P(PSTR("Port C: %s  Clk = %d   Dt = %d\n"), int2bin8(PINE),
+                     (PINC & (1 << PC0)), (PINC & (1 << PC1)));
+
+            break;
+        case EVENT_Rotary:  // Handle rotary event
+            LEF_Buzzer_set(LEF_BUZZER_BLIP);
+            LEF_Print_event(event);
+            break;
+
+        case EVENT_Timer2:  // Handle data from uart to Cli
+            ch = uart_getc();
+            while ((ch & 0xff00) != UART_NO_DATA) {
+                LEF_Cli_putc(ch);
+                ch = uart_getc();
+            }
+            break;
+
+        case LEF_EVENT_CLI:
+            LEF_Cli_exec(event);
+            break;
+
+        case EVENT_Pot:
+            val = LEF_Pot_state(&pot);
+            // printf("Pot changed %d\n", val);
+            // TIMER_OCA(4, (val / 4)); // set PWM on LCD backlight
+            lcd_backlight(val / 4);
+            // turn on backlight if high value
+            // lcd_backlight(val > 512);
+
+            char buf[41];
+            LEF_Led_set(&led1, (val > 100));
+            LEF_Led_set(&led2, (val > 300));
+            LEF_Led_set(&led3, (val > 500));
+            LEF_Led_set(&led4, (val > 800));
+
+            lcd_gotoxy(0, 0);
+            for (uint16_t i = 0; i < 16; i++) {
+                if (1023 / 16 * i < val)
+                    lcd_putc('#');
+                else
+                    lcd_putc(' ');
+            }
+            lcd_gotoxy(0, 1);
+            sprintf_P(buf, PSTR("Pot value %4d"), val);
+            lcd_puts(buf);
+            break;
+
+        case LEF_EVENT_TEST:
+            printf_P(PSTR("Testevent\n"));
+            break;
+    }
+
+    return true;
+}
+
+int main(void) {
 
     LEF_init();
 
@@ -826,88 +911,7 @@ int main(void) {
 
     LEF_Buzzer_set(LEF_BUZZER_BEEP);
 
-    while (true) {
-        LEF_Wait(&event);
-
-        if (evOn) LEF_Print_event(&event);
-
-        switch (event.id) {
-            case EVENT_Button1:  // Handle button press event
-                printf_P(PSTR("Button 1 event: func = %d\n"), event.func);
-                LEF_Led_set(&led1, LED_SLOW_BLINK);
-                LEF_Led_set(&led2, LED_BLINK);
-                LEF_Led_set(&led3, LED_FAST_BLINK);
-                LEF_Led_set(&led4, LED_BLIP);
-                break;
-            case EVENT_Button2:  // Handle button press event
-                printf_P(PSTR("Button 2 event: func = %d\n"), event.func);
-                break;
-            case EVENT_Button3:  // Handle button press event
-                if (event.func == 1) {
-                    ls++;
-                    if (ls >= LEDRG_LAST) ls = LEDRG_OFF;
-
-                    LEF_Led_set(&led1, LED_SINGLE_BLINK);
-                    LEF_LedRG_set(&ledrg, ls);
-
-                    LEF_Buzzer_set(LEF_BUZZER_SHORT_BEEP);
-                }
-                if (event.func == 3) {
-                    LEF_Buzzer_set(LEF_BUZZER_BRP);
-                }
-
-                printf_P(PSTR("Port C: %s  Clk = %d   Dt = %d\n"), int2bin8(PINE),
-                       (PINC & (1 << PC0)), (PINC & (1 << PC1)));
-
-                break;
-            case EVENT_Rotary:  // Handle rotary event
-                LEF_Buzzer_set(LEF_BUZZER_BLIP);
-                LEF_Print_event(&event);
-                break;
-
-            case EVENT_Timer2:  // Handle data from uart to Cli
-                ch = uart_getc();
-                while ((ch & 0xff00) != UART_NO_DATA) {
-                    LEF_Cli_putc(ch);
-                    ch = uart_getc();
-                }
-                break;
-
-            case LEF_EVENT_CLI:
-                LEF_Cli_exec(&event);
-                break;
-
-            case EVENT_Pot:
-                val = LEF_Pot_state(&pot);
-                //printf("Pot changed %d\n", val);
-                //TIMER_OCA(4, (val / 4)); // set PWM on LCD backlight
-                lcd_backlight(val/4);
-                // turn on backlight if high value
-                //lcd_backlight(val > 512);
-
-                char buf[41];
-                LEF_Led_set(&led1, (val > 100));
-                LEF_Led_set(&led2, (val > 300));
-                LEF_Led_set(&led3, (val > 500));
-                LEF_Led_set(&led4, (val > 800));
-                
-                lcd_gotoxy(0,0);
-                for (uint16_t i=0;i<16;i++) {
-                    if (1023/16*i < val)
-                        lcd_putc('#');
-                    else
-                        lcd_putc(' ');
-                }
-                lcd_gotoxy(0,1);
-                sprintf_P(buf,PSTR("Pot value %4d"), val);
-                lcd_puts(buf);
-                break;
-
-            case LEF_EVENT_TEST:
-                printf_P(PSTR("Testevent\n"));
-                break;
-        }
-    }
+    LEF_Run(main_event_handler, NULL);
 
     return 0;
 }

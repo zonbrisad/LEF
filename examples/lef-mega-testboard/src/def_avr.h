@@ -105,8 +105,9 @@ inline uint16_t ADC_VALUE(void)           { return ADCL + (ADCH << 8); }
 
 inline bool ADC_IS_BUSY(void)             { return (ADCSRA & (1<<ADSC)); }
 inline void ADC_WAIT_COMPLETION(void)     { while (ADC_IS_BUSY()) {}}  // Busy wait for completion
-inline void ADC_AUTOTRIGGER_ENABLE(void)  { ADCSRA |= (1<<ADATE); }     // ADC auto trigger enable
 
+#if defined(ADCSRB) // some older MCU's do not have autotrigger features
+inline void ADC_AUTOTRIGGER_ENABLE(void)  { ADCSRA |= (1<<ADATE); }     // ADC auto trigger enable
 inline void ADC_TRG_FREE_RUNNING(void)    { ADCSRB = (ADCSRB & 0b00000111) | 0b000; }
 inline void ADC_TRG_ANALOG_COMP(void)     { ADCSRB = (ADCSRB & 0b00000111) | 0b001; }
 inline void ADC_TRG_EXTERNAL_INT(void)    { ADCSRB = (ADCSRB & 0b00000111) | 0b010; }
@@ -115,6 +116,7 @@ inline void ADC_TRG_TIMER0_OVF(void)      { ADCSRB = (ADCSRB & 0b00000111) | 0b1
 inline void ADC_TRG_TIMER1_COMPB(void)    { ADCSRB = (ADCSRB & 0b00000111) | 0b101; }
 inline void ADC_TRG_TIMER1_OVF(void)      { ADCSRB = (ADCSRB & 0b00000111) | 0b110; }
 inline void ADC_TRG_TIMER1_CPT(void)      { ADCSRB = (ADCSRB & 0b00000111) | 0b111; }
+#endif
 
 // AVR TWI (I2C) ------------------------------------------------------------
 #ifdef TWCR
@@ -297,14 +299,14 @@ inline void TIMER2_RELOAD(uint8_t tcnt)   { TCNT2 = tcnt; }           // Reload 
 #define ARDUINO_LED_PIN B,1
 #endif
 
-
+#if defined(ARDUINO_LED_PIN)
 inline void ARDUINO_LED_INIT(void)   { gpio_init(ARDUINO_LED_PIN, 1, 0);  }
 inline void ARDUINO_LED_SET(bool on) { gpio_write(ARDUINO_LED_PIN, on);   }
 inline void ARDUINO_LED_ON(void)     { gpio_write(ARDUINO_LED_PIN, 1);    }
 inline void ARDUINO_LED_OFF(void)    { gpio_write(ARDUINO_LED_PIN, 0);    }
 inline void ARDUINO_LED_TOGGLE(void) { gpio_toggle(ARDUINO_LED_PIN);      }
 inline bool ARDUINO_LED_IS_ON(void)  { return gpio_read(ARDUINO_LED_PIN); }
-
+#endif
 
 /* Timer example code
 

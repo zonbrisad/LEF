@@ -430,6 +430,31 @@ void hw_init(void) {
     sei();
 }
 
+
+static bool main_event_handler(LEF_Event* event) {
+    uint16_t ch;
+    switch (event->id) {
+        case EVENT_Button1:  // Handle button press event
+            break;
+        case EVENT_Button2:  // Handle button press event
+            break;
+        case EVENT_Button3:  // Handle button press event
+            break;
+        case EVENT_Timer2:  // Handle data from uart to Cli
+            ch = uart1_getc();
+            while ((ch & 0xff00) != UART_NO_DATA) {
+                LEF_Cli_putc(ch);
+                ch = uart1_getc();
+            }
+            break;
+
+        case LEF_EVENT_CLI:
+            LEF_Cli_exec(event);
+            break;
+    }
+    return false; // return true if event was handled
+}
+
 int main(void) {
     LEF_Event event;
     uint16_t ch;
@@ -452,32 +477,7 @@ int main(void) {
 
     printf_P(PSTR("\n\nLCD testprogram (ET-AVR-STAMP)\n\n"));
 
-    while (true) {
-        LEF_Wait(&event);
-
-        if (evOn) LEF_Print_event(&event);
-
-        switch (event.id) {
-            case EVENT_Button1:  // Handle button press event
-                break;
-            case EVENT_Button2:  // Handle button press event
-                break;
-            case EVENT_Button3:  // Handle button press event
-                break;
-            case EVENT_Timer2:  // Handle data from uart to Cli
-                ch = uart1_getc();
-                while ((ch & 0xff00) != UART_NO_DATA) {
-                    LEF_Cli_putc(ch);
-                    ch = uart1_getc();
-                }
-                break;
-
-            case LEF_EVENT_CLI:
-                LEF_Cli_exec(&event);
-                break;
-
-        }
-    }
+    LEF_Run(main_event_handler, NULL);
 
     return 0;
 }
