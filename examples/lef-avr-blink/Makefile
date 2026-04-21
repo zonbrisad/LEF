@@ -27,6 +27,8 @@ TARGET = lef-avr-blink
 SRC = src/main.c \
 	src/uart.c \
 	src/LEF/LEF.c \
+	src/LEF/LEF_Core.c \
+	src/LEF/LEF_Timer.c \
 	src/LEF/LEF_Queue.c \
 	src/LEF/LEF_Led.c \
 # 	src/LEF/LEF_Timer.c \
@@ -793,52 +795,6 @@ ccheck: ##D Static code analysis using cppcheck(errors only)
 
 acheck: ##D Static code analysis using cppcheck(all warnings)
 	@$(CPPCHECK) --inline-suppr --enable=all $(SRC) $(CPPCHECK_FILTER)
-
-#
-# Artistic Style (astyle) Format source code to a standard
-#============================================================================
-.PHONY: astyle
-
-TABSIZE=4
-
-# Bracket style options
-AST  = --style=java
-
-# Tab options
-AST += --indent=spaces=$(TABSIZE)
-
-# Indentation options
-AST += --indent-switches
-AST += --indent-cases
-#AST += --indent-preproc-cond
-AST += --indent-col1-comments
-AST += --max-instatement-indent=40
- 
-# C++ specific indentation
-AST += --indent-modifiers
-
-# Padding options
-AST += --break-blocks
-AST += --pad-oper
-#AST += --pad-comma
-AST += --pad-header
-AST += --align-pointer=name
-AST += --align-reference=name 
-
-# Formatting options
-AST += --add-brackets 
-AST += --convert-tabs
-
-# Other options
-AST += --lineend=linux
-#AST += --recursive
-#AST += --exclude=
-AST +=--preserve-date
-
-PSRCH = $(PSRC:%.c=%.h) 
-
-astyle: ##D Format source to conform to a standard
-	@$(ASTYLE) $(AST) src/*.c src/*.cpp src/*.h
 
 	
 # Listing of phony targets.
