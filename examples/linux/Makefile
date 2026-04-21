@@ -27,13 +27,16 @@ SRC = src/main.c
 
 # List C, C++ and assembler library/3rd partry source files here. (C/C++ dependencies are automatically generated.)
 LSRC =	src/LEF/LEF.c \
+		src/LEF/LEF_Core.c \
+		src/LEF/LEF_Timer.c \
+		src/LEF/LEF_linux.c \
         src/LEF/LEF_Queue.c \
-				src/LEF/LEF_Cli.c
+		src/LEF/LEF_Cli.c \
+		src/LEF/LEF_Cli_History.c 
 
 # Include directories
 INCLUDE = src \
           src/LEF \
-#					Unity/src
 
 # Libraries to link
 LIB   = -lm 

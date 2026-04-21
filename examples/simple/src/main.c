@@ -313,11 +313,68 @@ void hw_init(void) {
     sei();
 }
 
-int main() {
-    LEF_Event event;
+static bool main_event_handler(LEF_Event *event) {
     uint8_t ls;
     ls = LEDRG_OFF;
     uint16_t ch, val;
+
+    if (evOn) LEF_Print_event(event);
+
+    switch (event->id) {
+        case EVENT_Button:  // Handle button press event
+            LEF_Print_event(event);
+            if (event->func == 1) {
+                ls++;
+                if (ls >= LEDRG_LAST) ls = LEDRG_OFF;
+
+                LEF_Led_set(&led1, LED_SINGLE_BLINK);
+                LEF_LedRG_set(&ledrg, ls);
+
+                LEF_Buzzer_set(LEF_BUZZER_SHORT_BEEP);
+            }
+            if (event->func == 3) {
+                LEF_Buzzer_set(LEF_BUZZER_BRP);
+            }
+
+            printf("Clk = %d   Dt = %d\n", gpio_read(PIN_ROT_CLK),
+                   gpio_read(PIN_ROT_DATA));
+
+            break;
+        case EVENT_Rotary:  // Handle rotary event
+            LEF_Buzzer_set(LEF_BUZZER_BLIP);
+            LEF_Print_event(event);
+            break;
+
+        case EVENT_Timer2:  // Handle data from uart to Cli
+            ch = uart_getc();
+            while ((ch & 0xff00) != UART_NO_DATA) {
+                LEF_Cli_putc(ch);
+                ch = uart_getc();
+            }
+            break;
+
+        case LEF_EVENT_CLI:
+            LEF_Cli_exec(event);
+            break;
+
+        case EVENT_Pot:
+            val = LEF_Pot_state(&pot);
+            printf("Pot changed %d\n", val);
+            TIMER0_OCA(val / 4);
+            break;
+
+        case LEF_EVENT_TEST:
+            printf("Testevent\n");
+            break;
+    }
+    return true;
+}
+
+int main() {
+    // LEF_Event event;
+    // uint8_t ls;
+    // ls = LEDRG_OFF;
+    // uint16_t ch, val;
 
     LEF_init();
 
@@ -347,58 +404,61 @@ int main() {
     //_delay_ms(1000);
     printf("\n\nStarting LEF simple test\n\n");
 
-    while (1) {
-        LEF_Wait(&event);
+    LEF_Run(main_event_handler, NULL);
 
-        if (evOn) LEF_Print_event(&event);
 
-        switch (event.id) {
-            case EVENT_Button:  // Handle button press event
-                LEF_Print_event(&event);
-                if (event.func == 1) {
-                    ls++;
-                    if (ls >= LEDRG_LAST) ls = LEDRG_OFF;
+    // while (1) {
+    //     LEF_Wait(&event);
 
-                    LEF_Led_set(&led1, LED_SINGLE_BLINK);
-                    LEF_LedRG_set(&ledrg, ls);
+    //     if (evOn) LEF_Print_event(&event);
 
-                    LEF_Buzzer_set(LEF_BUZZER_SHORT_BEEP);
-                }
-                if (event.func == 3) {
-                    LEF_Buzzer_set(LEF_BUZZER_BRP);
-                }
+    //     switch (event.id) {
+    //         case EVENT_Button:  // Handle button press event
+    //             LEF_Print_event(&event);
+    //             if (event.func == 1) {
+    //                 ls++;
+    //                 if (ls >= LEDRG_LAST) ls = LEDRG_OFF;
 
-                printf("Clk = %d   Dt = %d\n", gpio_read(PIN_ROT_CLK),
-                       gpio_read(PIN_ROT_DATA));
+    //                 LEF_Led_set(&led1, LED_SINGLE_BLINK);
+    //                 LEF_LedRG_set(&ledrg, ls);
 
-                break;
-            case EVENT_Rotary:  // Handle rotary event
-                LEF_Buzzer_set(LEF_BUZZER_BLIP);
-                LEF_Print_event(&event);
-                break;
+    //                 LEF_Buzzer_set(LEF_BUZZER_SHORT_BEEP);
+    //             }
+    //             if (event.func == 3) {
+    //                 LEF_Buzzer_set(LEF_BUZZER_BRP);
+    //             }
 
-            case EVENT_Timer2:  // Handle data from uart to Cli
-                ch = uart_getc();
-                while ((ch & 0xff00) != UART_NO_DATA) {
-                    LEF_Cli_putc(ch);
-                    ch = uart_getc();
-                }
-                break;
+    //             printf("Clk = %d   Dt = %d\n", gpio_read(PIN_ROT_CLK),
+    //                    gpio_read(PIN_ROT_DATA));
 
-            case LEF_EVENT_CLI:
-                LEF_Cli_exec(&event);
-                break;
+    //             break;
+    //         case EVENT_Rotary:  // Handle rotary event
+    //             LEF_Buzzer_set(LEF_BUZZER_BLIP);
+    //             LEF_Print_event(&event);
+    //             break;
 
-            case EVENT_Pot:
-                val = LEF_Pot_state(&pot);
-                printf("Pot changed %d\n", val);
-                TIMER0_OCA(val / 4);
-                break;
+    //         case EVENT_Timer2:  // Handle data from uart to Cli
+    //             ch = uart_getc();
+    //             while ((ch & 0xff00) != UART_NO_DATA) {
+    //                 LEF_Cli_putc(ch);
+    //                 ch = uart_getc();
+    //             }
+    //             break;
 
-            case LEF_EVENT_TEST:
-                printf("Testevent\n");
-                break;
-        }
-    }
+    //         case LEF_EVENT_CLI:
+    //             LEF_Cli_exec(&event);
+    //             break;
+
+    //         case EVENT_Pot:
+    //             val = LEF_Pot_state(&pot);
+    //             printf("Pot changed %d\n", val);
+    //             TIMER0_OCA(val / 4);
+    //             break;
+
+    //         case LEF_EVENT_TEST:
+    //             printf("Testevent\n");
+    //             break;
+    //     }
+    // }
     return 0;
 }

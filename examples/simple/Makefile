@@ -27,6 +27,7 @@ TARGET = simple
 SRC = src/main.c \
       src/uart.c \
       src/LEF/LEF.c \
+	  src/LEF/LEF_Core.c \
       src/LEF/LEF_Queue.c \
       src/LEF/LEF_Led.c \
       src/LEF/LEF_LedA.c \
