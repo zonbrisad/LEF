@@ -17,6 +17,9 @@
             "compilerArgs": [
                 "-mmcu=atmega1280",                  // critical: tells compiler & IntelliSense the target MCU
                 "-DF_CPU=16000000UL"                 // very common for Arduino Uno
+            ],
+            "forcedInclude": [
+                "${workspaceFolder}/.vscode/vscode_avr_preinclude.h"
             ]
         },
         {
@@ -26,7 +29,7 @@
                 "/usr/lib/avr/include"
             ],
             "defines": [
-                "__AVR_ATmega128__",    // important for <avr/io.h> to pick correct device
+                "__AVR_ATmega128__"    // important for <avr/io.h> to pick correct device
             ],
             "compilerPath": "/usr/bin/avr-gcc",
             "cStandard": "c11",
@@ -34,7 +37,11 @@
             "intelliSenseMode": "linux-gcc-x64",
             "compilerArgs": [
                 "-mmcu=atmega128",                  // critical: tells compiler & IntelliSense the target MCU
-                "-DF_CPU=16000000UL"                 // very common for Arduino Uno
+                "-DF_CPU=16000000UL",                 // very common for Arduino Uno
+                "-Uunix"
+            ],
+            "forcedInclude": [
+                "${workspaceFolder}/.vscode/vscode_avr_preinclude.h"
             ]
         },
         {
@@ -54,6 +61,9 @@
             "compilerArgs": [
                 "-mmcu=atmega328p",                  // critical: tells compiler & IntelliSense the target MCU
                 "-DF_CPU=16000000UL"                 // very common for Arduino Uno
+            ],
+            "forcedInclude": [
+                "${workspaceFolder}/.vscode/vscode_avr_preinclude.h"
             ]
         },
         {
@@ -73,6 +83,9 @@
             "compilerArgs": [
                 "-mmcu=attiny85",                  // critical: tells compiler & IntelliSense the target MCU
                 "-DF_CPU=16000000UL"                 // very common for Arduino Uno
+            ],
+            "forcedInclude": [
+                "${workspaceFolder}/.vscode/vscode_avr_preinclude.h"
             ]
         },
         {

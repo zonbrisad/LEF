@@ -67,22 +67,22 @@ typedef enum {
     EVENT_Button3,
 } Events;
 
-void hw_init(void);
+// void hw_init(void);
 
-void cmd_help(char* args);
-void cmd_disk(char* args);
-void cmd_reset(char* args);
-void cmd_lcd_on(char* args);
-void cmd_lcd_off(char* args);
-void cmd_lcd_clear(char* args);
-void cmd_lcd_home(char* args);
-void cmd_lcd_test(char* args);
-void cmd_lcd_test_move(char *args);
-void cmd_lcd_move_right(char *args);
-void cmd_lcd_move_left(char *args);
-void cmd_lcd_init(char *args);
+// void cmd_help(char* args);
+// void cmd_disk(char* args);
+// void cmd_reset(char* args);
+// void cmd_lcd_on(char* args);
+// void cmd_lcd_off(char* args);
+// void cmd_lcd_clear(char* args);
+// void cmd_lcd_home(char* args);
+// void cmd_lcd_test(char* args);
+// void cmd_lcd_test_move(char *args);
+// void cmd_lcd_move_right(char *args);
+// void cmd_lcd_move_left(char *args);
+// void cmd_lcd_init(char *args);
 
-void cmd_lcd_ks0108_init(char *args);
+// void cmd_lcd_ks0108_init(char *args);
 
 
 LEF_Timer timer1;
@@ -98,22 +98,7 @@ u8x8_t u8x8;
 static FILE mystdout =
     FDEV_SETUP_STREAM((void*)uart1_putc, NULL, _FDEV_SETUP_WRITE);
 
-const PROGMEM LEF_CliCmd cmdTable[] = {
-    LEF_CLI_LABEL("LCD"),
-    {cmd_lcd_init, "lcdinit", "Initialize Nokia 5110 LCD"},
-    {cmd_lcd_ks0108_init, "ks0108", "Initialize LCD with ks0108"},
-    {cmd_lcd_on, "lcdon", "Turn LCD on"},
-    {cmd_lcd_off, "lcdoff", "Turn LCD off"},
-    {cmd_lcd_clear, "lcdclr", "Clear LCD"},
-    {cmd_lcd_home, "lcdh", "Move cursor to home pos"},
-    {cmd_lcd_move_right, "lcdr", "Move text right"},
-    {cmd_lcd_move_left, "lcdl", "Move text left"},
-    {cmd_lcd_test, "lcdt1", "Run LCD test"},
-    {cmd_lcd_test_move, "lcdtm", "Run LCD move test"},
 
-    LEF_CLI_LABEL("Misc"),
-    {cmd_reset, "reset", "Reset the system"},
-    LEF_CLI_CMD(cmd_help, "help", "Show help")};
 
 // ============== PIN DEFINITIONS (change if you want) ==============
 #define LCD_CS B,0
@@ -218,16 +203,13 @@ uint8_t u8x8_gpio_and_delay(u8x8_t* u8x8x, uint8_t msg, uint8_t arg_int, void* a
 
 uint8_t ks0108_gpio_and_delay(u8x8_t *u8x8x, uint8_t msg, uint8_t arg_int, void *arg_ptr);
 uint8_t ks0108_gpio_and_delay(u8x8_t *u8x8x, uint8_t msg, uint8_t arg_int, void *arg_ptr){
-    
+    UNUSED(arg_ptr);
     switch (msg) {
         case U8X8_MSG_GPIO_AND_DELAY_INIT:
             printf_P(PSTR("Initing gpio for ks0108\n"));
-            // DDRA = 0xFF;                    // Data port = output
-            // DDRB |= (1<<PB0) | (1<<PB1) | (1<<PB2) | (1<<PB3) | (1<<PB4); // Control pins = output
             
             gpio_init(BG_DC, true, false);
             gpio_init(BG_RW, true, false);
-            gpio_write(BG_RW, false);       // set to low permanent
             gpio_init(BG_E, true, false);
             gpio_init(BG_CS1, true, false);
             gpio_init(BG_CS2, true, false);
@@ -240,6 +222,9 @@ uint8_t ks0108_gpio_and_delay(u8x8_t *u8x8x, uint8_t msg, uint8_t arg_int, void 
             gpio_init(BG_DB6, true, false);
             gpio_init(BG_DB7, true, false);
             gpio_init(BG_RST, true, false);
+            
+            gpio_write(BG_RW, 1);  // set to low permanent
+            gpio_write(BG_RST, 1);     // not reset
             
             break;
         /* Data bus D0..D7 (PORTA) */
@@ -257,10 +242,10 @@ uint8_t ks0108_gpio_and_delay(u8x8_t *u8x8x, uint8_t msg, uint8_t arg_int, void 
 
         // case U8X8_MSG_GPIO_CS1:   gpio_write(BG_CS1, arg_int); break; //if (arg_int) PORTB |= (1<<PB3); else PORTB &= ~(1<<PB3); break; // CS2 on LCD
         // case U8X8_MSG_GPIO_CS2:   gpio_write(BG_CS2, arg_int); break; //if (arg_int) PORTB |= (1<<PB4); else PORTB &= ~(1<<PB4); break; // usually not used
-        case U8X8_MSG_GPIO_CS:    gpio_write(BG_CS1, arg_int); break; //if (arg_int) PORTB |= (1<<PB3); else PORTB &= ~(1<<PB3); break; // CS2 on LCD
-        case U8X8_MSG_GPIO_CS1:   gpio_write(BG_CS2, arg_int); break; //if (arg_int) PORTB |= (1<<PB4); else PORTB &= ~(1<<PB4); break; // usually not used
+        case U8X8_MSG_GPIO_CS1:    gpio_write(BG_CS1, arg_int); break; //if (arg_int) PORTB |= (1<<PB3); else PORTB &= ~(1<<PB3); break; // CS2 on LCD
+        case U8X8_MSG_GPIO_CS2:    gpio_write(BG_CS2, arg_int); break; //if (arg_int) PORTB |= (1<<PB4); else PORTB &= ~(1<<PB4); break; // usually not used
 
-        case U8X8_MSG_GPIO_RESET: gpio_write(BG_RST, arg_int); break; //if (arg_int) PORTB |= (1<<PB4); else PORTB &= ~(1<<PB4); break;
+        // case U8X8_MSG_GPIO_RESET: gpio_write(BG_RST, arg_int); break; //if (arg_int) PORTB |= (1<<PB4); else PORTB &= ~(1<<PB4); break;
         
         /* Data bus D0..D7 (PORTA) */
         // case U8X8_MSG_GPIO_D0: if (arg_int) PORTA |= (1<<0); else PORTA &= ~(1<<0); break;
@@ -298,8 +283,19 @@ uint8_t ks0108_gpio_and_delay(u8x8_t *u8x8x, uint8_t msg, uint8_t arg_int, void 
     }
     return 1;
 }
+static void lcd_test() {
+    u8x8_ClearDisplay(&u8x8);
+    u8x8_SetFont(&u8x8, u8x8_font_5x7_f);
+    u8x8_DrawString(&u8x8, 0, 0, "Hello World");  // col 0, row 0
+    u8x8_SetFont(&u8x8, u8x8_font_5x8_f);
+    u8x8_DrawString(&u8x8, 0, 1, "Hello World");  // col 0, row 1
+    u8x8_SetFont(&u8x8, u8x8_font_7x14_1x2_f);
+    u8x8_DrawString(&u8x8, 0, 2, "Hello World");  // col 0, row 1
+    u8x8_SetFont(&u8x8, u8x8_font_chroma48medium8_r);
+    u8x8_DrawString(&u8x8, 0, 3, "Hello World");  // col 0, row 1
+}
 
-void cmd_lcd_ks0108_init(char* args) {
+static void cmd_lcd_ks0108_init(char* args) {
     UNUSED(args);
     printf_P(PSTR("Initializing LCD with ks0108\n"));
     /* Setup u8x8 with KS0108 driver + software 8-bit parallel (bit-banged) */
@@ -312,18 +308,21 @@ void cmd_lcd_ks0108_init(char* args) {
 
     u8x8_InitDisplay(&u8x8);      // performs reset + basic init
     u8x8_SetPowerSave(&u8x8, 0);  // turn display on
-    u8x8_ClearDisplay(&u8x8);
-    u8x8_SetFont(&u8x8, u8x8_font_chroma48medium8_r);
-    u8x8_DrawString(&u8x8, 0, 0, "Hello World");  // col 0, row 1
-    u8x8_DrawString(&u8x8, 10, 0, "Hello World");  // col 0, row 1
+    // u8x8_ClearDisplay(&u8x8);
+    // u8x8_SetFont(&u8x8, u8x8_font_chroma48medium8_r);
+    // u8x8_DrawString(&u8x8, 0, 0, "Hello World");  // col 0, row 1
+    // u8x8_DrawString(&u8x8, 10, 0, "Hello World");  // col 0, row 1
+    lcd_test();
 }
 
-void cmd_help(char* args) {
+static void cmd_help(char* args) {
     UNUSED(args);
     LEF_Cli_print();
 }
 
-void cmd_lcd_init(char* args) {
+
+
+static void cmd_lcd_init(char* args) {
     UNUSED(args);
     
     printf_P(PSTR("cmd_lcd_init\n"));
@@ -336,61 +335,112 @@ void cmd_lcd_init(char* args) {
 
     u8x8_InitDisplay(&u8x8);
     u8x8_SetPowerSave(&u8x8, 0);  // turn display on
-    // u8x8_SetFont(&u8x8, u8x8_font_5x7_f);
-    u8x8_SetFont(&u8x8, u8x8_font_5x7_f);
-    u8x8_DrawString(&u8x8, 0, 0, "Hello World");  // col 0, row 0
-    u8x8_SetFont(&u8x8, u8x8_font_5x8_f);
-    u8x8_DrawString(&u8x8, 0, 1, "Hello World");  // col 0, row 1
-    u8x8_SetFont(&u8x8, u8x8_font_7x14_1x2_f);
-    u8x8_DrawString(&u8x8, 0, 2, "Hello World");  // col 0, row 1
-    u8x8_SetFont(&u8x8, u8x8_font_chroma48medium8_r);
-    u8x8_DrawString(&u8x8, 0, 3, "Hello World");  // col 0, row 1
+    lcd_test();
 }
 
-void cmd_lcd_on(char* args) {
+static void cmd_lcd_on(char* args) {
+    UNUSED(args);
+    u8x8_SetPowerSave(&u8x8, 0);  // turn display on
+}
+
+static void cmd_lcd_off(char* args) {
+    UNUSED(args);
+    u8x8_SetPowerSave(&u8x8, 1);  // turn display off
+}
+
+static void cmd_lcd_clear(char* args) {
+    UNUSED(args);
+    u8x8_ClearDisplay(&u8x8);
+    _delay_ms(1);
+}
+static void cmd_lcd_home(char* args) {
+    UNUSED(args);
+    // u8x8_SetCursor(&u8x8, 0, 0);
+    _delay_ms(1);
+}
+
+static void cmd_lcd_move_right(char* args) {
     UNUSED(args);
     _delay_ms(1);
 }
 
-void cmd_lcd_off(char* args) {
+static void cmd_lcd_move_left(char* args) {
     UNUSED(args);
     _delay_ms(1);
 }
 
-void cmd_lcd_clear(char* args) {
+static void cmd_lcd_test(char* args) {
     UNUSED(args);
-    _delay_ms(1);
+    lcd_test();
 }
-void cmd_lcd_home(char* args) {
+
+static void cmd_lcd_test_move(char* args) {
     UNUSED(args);
     _delay_ms(1);
 }
 
-void cmd_lcd_move_right(char* args) {
-    UNUSED(args);
-    _delay_ms(1);
-}
-
-void cmd_lcd_move_left(char* args) {
-    UNUSED(args);
-    _delay_ms(1);
-}
-
-void cmd_lcd_test(char* args) {
-    UNUSED(args);
-    _delay_ms(1);
-}
-
-void cmd_lcd_test_move(char* args) {
-    UNUSED(args);
-    _delay_ms(1);
-}
-
-void cmd_reset(char* args) {
+static void cmd_reset(char* args) {
     UNUSED(args);
     RESET();
 }
 
+static void cmd_data_1(char* args) {
+    UNUSED(args);
+    // ks0108_gpio_and_delay(&u8x8, U8X8_MSG_GPIO_D0, 1, NULL);
+    // ks0108_gpio_and_delay(&u8x8, U8X8_MSG_GPIO_D1, 1, NULL);
+    // ks0108_gpio_and_delay(&u8x8, U8X8_MSG_GPIO_D2, 1, NULL);
+    // ks0108_gpio_and_delay(&u8x8, U8X8_MSG_GPIO_D3, 1, NULL);
+
+    // ks0108_gpio_and_delay(&u8x8, U8X8_MSG_GPIO_D4, 1, NULL);
+    // ks0108_gpio_and_delay(&u8x8, U8X8_MSG_GPIO_D5, 1, NULL);
+    // ks0108_gpio_and_delay(&u8x8, U8X8_MSG_GPIO_D6, 1, NULL);
+    ks0108_gpio_and_delay(&u8x8, U8X8_MSG_GPIO_D7, 1, NULL);
+
+    // ks0108_gpio_and_delay(&u8x8, U8X8_MSG_GPIO_E, 1, NULL);
+    // ks0108_gpio_and_delay(&u8x8, U8X8_MSG_GPIO_RESET, 1, NULL);
+    // ks0108_gpio_and_delay(&u8x8, U8X8_MSG_GPIO_DC, 1, NULL);
+    // ks0108_gpio_and_delay(&u8x8, U8X8_MSG_GPIO_CS1, 1, NULL);
+    // ks0108_gpio_and_delay(&u8x8, U8X8_MSG_GPIO_CS2, 1, NULL);
+}
+
+static void cmd_data_0(char* args) {
+    UNUSED(args);
+    // ks0108_gpio_and_delay(&u8x8, U8X8_MSG_GPIO_D0, 0, NULL);
+    // ks0108_gpio_and_delay(&u8x8, U8X8_MSG_GPIO_D1, 0, NULL);
+    // ks0108_gpio_and_delay(&u8x8, U8X8_MSG_GPIO_D2, 0, NULL);
+    // ks0108_gpio_and_delay(&u8x8, U8X8_MSG_GPIO_D3, 0, NULL);
+
+    // ks0108_gpio_and_delay(&u8x8, U8X8_MSG_GPIO_D4, 0, NULL);
+    // ks0108_gpio_and_delay(&u8x8, U8X8_MSG_GPIO_D5, 0, NULL);
+    // ks0108_gpio_and_delay(&u8x8, U8X8_MSG_GPIO_D6, 0, NULL);
+    ks0108_gpio_and_delay(&u8x8, U8X8_MSG_GPIO_D7, 0, NULL);
+
+    // ks0108_gpio_and_delay(&u8x8, U8X8_MSG_GPIO_E, 0, NULL);
+    // ks0108_gpio_and_delay(&u8x8, U8X8_MSG_GPIO_RESET, 0, NULL);
+    // ks0108_gpio_and_delay(&u8x8, U8X8_MSG_GPIO_DC, 0, NULL);
+    // ks0108_gpio_and_delay(&u8x8, U8X8_MSG_GPIO_CS1, 0, NULL);
+    // ks0108_gpio_and_delay(&u8x8, U8X8_MSG_GPIO_CS2, 0, NULL);
+    
+}
+
+const PROGMEM LEF_CliCmd cmdTable[] = {
+    LEF_CLI_LABEL("LCD"),
+    {cmd_lcd_init, "lcdinit", "Initialize Nokia 5110 LCD"},
+    {cmd_lcd_ks0108_init, "ks0108", "Initialize LCD with ks0108"},
+    {cmd_lcd_on, "lcdon", "Turn LCD on"},
+    {cmd_lcd_off, "lcdoff", "Turn LCD off"},
+    {cmd_lcd_clear, "lcdclr", "Clear LCD"},
+    {cmd_lcd_home, "lcdh", "Move cursor to home pos"},
+    {cmd_lcd_move_right, "lcdr", "Move text right"},
+    {cmd_lcd_move_left, "lcdl", "Move text left"},
+    {cmd_lcd_test, "lcdt1", "Run LCD test"},
+    {cmd_lcd_test_move, "lcdtm", "Run LCD move test"},
+    {cmd_data_1, "data1", "Test data 1"},
+    {cmd_data_0, "data0", "Test data 0"},
+
+    LEF_CLI_LABEL("Misc"),
+    {cmd_reset, "reset", "Reset the system"},
+    LEF_CLI_CMD(cmd_help, "help", "Show help")};
 
 ISR(TIMER1_COMPA_vect) {
 
@@ -398,25 +448,15 @@ ISR(TIMER1_COMPA_vect) {
     LEF_Timer_update(&timer2);
     LEF_Timer_update(&timer_a);
 
-    //gpio_write(LED_TEST, LEF_Led_update(&led_test));
-
-    // gpio_write(LED1_PIN, LEF_Led_update(&led1));
-    // gpio_write(LED2_PIN, LEF_Led_update(&led2));
-
-    // LEF_Button_update(&button1, !gpio_read(BUTTON1_PIN));
-    // LEF_Button_update(&button2, !gpio_read(BUTTON2_PIN));
-    // LEF_Button_update(&button3, !gpio_read(BUTTON3_PIN));
-
 }
 
-void hw_init(void) {
+static void hw_init(void) {
     stdout = &mystdout;
     uart1_init(UART_BAUD_SELECT(UART_BAUD_RATE, F_CPU));
 
     ARDUINO_LED_INIT();
 
-    //gpio_init(LED_TEST, true, false);
-
+   
 
     // Timer 1 (16 bit) 10ms intervall on OCA1 interrupt 
     // (used for LEF system timer)
@@ -456,9 +496,7 @@ static bool main_event_handler(LEF_Event* event) {
 }
 
 int main(void) {
-    LEF_Event event;
-    uint16_t ch;
-
+  
     LEF_init();
 
     LEF_Timer_init(&timer1, EVENT_Timer1);
@@ -467,13 +505,10 @@ int main(void) {
     LEF_Timer_start_repeat(&timer2, 10);
     LEF_Timer_init(&timer_a, EVENT_TimerA);
     
-    //LEF_Led_init(&led_test,LED_TRIPPLE_BLINK);
-
-    // LEF_Button_init(&button1, EVENT_Button1);
-    // LEF_Button_init(&button2, EVENT_Button2);
     LEF_CLI_INIT(cmdTable);
     
     hw_init();
+    // cmd_lcd_ks0108_init("");
 
     printf_P(PSTR("\n\nLCD testprogram (ET-AVR-STAMP)\n\n"));
 

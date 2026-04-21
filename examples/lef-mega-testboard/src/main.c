@@ -792,7 +792,7 @@ static void hw_init(void) {
 
 static bool main_event_handler(LEF_Event* event) {
     uint16_t ch, val;
-    uint8_t ls = LEDRG_OFF;
+    static uint8_t ls = LEDRG_OFF;
 
     if (evOn) LEF_Print_event(event);
 
@@ -806,7 +806,7 @@ static bool main_event_handler(LEF_Event* event) {
             lcd_gotoxy(0,3);
             lcd_puts_P("Button 1 pressed");
             break;
-            case EVENT_Button2:  // Handle button press event
+        case EVENT_Button2:  // Handle button press event
             printf_P(PSTR("Button 2 event: func = %d\n"), event->func);
             lcd_gotoxy(0,3);
             lcd_puts_P("Button 2 pressed");
