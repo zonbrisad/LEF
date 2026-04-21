@@ -78,8 +78,28 @@ static void hw_init(void) {
 	
     sei();  // Enable all interrupts
 }
+
+static bool main_event_handler(LEF_Event* event) {
+    switch (event->id) {
+        case EVENT_BUTTON:
+            if (event->func != 1) break;
+            LEF_Led_set(&led, LED_DOUBLE_BLINK);
+            LEF_Timer_start_single(&timer_e, 100);
+            break;
+        case EVENT_E:
+            LEF_Led_set(&led, LED_BLIP);
+            break;
+
+        case EVENT_SYSTICK:
+            // gpio_toggle(PIN_TIMER);
+            break;
+    }
+    return false;
+}
+
+
 int main(void) {
-    LEF_Event event;
+    // LEF_Event event;
 
     LEF_Timer_init(&timer_e, EVENT_E);
     LEF_Timer_init(&timer_sys, EVENT_SYSTICK);
@@ -91,24 +111,26 @@ int main(void) {
     LEF_init();
     
     hw_init();
+
+    LEF_Run(main_event_handler, NULL);
     
-    while (true) {
-        LEF_Wait(&event);
-        switch (event.id) {
-            case EVENT_BUTTON:
-                if (event.func != 1)
-                    break;
-                LEF_Led_set(&led, LED_DOUBLE_BLINK);
-                LEF_Timer_start_single(&timer_e, 100);
-                break;
-            case EVENT_E:
-                LEF_Led_set(&led, LED_BLIP);
-                break;
+    // while (true) {
+    //     LEF_Wait(&event);
+    //     switch (event.id) {
+    //         case EVENT_BUTTON:
+    //             if (event.func != 1)
+    //                 break;
+    //             LEF_Led_set(&led, LED_DOUBLE_BLINK);
+    //             LEF_Timer_start_single(&timer_e, 100);
+    //             break;
+    //         case EVENT_E:
+    //             LEF_Led_set(&led, LED_BLIP);
+    //             break;
                 
-            case EVENT_SYSTICK:
-                //gpio_toggle(PIN_TIMER);
-                break;
+    //         case EVENT_SYSTICK:
+    //             //gpio_toggle(PIN_TIMER);
+    //             break;
                 
-        }
-    }
+    //     }
+    // }
 }

@@ -26,6 +26,7 @@ TARGET = lef-digispark-blink
 # List C, C++ and assembler source files here. (C/C++ dependencies are automatically generated.)
 SRC = src/main.c \
       src/LEF/LEF.c \
+	  src/LEF/LEF_Core.c \
 	  src/LEF/LEF_Queue.c \
 	  src/LEF/LEF_Timer.c \
 	  src/LEF/LEF_Led.c \
