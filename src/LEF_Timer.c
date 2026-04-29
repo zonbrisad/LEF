@@ -42,7 +42,7 @@ void LEF_Timer_init(LEF_Timer* timer, LEF_EventId id) {
 }
 
 void LEF_Timer_update(LEF_Timer* timer) {
-    LEF_ATOMIC_BLOCK() {
+    // LEF_ATOMIC_BLOCK() {
         if (timer->counter > 0) {
             timer->counter--;
             if (timer->counter == 0) {
@@ -50,23 +50,23 @@ void LEF_Timer_update(LEF_Timer* timer) {
                 if (timer->reload > 0) timer->counter = timer->reload;
             }
         }
-    }
+    // }
 }
 
 void LEF_Timer_start_repeat(LEF_Timer* timer, uint16_t ticks) {
-    LEF_ATOMIC_BLOCK() {
-        timer->reload = ticks;
-        timer->counter = ticks;
-    }
+    LEF_ATOMIC_BLOCK_START();
+    timer->reload = ticks;
+    timer->counter = ticks;
+    LEF_ATOMIC_BLOCK_END();
 }
 
 void LEF_Timer_start_single_msg(LEF_Timer* timer, uint16_t ticks,
                                 LEF_EventFunc func) {
     timer->func = func;
-    LEF_ATOMIC_BLOCK() {
-        timer->reload = 0;
-        timer->counter = ticks;
-    }
+    LEF_ATOMIC_BLOCK_START();
+    timer->reload = 0;
+    timer->counter = ticks;
+    LEF_ATOMIC_BLOCK_END();
 }
 
 void LEF_Timer_start_single(LEF_Timer* timer, uint16_t ticks) {
@@ -74,8 +74,8 @@ void LEF_Timer_start_single(LEF_Timer* timer, uint16_t ticks) {
 }
 
 void LEF_Timer_stop(LEF_Timer* timer) {
-    LEF_ATOMIC_BLOCK() {
-        timer->reload = 0;
-        timer->counter = 0;
-    }
+    LEF_ATOMIC_BLOCK_START();
+    timer->reload = 0;
+    timer->counter = 0;
+    LEF_ATOMIC_BLOCK_END();
 }

@@ -25,6 +25,7 @@ TARGET = avrtest
 SRC = src/main.c           \
       src/avrsimul.c       \
       src/LEF/LEF.c        \
+	  src/LEF/LEF_Core.c   \
       src/LEF/LEF_Queue.c  \
       src/LEF/LEF_Led.c    \
       src/LEF/LEF_Timer.c  \

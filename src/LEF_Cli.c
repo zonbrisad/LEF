@@ -28,7 +28,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#include "LEF.h"
+#include "LEF_Core.h"
 #include "LEF_Cli.h"
 #include "LEF_Config.h"
 
@@ -41,6 +41,13 @@
 #define ARROW_DOWN  0x0600
 #define ARROW_LEFT  0x0700
 #define ARROW_RIGHT 0x0800
+
+#if defined(LEF_SYSTEM_AVR)
+// ptr = (cmd_handler)pgm_read_word(&cli_cmds[i].function);
+#define get_cmd_cb(cmds, i) ((cmd_handler)pgm_read_word(&cmds[i].function))
+#else
+#define get_cmd_cb(cmds, i) (cmds[i].function)
+#endif
 
 // Variables --------------------------------------------------------------
 
@@ -172,7 +179,8 @@ void LEF_Cli_print(void) {
 		lefstrcpy(cBuf, cli_cmds[i].name);
 		lefstrcpy(dBuf, cli_cmds[i].desc);
 
-		ptr = (cmd_handler)pgm_read_word(&cli_cmds[i].function);
+		// ptr = (cmd_handler)pgm_read_word(&cli_cmds[i].function);
+		ptr = get_cmd_cb(cli_cmds, i);
 		if (ptr != NULL)
 			lefprintf("  %-12s", cBuf);
 	
@@ -236,7 +244,8 @@ void LEF_Cli_exec(LEF_Event *event) {
         if (!strncmp(cmd, cmd_start, LEF_CLI_BUF_LENGTH)) {
         // if (!strncmp(cmd, cli_buf, LEF_CLI_BUF_LENGTH)) {
             //			LDEBUGPRINT("Found command: %s\n", cmd);
-            ptr = (cmd_handler)pgm_read_word(&cli_cmds[i].function);
+            // ptr = (cmd_handler)pgm_read_word(&cli_cmds[i].function);
+			ptr = get_cmd_cb(cli_cmds, i);
             ptr(args_start);
             goto cli_cleanup;
         }

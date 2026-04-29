@@ -55,7 +55,9 @@ void LEF_init(void) {
 }
 
 void LEF_Send(LEF_Event *event) {
-    return LEF_QueueSend(&lef_std_queue, event);
+    LEF_ATOMIC_BLOCK_START();
+    LEF_QueueSend(&lef_std_queue, event);
+    LEF_ATOMIC_BLOCK_END();
 }
 
 void LEF_Send_msg(LEF_EventId id, LEF_EventFunc func) {
@@ -66,11 +68,15 @@ void LEF_Send_msg(LEF_EventId id, LEF_EventFunc func) {
 }
 
 void LEF_Clear(void) {
+    LEF_ATOMIC_BLOCK_START();
     return LEF_QueueClear(&lef_std_queue);
+    LEF_ATOMIC_BLOCK_END();
 }
 
 uint16_t LEF_Count(void) {
-  return LEF_QueueCnt(&lef_std_queue);
+    LEF_ATOMIC_BLOCK_START();
+    return LEF_QueueCnt(&lef_std_queue);
+    LEF_ATOMIC_BLOCK_END();
 }
 
 void LEF_systick(void) {
@@ -135,14 +141,32 @@ void LEF_Wait(LEF_Event* event) {
 void LEF_add_systimer(char* name, size_t intervall, LEF_Callback callback) {
     event_add_timer_callback(0, name, intervall, callback);
 }
+#endif
 
-#else 
+#ifdef LEF_SYSTEM_AVR
 
 void LEF_Wait(LEF_Event *event) {
     return LEF_QueueWait(&lef_std_queue, event);
 }
+#endif
+
+
+#ifdef LEF_SYSTEM_PICO
+void LEF_Wait(LEF_Event *event) {
+
+    while (true) {
+        LEF_ATOMIC_BLOCK_START();
+        int status = LEF_QueuePop(&lef_std_queue, event);
+        LEF_ATOMIC_BLOCK_END();
+        if (status == LEF_QUEUE_OK) {
+            return;
+        }
+        __wfi(); // wait for interrupt (low power mode until next interrupt)
+    }
+}   
 
 #endif
+
 
 // Create a string from a definition
 #define LEFSTRINGIZE2(s) #s

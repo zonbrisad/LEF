@@ -30,6 +30,7 @@ SRC = src/main.c \
 	  src/i2c_sw.c \
 	  src/tm1637.c \
       src/LEF/LEF.c \
+	  src/LEF/LEF_Core.c \
       src/LEF/LEF_Queue.c \
       src/LEF/LEF_Timer.c \
       src/LEF/LEF_Cli.c \

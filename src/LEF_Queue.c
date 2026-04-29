@@ -9,7 +9,7 @@
  * @file    LEF_Queue.c
  * @author  Peter Malmberg <peter.malmberg@gmail.com>
  * @date    2016-12-08
- * @licence GPLv2
+ * @license GPLv2
  *
  *---------------------------------------------------------------------------
  *
@@ -26,7 +26,7 @@
 // Includes ---------------------------------------------------------------
 #include "LEF_Queue.h"
 
-#include "LEF.h"
+#include "LEF_Core.h"
 
 // Macros -----------------------------------------------------------------
 
@@ -34,8 +34,8 @@
 
 // Prototypes -------------------------------------------------------------
 
-void LEF_element_cpy(LEF_Event* dst, LEF_Event* src);
-uint8_t queue_ptr_inc(uint8_t ptr);
+// void LEF_element_cpy(LEF_Event* dst, LEF_Event* src);
+// uint8_t queue_ptr_inc(uint8_t ptr);
 
 // Code -------------------------------------------------------------------
 
@@ -44,14 +44,26 @@ void LEF_QueueClear(LEF_EventQueue* queue) {
     queue->cnt = 0;
 }
 
-void LEF_element_cpy(LEF_Event* dst, LEF_Event* src) {
+static void LEF_element_cpy(LEF_Event* dst, LEF_Event* src) {
     dst->id = src->id;
     dst->func = src->func;
 }
 
-void LEF_QueueInit(LEF_EventQueue* queue) { LEF_QueueClear(queue); }
+void LEF_QueueInit(LEF_EventQueue* queue) { 
+    queue->length = LEF_QUEUE_LENGTH;
+    LEF_QueueClear(queue); 
+}
 
-uint8_t queue_ptr_inc(uint8_t ptr) { return ptr % LEF_QUEUE_LENGTH; }
+LEF_EventQueue* LEF_QueueNew(uint8_t length) {
+    LEF_EventQueue* queue;
+    queue = (LEF_EventQueue*)malloc(sizeof(LEF_EventQueue));
+    // LEF_QueueInit(queue, length);
+    return queue;
+}
+
+static uint8_t queue_ptr_inc(uint8_t ptr) { 
+    return ptr % LEF_QUEUE_LENGTH; 
+}
 
 void LEF_QueueSend(LEF_EventQueue* queue, LEF_Event* event) {
     //
@@ -59,20 +71,21 @@ void LEF_QueueSend(LEF_EventQueue* queue, LEF_Event* event) {
     //  zero
     //    queue->tail=0;
 
-    if (queue->cnt ==
-        LEF_QUEUE_LENGTH)  // detect initial condition and set to zero
+    if (queue->cnt == queue->length)  // detect initial condition and set to zero
         return;
 
     //  if (queue->tail==queue->head) // if queue is full return
     //    return;
 
-    LEF_ATOMIC_BLOCK() {
-        LEF_element_cpy(&queue->que[queue->head], event);
-
-        queue->cnt++;
-        queue->head++;
-        if (queue->head >= LEF_QUEUE_LENGTH) queue->head = 0;
-    }
+    // LEF_ATOMIC_BLOCK() {
+    LEF_ATOMIC_BLOCK_START();
+    LEF_element_cpy(&queue->que[queue->head], event);
+    queue->cnt++;
+    queue->head++;
+    if (queue->head >= queue->length) 
+        queue->head = 0;
+    // }
+    LEF_ATOMIC_BLOCK_END();
 }
 
 void LEF_QueueWait(LEF_EventQueue* queue, LEF_Event* event) {
@@ -80,12 +93,14 @@ void LEF_QueueWait(LEF_EventQueue* queue, LEF_Event* event) {
         LEF_portNOP;
     }
 
-    LEF_ATOMIC_BLOCK() {
-        LEF_element_cpy(
-            event, &queue->que[(queue->head + (LEF_QUEUE_LENGTH - queue->cnt)) %
-                               LEF_QUEUE_LENGTH]);
-        queue->cnt--;
-    }
+    // LEF_ATOMIC_BLOCK() {
+    LEF_ATOMIC_BLOCK_START();
+    LEF_element_cpy(event,
+                    &queue->que[(queue->head + (queue->length - queue->cnt)) %
+                                queue->length]);
+    queue->cnt--;
+    // }
+    LEF_ATOMIC_BLOCK_END();
 }
 
 /**
@@ -100,3 +115,34 @@ void LEF_QueueSendEvent(LEF_EventQueue* queue, LEF_EventId ev, void* data) {
 }
 
 uint16_t LEF_QueueCnt(LEF_EventQueue* queue) { return queue->cnt; }
+
+// void LEF_QueueNextElement(LEF_EventQueue* queue, LEF_Event* dst) {
+//     if (queue->cnt == 0) return;
+
+//     LEF_element_cpy(
+//         dst, &queue->que[(queue->head + (queue->length - queue->cnt) + pos) %
+//                          queue->length]);
+// }
+
+LEF_QueueStatus LEF_QueuePush(LEF_EventQueue* queue, LEF_Event* event) {
+    if (queue->cnt >= queue->length) { // detect initial condition and set to zero
+        return LEF_QUEUE_FULL;
+    }
+
+    uint8_t tail = (queue->head + (queue->length - queue->cnt)) % queue->length;
+    tail = (tail == 0) ? (queue->length - 1) : (tail - 1);
+    LEF_element_cpy(&queue->que[tail], event);
+    queue->cnt++;
+    return LEF_QUEUE_OK;
+}
+
+LEF_QueueStatus LEF_QueuePop(LEF_EventQueue* queue, LEF_Event* event) {
+    if (queue->cnt == 0)  {
+        return LEF_QUEUE_EMPTY;
+    }
+
+    uint8_t head = (queue->head + (queue->length - queue->cnt)) % queue->length;
+    LEF_element_cpy(event, &queue->que[head]);
+    queue->cnt--;
+    return LEF_QUEUE_OK;
+}

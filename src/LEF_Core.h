@@ -32,6 +32,10 @@
 #define LEF_SYSTEM_AVR
 #endif
 
+#if defined(PICO_BOARD)
+#define LEF_SYSTEM_PICO
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -48,6 +52,10 @@ extern "C" {
 
 #ifdef LEF_SYSTEM_LINUX
 #include "LEF_linux.h"
+#endif
+
+#ifdef LEF_SYSTEM_PICO
+#include "hardware/sync.h"
 #endif
 
 #include "LEF_Config.h"
@@ -76,6 +84,8 @@ extern "C" {
 #ifdef LEF_SYSTEM_LINUX
 
 #define LEF_ATOMIC_BLOCK()
+#define LEF_ATOMIC_BLOCK_START() 
+#define LEF_ATOMIC_BLOCK_END()
 #define lefprintf(...)   printf( __VA_ARGS__)
 #define lefstrcpy(d, s)  strcpy(d,s)
 
@@ -86,6 +96,9 @@ extern "C" {
 
 #undef LEF_ATOMIC_BLOCK
 #define LEF_ATOMIC_BLOCK() ATOMIC_BLOCK(ATOMIC_FORCEON)
+
+#define LEF_ATOMIC_BLOCK_START() ATOMIC_BLOCK(ATOMIC_FORCEON)
+#define LEF_ATOMIC_BLOCK_END() }
 	
 #undef lefprintf
 #define lefprintf(fmt, ...)  printf_P(PSTR(fmt), ##__VA_ARGS__)
@@ -93,6 +106,15 @@ extern "C" {
 #undef lefstrcpy
 #define lefstrcpy(d, s)      strcpy_P(d,s)
 	
+#endif
+
+#ifdef LEF_SYSTEM_PICO
+// #define LEF_ATOMIC_BLOCK() 
+#define LEF_ATOMIC_BLOCK_START() uint32_t irq_state = save_and_disable_interrupts();
+#define LEF_ATOMIC_BLOCK_END() restore_interrupts(irq_state);
+
+#define lefprintf(...) printf(__VA_ARGS__)
+#define lefstrcpy(d, s) strcpy(d, s)
 #endif
 
 // Critical Section -------------------------------------------------------
