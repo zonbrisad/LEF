@@ -18,7 +18,13 @@
 #include <util/delay.h>
 #endif
 
-hd4470_callback lcd_callback;
+static uint16_t do_nothing_callback(HD44780_MSG msg, uint16_t data_arg) {
+    (void)msg;
+    (void)data_arg;
+    return 0;
+}
+
+hd44780_callback lcd_callback = do_nothing_callback;
 
 #if HD44780_CONTROLLER_KS0073
 const uint8_t line_offsets[] = {00, 32, 64, 96};
@@ -83,37 +89,7 @@ static void lcd_write(uint8_t data, uint8_t rs) {
     lcd_pins_data_write(0b11110000);
 }
 
-/**
- * Read byte from display controller
- *
- * @param rs 0=busy flag, 1=data
- * @return byte read from controller
- */
-static uint8_t lcd_read(uint8_t rs) {
-    uint8_t data = 0;
 
-    lcd_pin_rs_set(rs);
-    lcd_pin_rw_set(1);    /* RW=1  read mode      */
-
-    lcd_pins_data_direction(false);  // set data pins as inputs
-
-    /* read high nibble first */
-    lcd_pin_e_set(1);
-    lcd_pin_e_delay();
-    data = lcd_pins_data_read();
-    lcd_pin_e_set(0);
-
-    data = data << 4;
-
-    lcd_pin_e_delay();  /* Enable 500ns low       */
-
-    /* read low nibble */
-    lcd_pin_e_set(1);
-    lcd_pin_e_delay();
-    data |= lcd_pins_data_read();
-    lcd_pin_e_set(0);
-    return data;
-}
 
 /**
  * Send instruction to LCD controller
@@ -154,7 +130,7 @@ void lcd_puts(const char* s) {
     }
 } 
 
-void lcd_init(hd4470_callback callback, uint8_t mode) {
+void lcd_init(hd44780_callback callback, uint8_t mode) {
     lcd_callback = callback;
 
     // initiate gpio pins and set as outputs

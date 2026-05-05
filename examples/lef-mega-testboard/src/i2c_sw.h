@@ -24,7 +24,7 @@ inline void sda_set(uint8_t state) { gpio_direction(I2C_SDA_PIN, (state ? GPIO_I
 inline void scl_set(uint8_t state) { gpio_direction(I2C_SCL_PIN, (state ? GPIO_INPUT : GPIO_OUTPUT) ); }
 inline bool sda_read(void) { return gpio_read(I2C_SDA_PIN); }
 
-inline void i2c_delay(void) { _delay_us(5); }
+inline static void i2c_delay(void) { _delay_us(5); }
 
 
 /**

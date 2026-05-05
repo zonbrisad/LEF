@@ -611,7 +611,10 @@ static void hw_init(void) {
     lcd_clear();
     lcd_puts_P(" LEF Mega Test");
 
-    sei();
+    tm_init();
+    tm_display_brightness(2);
+    tm_display_number(0000);
+        sei();
 }
 
 static bool main_event_handler(LEF_Event* event) {
@@ -705,6 +708,8 @@ static bool main_event_handler(LEF_Event* event) {
             lcd_gotoxy(12, 0);
             sprintf_P(buf, PSTR("%4d"), val);
             lcd_puts(buf);
+
+            tm_display_number(val);
             break;
 
         case LEF_EVENT_TEST:

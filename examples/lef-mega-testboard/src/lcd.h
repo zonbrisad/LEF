@@ -30,7 +30,7 @@ typedef enum {
     HD44780_MSG_BACKLIGHT,
 } HD44780_MSG;
 
-typedef uint16_t (*hd4470_callback)(HD44780_MSG msg, uint16_t data);
+typedef uint16_t (*hd44780_callback)(HD44780_MSG msg, uint16_t data);
 
 /**
  * At init a callback function must be given. It is via this function that the library
@@ -175,7 +175,7 @@ typedef uint16_t (*hd4470_callback)(HD44780_MSG msg, uint16_t data);
 #define HD44780_4BIT_MODE          0b00100000  // Put LCD in 4 bit mode
 
 extern volatile bool lcd_wrap;
-extern hd4470_callback lcd_callback;
+extern hd44780_callback lcd_callback;
 
 /**
  * @brief   Initialize display an set mode
@@ -184,7 +184,7 @@ extern hd4470_callback lcd_callback;
  *               HD44780_ON_CURSOR      
  *               HD44780_ON_CURSOR_BLINK
  */
-extern void lcd_init(hd4470_callback callback, uint8_t mode);
+extern void lcd_init(hd44780_callback callback, uint8_t mode);
 
 /**
  * @brief   Send LCD controller instruction command

@@ -96,6 +96,7 @@ uint8_t pcf_write(uint8_t address, uint8_t data) {
     i2c_write_init(address);
     i2c_write(data);
     i2c_stop();
+    return 0;
 }
 
 uint8_t pcf_read(uint8_t address, uint8_t mask) {
