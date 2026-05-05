@@ -36,7 +36,8 @@
 
 // Variables --------------------------------------------------------------
 
-LEF_EventQueue lef_std_queue;
+LEF_EventQueue* lef_std_queue;
+// LEF_EventQueue lef_std_queue;
 LEF_Timer lef_delay_timer;
 LEF_EventHandler lef_pre_event_handler = NULL;
 
@@ -48,7 +49,9 @@ LEF_EventHandler lef_pre_event_handler = NULL;
 void LEF_init(void) {
 
     // initiate LEF standard queue
-    LEF_QueueInit(&lef_std_queue);
+    // LEF_QueueInit(&lef_std_queue);
+
+    lef_std_queue = LEF_QueueNew(LEF_QUEUE_LENGTH);
     
     // initiate delay timer
     LEF_Timer_init(&lef_delay_timer, LEF_EVENT_DELAY);
@@ -56,7 +59,8 @@ void LEF_init(void) {
 
 void LEF_Send(LEF_Event *event) {
     LEF_ATOMIC_BLOCK_START();
-    LEF_QueueSend(&lef_std_queue, event);
+    // LEF_QueueSend(&lef_std_queue, event);
+    LEF_QueuePush(lef_std_queue, event);
     LEF_ATOMIC_BLOCK_END();
 }
 
@@ -69,15 +73,18 @@ void LEF_Send_msg(LEF_EventId id, LEF_EventFunc func) {
 
 void LEF_Clear(void) {
     LEF_ATOMIC_BLOCK_START();
-    return LEF_QueueClear(&lef_std_queue);
+    return LEF_QueueClear(lef_std_queue);
     LEF_ATOMIC_BLOCK_END();
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wreturn-type"
 uint16_t LEF_Count(void) {
     LEF_ATOMIC_BLOCK_START();
-    return LEF_QueueCnt(&lef_std_queue);
+    return LEF_QueueCnt(lef_std_queue);
     LEF_ATOMIC_BLOCK_END();
 }
+#pragma GCC diagnostic pop  
 
 void LEF_systick(void) {
     LEF_Timer_update(&lef_delay_timer);
@@ -123,8 +130,8 @@ int LEF_Run(LEF_EventHandler main_event_handler, LEF_EventHandler pre_event_hand
 
 void LEF_Wait(LEF_Event* event) {
     while (true) {
-        if (LEF_QueueCnt(&lef_std_queue) > 0) {
-            LEF_QueueWait(&lef_std_queue, event);
+        if (LEF_QueueCnt(lef_std_queue) > 0) {
+            LEF_QueueWait(lef_std_queue, event);
             return;
         }
         event_wait();
@@ -146,7 +153,16 @@ void LEF_add_systimer(char* name, size_t intervall, LEF_Callback callback) {
 #ifdef LEF_SYSTEM_AVR
 
 void LEF_Wait(LEF_Event *event) {
-    return LEF_QueueWait(&lef_std_queue, event);
+    int status;
+    while (true) {
+        LEF_ATOMIC_BLOCK_START();
+        status = LEF_QueuePop(lef_std_queue, event);
+        LEF_ATOMIC_BLOCK_END();
+        if (status == LEF_QUEUE_OK) {
+            return;
+        }
+        sleep_cpu();
+    }
 }
 #endif
 
@@ -156,7 +172,7 @@ void LEF_Wait(LEF_Event *event) {
 
     while (true) {
         LEF_ATOMIC_BLOCK_START();
-        int status = LEF_QueuePop(&lef_std_queue, event);
+        int status = LEF_QueuePop(lef_std_queue, event);
         LEF_ATOMIC_BLOCK_END();
         if (status == LEF_QUEUE_OK) {
             return;

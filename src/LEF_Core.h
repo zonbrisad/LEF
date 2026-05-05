@@ -48,6 +48,7 @@ extern "C" {
 #ifdef LEF_SYSTEM_AVR
 #include <util/atomic.h>
 #include <avr/pgmspace.h>
+#include <avr/sleep.h>
 #endif
 
 #ifdef LEF_SYSTEM_LINUX
@@ -97,7 +98,7 @@ extern "C" {
 #undef LEF_ATOMIC_BLOCK
 #define LEF_ATOMIC_BLOCK() ATOMIC_BLOCK(ATOMIC_FORCEON)
 
-#define LEF_ATOMIC_BLOCK_START() ATOMIC_BLOCK(ATOMIC_FORCEON)
+#define LEF_ATOMIC_BLOCK_START() ATOMIC_BLOCK(ATOMIC_FORCEON) {
 #define LEF_ATOMIC_BLOCK_END() }
 	
 #undef lefprintf
@@ -115,6 +116,7 @@ extern "C" {
 
 #define lefprintf(...) printf(__VA_ARGS__)
 #define lefstrcpy(d, s) strcpy(d, s)
+#define lef_putc putchar
 #endif
 
 // Critical Section -------------------------------------------------------
@@ -137,7 +139,9 @@ extern "C" {
 	
 // Variables --------------------------------------------------------------
 
-extern LEF_EventQueue lef_std_queue;
+extern LEF_EventQueue* lef_std_queue;
+// extern LEF_EventQueue lef_std_queue;
+
 
 // Functions --------------------------------------------------------------
 

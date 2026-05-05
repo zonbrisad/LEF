@@ -25,16 +25,16 @@ TARGET = lef-mega-testboard
 
 # List C, C++ and assembler source files here. (C/C++ dependencies are automatically generated.)
 SRC = src/main.c \
-      src/uart.c \
-	  src/lcd.c \
-	  src/i2c_sw.c \
-	  src/tm1637.c \
+	src/uart.c \
+	src/lcd.c \
+	src/i2c_sw.c \
+	src/tm1637.c \
       src/LEF/LEF.c \
-	  src/LEF/LEF_Core.c \
+	src/LEF/LEF_Core.c \
       src/LEF/LEF_Queue.c \
       src/LEF/LEF_Timer.c \
       src/LEF/LEF_Cli.c \
-	  src/LEF/LEF_Cli_History.c \
+	src/LEF/LEF_Cli_History.c \
       src/LEF/LEF_Button.c \
       src/LEF/LEF_Led.c \
       src/LEF/LEF_LedRG.c \
@@ -300,6 +300,7 @@ NM        = ${TCHAIN}nm
 AS        = ${TCHAIN}as
 GDB       = ${TCHAIN}gdb
 STRIP     = ${TCHAIN}strip
+LD        = ${TCHAIN}ld
 
 #
 # Message/Filter settings
@@ -352,47 +353,8 @@ C_ACTION=$(E_FG_BR_MAGENTA)
 C_VALUE=$(E_FG_WHITE)$(E_BG_BLUE)
 C_IDENTIFIER=$(E_FG_WHITE)
 
-# Messages ------------------------------------------------------------------
-MSG_LINE             = "$(E_FG_WHITE)------------------------------------------------------------------$(E_RESET)"
-MSG_BEGIN            = "${E_FG_WHITE}-------------------------------- Begin ---------------------------${E_RESET}"
-MSG_END              = "${E_FG_WHITE}-------------------------------- End -----------------------------${E_RESET}"
-MSG_ERRORS_NONE      = "${C_OK}Errors: none ${E_RESET}"
-MSG_STRIP            = "${C_ACTION}Striping:${E_RESET}"
-MSG_LINKING          = "${C_ACTION}Linking:${E_RESET}"
-MSG_COMPILING        = "${C_ACTION}Compiling C:  ${E_RESET}"
-MSG_COMPILING_CPP    = "${C_ACTION}Compiling C++:${E_RESET}"
-MSG_ASSEMBLING       = "${C_ACTION}Assembling:${E_RESET}"
-MSG_CLEANING         = "$(C_ACTION)Cleaning project:$(E_RESET)"
-MSG_EXTENDED_LISTING = "${C_ACTION}Creating Extended Listing/Disassembly:$(E_RESET)"
-MSG_SYMBOL_TABLE     = "${C_ACTION}Creating Symbol Table:$(E_RESET)"
-MSG_HEX_FILE         = "${C_ACTION}Creating Hex file:$(E_RESET)"
-MSG_FORMATERROR      = "${C_ERROR}Can not handle output-format${E_RESET}"
-MSG_ASMFROMC         = "${C_ACTION}Creating asm-File from C-Source:$(E_RESET)"
-MSG_SIZE_BEFORE      = "${C_ACTION}Size before:${E_RESET}"
-MSG_SIZE_AFTER       = "${C_ACTION}Size after build:${E_RESET}"
-MSG_LOAD_FILE        = "${C_ACTION}Creating load file:${E_RESET}"
-MSG_ARCHIVING        = "${C_ACTION}Creating tar archive:${E_RESET}"
-MSG_CREATING_LIBRARY = "${C_ACTION}Creating library:${E_RESET}"
-MSG_FLASH            = "${C_ACTION}Creating load file for Flash:${E_RESET}"
-MSG_EEPROM           = "${C_ACTION}Creating load file for EEPROM:${E_RESET}"
-MSG_COFF             = "${C_ACTION}Converting to AVR COFF:${E_RESET}"
-MSG_EXTENDED_COFF    = "${C_ACTION}Converting to AVR Extended COFF:${E_RESET}"
-MSG_MOC              = "${C_ACTION}Creating MOC file:${E_RESET}"
-MSG_UI               = "${C_ACTION}Generating UI header:${E_RESET}"
-MSG_BACKUP           = "${C_ACTION}Making incremental backup of project:${E_RESET}"
-MSG_SRC              = "${C_MSG}Source files $(E_FG_GREEN)-----------------------------------------------------${E_RESET}"
-MSG_FLAGS            = "${C_MSG}Compiler Flags $(E_FG_GREEN)---------------------------------------------------${E_RESET}"
-MSG_LINKER           = "${C_MSG}Linker Flags $(E_FG_GREEN)-----------------------------------------------------${E_RESET}"
-MSG_PROJECT          = "${C_MSG}Project info $(E_FG_GREEN)-----------------------------------------------------${E_RESET}"
-MSG_INCLUDES         = "${C_MSG}Include directories $(E_FG_GREEN)----------------------------------------------${E_RESET}"
-MSG_OBJECTS          = "${C_MSG}Object files $(E_FG_GREEN)-----------------------------------------------------${E_RESET}"	
-MSG_DEFS             = "${C_MSG}Macro definitions $(E_FG_GREEN)------------------------------------------------${E_RESET}"
-MSG_INSTALL_INFO     = "${C_MSG}Install settings $(E_FG_GREEN)-------------------------------------------------${E_RESET}"
-MSG_INSTALLING       = "${C_ACTION}Installing:   ${E_RESET}"
-MSG_BUILDING         = "$(C_ACTION)Building:     "
 	
 # Compiler output colorizer filter ------------------------------------------
-F_SOURCE=| sed -e "s/\(.*\/\)\(.*\)/$$(printf "$(C_DIR)")\1$$(printf "$(C_FILE)")\2$$(printf "$(E_RESET)")/"
 F_INF="s/In function/$$(printf "$(E_FG_BR_GREEN)")&$$(printf "$(E_RESET)")/i"
 F_NOTE="s/note:/$$(printf "$(C_NOTE)")&$$(printf "$(E_RESET)")/i"
 F_WARNING="s/warning:/$$(printf "$(C_WARNING)")&$$(printf "$(E_RESET)")/i"
@@ -462,7 +424,7 @@ all: build finished ##D Build project (default)
 nc: C_FILTER:= 
 nc: all   ##D Build with no color filter on compiler output
 
-build: elf hex lss sym size
+build: begin elf hex lss sym size end
 
 elf: $(TRGFILE)
 lss: $(OUTDIR)/$(TARGET).lss
@@ -471,12 +433,10 @@ hex: $(OUTDIR)/$(TARGET).hex
 eep: $(OUTDIR)/$(TARGET).eep
 
 begin:
-	@echo -e $(MSG_BEGIN)
-	@echo -e ${MSG_BUILDING}" $(E_BR_GREEN)$(TARGET) $(E_RESET)"
+	@printf "$(C_ACTION)Building:          $(E_FG_BR_GREEN)%s$(E_RESET)\n\n" $(TARGET)
  
 end:
 	@echo
-	@echo -e $(MSG_END)
 	
 finished:
 	@echo
@@ -484,49 +444,41 @@ finished:
 # Linking targets from object files
 .PRECIOUS : $(OBJS)
 $(TRGFILE): $(UIH) $(OBJS) $(OUTDIR)
-	@echo -en "\n"$(MSG_LINKING)"       "
-	@echo -e $@ $(F_SOURCE) 
+	@printf "\n${C_ACTION}Linking:           ${C_DIR}%s${C_FILE}%s${E_RESET}\n" $(dir $@) $(notdir $@)
 	@$(CPP) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
 	
 # Create extended listing file/disassambly from ELF output file.
 # using objdump testing: option -C
 %.lss:	$(TRGFILE)
-	@echo -en "\n"$(MSG_EXTENDED_LISTING) "\n               "
-	@echo -e $@ $(F_SOURCE)
+	@printf "${C_ACTION}Extended listing:  ${C_DIR}%s${C_FILE}%s\n" $(dir $@) $(notdir $@)
 	@$(OBJDUMP) $(ODFLAGS) $< > $@
 	
 # Create a symbol table from ELF output file.
 %.sym: $(TRGFILE)
-	@echo -en "\n"${MSG_SYMBOL_TABLE}"\n               "
-	@echo -e $@ $(F_SOURCE)
+	@printf "${C_ACTION}Symbol Table:      ${C_DIR}%s${C_FILE}%s\n" $(dir $@) $(notdir $@)
 	@$(NM) -n $< > $@
 
 # Create hex file from ELF output file.
 %.hex: $(TRGFILE)
-	@echo
-	@echo -en $(MSG_HEX_FILE) "\n               "
-	@echo -e $@ $(F_SOURCE)
+	@printf "${C_ACTION}Hex file:          ${C_DIR}%s${C_FILE}%s\n" $(dir $@) $(notdir $@)
 	@$(OBJCOPY) $(OCFLAGS) $< $@
 
 # Compile: create object files from C source files.
 $(COBJS): $(BUILDDIR)/%.o : %.c
 	@$(MKDIR) $(@D)                                       # Create directory for object file
-	@echo -en $(MSG_COMPILING)" "
-	@echo -e $< $(F_SOURCE)
+	@printf "${C_ACTION}Compiling C:       ${C_DIR}%s${C_FILE}%s${E_RESET}\n" $(dir $<) $(notdir $<)
 	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1  $(C_FILTER)
 
 # Compile: create object files from C++ source files.
 $(CPPOBJS): $(BUILDDIR)/%.o : %.cpp
 	@$(MKDIR) $(@D)                                       # Create directory for object file
-	@echo -en $(MSG_COMPILING_CPP)" " 
-	@echo -e $< $(F_SOURCE)
+	@printf "${C_ACTION}Compiling C++:     ${C_DIR}%s${C_FILE}%s${E_RESET}\n" $(dir $<) $(notdir $<)
 	@$(CPP) -c $(ALL_CPPFLAGS) $< -o $@ 2>&1  $(CPP_FILTER)
 	
 # Assemble: create object files from assembler source files.
 $(AOBJS): $(BUILDDIR)/%.o : %.S
 	@$(MKDIR) $(@D)                                       # Create directory for object file
-	@echo -en $(MSG_ASSEMBLING) "  "
-	@echo -e $< $(F_SOURCE)
+	@printf "${C_ACTION}Assembling:        ${C_DIR}%s${C_FILE}%s${E_RESET}\n" $(dir $<) $(notdir $<)
 	@$(CC) -c $(ALL_ASFLAGS) $< -o $@ 2>&1
 
 # Compile: create assembler files from C source files.
@@ -547,12 +499,11 @@ $(BUILDDIR):
 
 # Print information about target binary 
 size: $(TRGFILE)
-	@echo
-	@echo -e $(MSG_SIZE_AFTER)
+	@printf "\n${C_ACTION}Size after build:${E_RESET}\n"
 	@$(SIZE) $(SIZEFLAGS) $(TRGFILE)
 
 strip: $(TRGFILE) ##D Strip target binary from symbols
-	@echo -e $(MSG_STRIP)
+	@printf "${C_ACTION}Striping:${E_RESET}"
 	@$(STRIP) $(TRGFILE)
 
 #
@@ -560,19 +511,15 @@ strip: $(TRGFILE) ##D Strip target binary from symbols
 #============================================================================
 
 coff: $(TRGFILE)
-	@echo
-	@echo -e $(MSG_COFF)"\n             $(E_FG_BR_CYAN)" $(TARGET).cof "$(E_RESET)"
+	@printf "\n${C_ACTION}AVR COFF:          ${C_DIR}%s${C_FILE}%s.cof${E_RESET}\n" $(dir $(TARGET)) $(notdir $(TARGET))
 	$(COFFCONVERT) -O coff-avr $< $(TARGET).cof
 
 extcoff: $(TRGFILE)
-	@echo
-	@echo -e $(MSG_EXTENDED_COFF)"\n             $(E_FG_BR_CYAN)" $(TARGET).cof "$(E_RESET)"
+	@printf "\n${C_ACTION}AVR Extended COFF: ${C_DIR}%s${C_FILE}%s.cof${E_RESET}\n" $(dir $(TARGET)) $(notdir $(TARGET))
 	@$(COFFCONVERT) -O coff-ext-avr $< $(TARGET).cof
 
 %.eep: $(TRGFILE)
-	@echo
-	@echo -en $(MSG_EEPROM)"\n               "
-	@echo -e $@ $(F_SOURCE)
+	@printf "$\n{C_ACTION}AVR EEPROM:        ${C_DIR}%s${C_FILE}%s${E_RESET}\n" $(dir $@) $(notdir $@)
 	@$(OBJCOPY) -j .eeprom --set-section-flags=.eeprom="alloc,load" \
 	--change-section-lma .eeprom=0 --no-change-warnings -O $(FORMAT) $< $@ || exit 0
 
@@ -636,8 +583,7 @@ flash_wait: ##D Start non blocking flash write loop
 #============================================================================
 
 clean:  ##D Remove all build files
-	@echo
-	@echo -e $(MSG_CLEANING)
+	@printf "\n$(C_ACTION)Cleaning project:$(E_RESET)\n"
 	@$(REMOVE) $(OUTDIR)/$(TARGET)
 	@$(REMOVE) $(OUTDIR)/$(TARGET).elf
 	@$(REMOVE) $(OUTDIR)/$(TARGET).hex
@@ -677,29 +623,13 @@ check: ##D Check if tools and libraries are present
 	done                               \
 
 archive: ##D Make a tar archive of the source code
-	@echo
-	@echo -e $(MSG_ARCHIVING)
+	@printf "\n${C_ACTION}Creating tar archive:${E_RESET}\n"
 	@$(MPUTILS) archive $(TARGET)
 
 backup: ##D Make an incremental backup
-	@echo
-	@echo -e $(MSG_BACKUP)
+	@printf "\n${C_ACTION}Making incremental backup of project:${E_RESET}\n"
 	@$(MPUTILS) backup
 
-# Project options -----------------------------------------------------------
-.PHONY: newc newcpp newclass 
-
-##- Create
-
-newc:  ##D Create a new C module
-	@${MPTEMPLATE} newc --outdir src 
-
-#newcpp:  ## Create a new C++ module
-#	@${CTEMPLATE} newcpp --outdir src --author "$(AUTHOR)" --license "$(LICENSE)"
-
-#newclass:  ## Create a new C++ class
-#	@${MPTEMPLATE} newclass --outdir src --author "$(AUTHOR)" --license "$(LICENSE)"	
-		
 #
 # Help information
 #============================================================================
@@ -710,24 +640,22 @@ help: ##D This help information
 	@$(MPUTILS) mpHelp Makefile
 
 info-project: # Print project information
-	@echo -e $(MSG_PROJECT)
+	@echo -e "${C_MSG}Project info $(E_FG_GREEN)-----------------------------------------------------${E_RESET}"
 	@echo "Target:     $(TARGET)"
-	@echo "Platform:   $(TARGET_PLATFORM)"
-	@echo "License:    $(LICENSE)"
 	@echo "Outdir:     $(OUTDIR)"
 	@echo "C standard: $(CSTANDARD)"
 	@echo "MCU:        $(MCU)"
 	@echo "F_CPU:      $(F_CPU)"
 	
 info-includes: # Print includefiles
-	@echo -e $(MSG_INCLUDES)
+	@echo -e "${C_MSG}Include directories $(E_FG_GREEN)----------------------------------------------${E_RESET}"
 	@export IFS=" "
 	@for f in $(INCLUDE); do   \
 	  echo $${f} ;             \
 	done        
 
 info-defs: # Print macro definitions
-	@echo -e $(MSG_DEFS)
+	@echo -e "${C_MSG}Macro definitions $(E_FG_GREEN)------------------------------------------------${E_RESET}"
 	@export IFS=" "
 	@for f in $(CDEFS); do     \
 	  echo $${f} ;             \
@@ -742,41 +670,48 @@ info-defs: # Print macro definitions
 	done        
 
 info-cflags:  # Print compiler flags
-	@echo -e $(MSG_FLAGS)
+	@echo -e "${C_MSG}Compiler Flags $(E_FG_GREEN)---------------------------------------------------${E_RESET}"
 	@export IFS=" "
 	@for f in $(CFLAGS); do   \
 	  echo $${f} ;            \
 	done                      \
 
 info-lflags: # Print linker flags
-	@echo -e $(MSG_LINKER)
+	@echo -e "${C_MSG}Linker Flags $(E_FG_GREEN)-----------------------------------------------------${E_RESET}"
 	@export IFS=" "
 	@for f in $(LDFLAGS); do   \
 	  echo $${f} ;             \
 	done                       \
 
 info-src:  # Print source files
-	@echo -e $(MSG_SRC)
+	@echo -e "${C_MSG}Source files $(E_FG_GREEN)-----------------------------------------------------${E_RESET}"
 	@export IFS=" "
 	@for f in $(SRC); do      \
 	  echo $${f} ;            \
 	done                      \
 
 info-objs: ##D List objects 
-	@echo -e $(MSG_OBJECTS)
+	@echo -e "${C_MSG}Object files $(E_FG_GREEN)-----------------------------------------------------${E_RESET}"
 	@export IFS=" "
 	@for f in $(OBJS); do   \
 	  echo $${f} ;          \
 	done   
 
 info-install:
-	@echo -e $(MSG_INSTALL_INFO)
+	@echo -e "${C_MSG}Install settings $(E_FG_GREEN)-------------------------------------------------${E_RESET}"
 	@echo "Install dir:   $(INSTALL_DIR)"
 	@echo "Install user:  $(INSTALL_USER)"
 	@echo "Install group: $(INSTALL_GROUP)"
 
 
-info: info-project info-includes info-defs info-cflags info-lflags info-src info-install ##D Print information about project
+info: ##D Print information about project
+	@$(MAKE) --no-print-directory info-project 
+	@$(MAKE) --no-print-directory info-includes 
+	@$(MAKE) --no-print-directory info-defs 
+	@$(MAKE) --no-print-directory info-cflags 
+	@$(MAKE) --no-print-directory info-lflags 
+	@$(MAKE) --no-print-directory info-src 
+	@$(MAKE) --no-print-directory info-install 
 
 files: info-src ##D List source files
 

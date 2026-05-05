@@ -38,43 +38,32 @@ extern "C" {
 	
 // Typedefs ---------------------------------------------------------------
 
-typedef struct {
-	LEF_Event que[LEF_QUEUE_LENGTH];            // queue it self
-	uint8_t head;
-	volatile uint8_t cnt;                     // nr of elements in queue (i.e. not the size if the queue)
-	uint8_t length;
-} LEF_EventQueue;
-
 typedef enum {
 	LEF_QUEUE_OK,
 	LEF_QUEUE_FULL,
 	LEF_QUEUE_EMPTY
 } LEF_QueueStatus;
 
-// Variables --------------------------------------------------------------
+typedef struct {
+	uint8_t head;
+	volatile uint8_t cnt;                     // nr of elements in queue (i.e. not the size if the queue)
+	uint8_t length;
+	LEF_Event que[];
+} LEF_EventQueue;
+
 
 // Functions --------------------------------------------------------------
 
+LEF_EventQueue* LEF_QueueNew(uint8_t length);
 
-void LEF_QueueClear(LEF_EventQueue *queue);
+void LEF_QueueClear(LEF_EventQueue* queue);
 
-void LEF_QueueInit(LEF_EventQueue *queue);
+    /**
+     * Returns the number of events in the queue.
+     */
+inline uint16_t LEF_QueueCnt(LEF_EventQueue* queue) { return queue -> cnt;}
 
-void LEF_QueueSend(LEF_EventQueue *queue,  LEF_Event *event);
-
-void LEF_QueueSendEvent(LEF_EventQueue *queue, LEF_EventId ev, void *data);
-
-/**
- * @deprecated Use LEF_QueueNextElement instead, which allows peeking at the next element without removing it from the queue.
- */
-void LEF_QueueWait(LEF_EventQueue *queue, LEF_Event *event);
-
-/**
- * Returns the number of events in the queue.
- */
-uint16_t LEF_QueueCnt(LEF_EventQueue *queue);
-
-LEF_QueueStatus LEF_QueuePush(LEF_EventQueue* queue, LEF_Event* event);
+LEF_QueueStatus LEF_QueuePush(LEF_EventQueue * queue, LEF_Event* event);
 
 LEF_QueueStatus LEF_QueuePop(LEF_EventQueue* queue, LEF_Event* event);
 

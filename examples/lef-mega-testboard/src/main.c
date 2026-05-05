@@ -199,69 +199,6 @@ static uint16_t lcd_gpio_callback(HD44780_MSG msg, uint16_t data_arg) {
 #define PCF_D7 7
 #define PCF_ADDR 0x27
 
-
-static uint16_t LCD_Handler_i2c(HD44780_MSG msg, uint16_t data_arg) {
-    uint16_t result = 0;
-    static uint8_t pins;
-    uint8_t data;
-
-        switch (msg) {
-        case HD44780_MSG_INIT:
-            i2c_init();
-            pins = 0;
-            break;
-        case HD44780_MSG_GPIO_DATA_DIRECTION:
-            break;
-        case HD44780_MSG_GPIO_DATA_READ:
-            data = pcf_read(PCF_ADDR, (1 << PCF_D4) | (1 << PCF_D5) | (1 << PCF_D6) | (1 << PCF_D7));
-            
-            if (data & (1 << PCF_D4)) 
-                result |= 0x01;
-            if (data & (1 << PCF_D5)) 
-                result |= 0x02;
-            if (data & (1 << PCF_D6)) 
-                result |= 0x04;
-            if (data & (1 << PCF_D7)) 
-                result |= 0x08;
-            break;
-        case HD44780_MSG_GPIO_DATA_WRITE:
-            (data_arg & 0x10) ? BitSet(pins, PCF_D4) : BitClear(pins, PCF_D4);
-            (data_arg & 0x20) ? BitSet(pins, PCF_D5) : BitClear(pins, PCF_D5);
-            (data_arg & 0x40) ? BitSet(pins, PCF_D6) : BitClear(pins, PCF_D6);
-            (data_arg & 0x80) ? BitSet(pins, PCF_D7) : BitClear(pins, PCF_D7);
-            break;    
-        case HD44780_MSG_GPIO_E:
-            data_arg ? BitSet(pins, PCF_E) : BitClear(pins, PCF_E);
-            break;
-        case HD44780_MSG_GPIO_E_TOGGLE:
-            BitSet(pins, PCF_E);
-            pcf_write(PCF_ADDR, pins);
-            _delay_us(HD44780_DELAY_ENABLE_PULSE);
-            BitClear(pins, PCF_E);
-            break;
-        case HD44780_MSG_GPIO_RW:
-            data_arg ? BitSet(pins, PCF_RW) : BitClear(pins, PCF_RW);
-            break;
-        case HD44780_MSG_GPIO_RS:
-            data_arg ? BitSet(pins, PCF_RS) : BitClear(pins, PCF_RS);
-            break;
-        case HD44780_MSG_DELAY_E:
-            _delay_us(HD44780_DELAY_ENABLE_PULSE);
-            break;
-        case HD44780_MSG_BACKLIGHT:
-            data_arg ? BitSet(pins, PCF_BL) : BitClear(pins, PCF_BL);
-            break;
-        case HD44780_MSG_DELAY_US:
-            data_arg = data_arg / 10;
-            while (data_arg--) _delay_us(10);
-            break;
-        default: break;
-    }
-    pcf_write(PCF_ADDR, pins);
-    return result;
-}
-
-
 static void cmd_brp(char* args) {
     printf_P(PSTR("Brp args = %s\n"), args);
     LEF_Buzzer_set(LEF_BUZZER_BRP);
@@ -347,19 +284,6 @@ static void cmdHelp(char* args) {
     LEF_Cli_print();
 }
 
-static void cmd_lcd_i2c(char* args) {
-    UNUSED(args);
-    lcd_init(LCD_Handler_i2c, HD44780_MODE_ON);
-    lcd_clear();
-    lcd_puts("LCD on PCF8574");
-}
-
-static void cmd_lcd_gpio(char* args) {
-    lcd_init(lcd_gpio_callback, HD44780_MODE_ON);
-    lcd_clear();
-    lcd_puts_P("LCD on GPIO");
-}
-
 static void cmd_lcd_on(char* args) {
     UNUSED(args);
     lcd_on();
@@ -370,103 +294,27 @@ static void cmd_lcd_off(char* args) {
     lcd_off();
 }
 
-static void cmd_lcd_cursor_on(char* args) {
-    UNUSED(args);
-    lcd_on_cursor();
-}
-
-static void cmd_lcd_cursor_on_blink(char* args) {
-    UNUSED(args);
-    lcd_on_cursor_blink();
-    lcd_mode(HD44780_MODE_ON_CURSOR_BLINK);
-}
 
 static void cmd_lcd_clear(char* args) {
     UNUSED(args);
     lcd_clear();
 }
 
-static void cmd_lcd_home(char* args) {
-    UNUSED(args);
-    lcd_home();
-}
-
-static void cmd_lcd_move_right(char* args) {
-    UNUSED(args);
-    lcd_move_right();
-}
-
-static void cmd_lcd_move_left(char* args) {
-    UNUSED(args);
-    lcd_move_left();
-}
-
-static void cmd_lcd_test1(char* args) {
-    UNUSED(args);
-    lcd_clear();
-    _delay_ms(300);
-    lcd_puts_P("  Testing newline\n");
-    _delay_ms(300);
-    lcd_puts_P("Line 2\n");
-    _delay_ms(300);
-    lcd_puts_P("Line 3\n");
-    _delay_ms(300);
-    lcd_puts_P("Line 4\n");
-    _delay_ms(300);
-    lcd_puts_P("Line 5\n");
-    // _delay_ms(300);
-}
-
-static void cmd_lcd_test2(char* args) {
-    UNUSED(args);
-    lcd_clear();
-    lcd_gotoxy(3,0);
-    lcd_puts_P("Testing gotoxy");
-    lcd_gotoxy(6,3);
-    lcd_puts_P("Line 4");
-    lcd_gotoxy(1,1);
-    lcd_puts_P("Line 2");
-    lcd_gotoxy(14,2);
-    lcd_puts_P("Line 3");
-}
-
-static void cmd_lcd_test3(char* args) {
-    UNUSED(args);
-    lcd_clear();
-    for (int i=0; i<80; i++) {
-        lcd_putc('X');
-        _delay_ms(20);
-    }
-}
-/*
-** constant definitions
-*/
-static const PROGMEM unsigned char copyRightChar[] = {
-    0x07, 0x08, 0x13, 0x14, 0x14, 0x13, 0x08, 0x07,
-    0x00, 0x10, 0x08, 0x08, 0x08, 0x08, 0x10, 0x00
+static const PROGMEM unsigned char bar[] = {
+    0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F,  
+    0x1E, 0x1E, 0x1E, 0x1E, 0x1E, 0x1E, 0x1E, 0x1E,  
+    0x1C, 0x1C, 0x1C, 0x1C, 0x1C, 0x1C, 0x1C, 0x1C,  
+    0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18,  
+    0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10,  
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  
 };
 
-static void cmd_lcd_test_cc(char* args) {
-    UNUSED(args);
-    lcd_clear();
-    lcd_puts_P("Custom char test");
 
+static void load_custom_bar_chars() {
     lcd_send_command(HD44780_INST_CGRAM); /* set CG RAM start address 0 */
-    for (int i = 0; i < 16; i++) {
-        lcd_send_data(pgm_read_byte_near(&copyRightChar[i]));
+    for (int i = 0; i < (5*8); i++) {
+        lcd_send_data(pgm_read_byte_near(&bar[i]));
     }
-    lcd_gotoxy(0,1);
-    lcd_putc(0);
-    lcd_putc(1);
-}
-
-static void cmd_lcd_test_move(char* args) {
-    UNUSED(args);
-    lcd_clear();
-    lcd_puts_P("Some text to move");
-    _delay_ms(300);
-    lcd_home();
-    lcd_send_command(HD44780_MOVE_DISPLAY_RIGHT);
 }
 
 static void cmd_lcd_backlight_on(char* args) {
@@ -585,19 +433,6 @@ static void cmd_pcf_read(char* args) {
     }
 }
 
-// static void cmd_pcf_read(char* args) {
-//     UNUSED(args);
-//     uint8_t data = 0;
-//     printf_P(PSTR("Reading PCF8574\n"));
-
-//     i2c_init();
-
-//     data = pcf_read(ADDR2, 0xff);
-//     printf_P(PSTR("PCF: %s\n"), int2bin8(data));
-//     _delay_ms(10);
-// }
-
-
 
 static void cmd_i2c_scan(char* args) {
     UNUSED(args);
@@ -664,21 +499,9 @@ const PROGMEM LEF_CliCmd cmdTable[] = {
     {cmd_dblink, "dblink", "Make led blink twice"},
     {cmd_tblink, "tblink", "Make led blink three times"},
     LEF_CLI_LABEL("LCD"),
-    {cmd_lcd_gpio, "lcdgpio", "Initiate LCD on GPIO"},
-    {cmd_lcd_i2c, "lcdi2c", "Initiate LCD on PCF8574"},
     {cmd_lcd_on, "lcdon", "Turn LCD on"},
     {cmd_lcd_off, "lcdoff", "Turn LCD off"},
-    {cmd_lcd_cursor_on, "lcdcuron", "Cursor on"},
-    {cmd_lcd_cursor_on_blink, "lcdcurbl", "Cursor blinking"},
     {cmd_lcd_clear, "lcdclr", "Clear LCD"},
-    {cmd_lcd_home, "lcdh", "Move cursor to home pos"},
-    {cmd_lcd_move_right, "lcdr", "Move text right"},
-    {cmd_lcd_move_left, "lcdl", "Move text left"},
-    {cmd_lcd_test1, "lcdt1", "Testing newlines"},
-    {cmd_lcd_test2, "lcdt2", "Testing gotoxy"},
-    {cmd_lcd_test3, "lcdt3", "Testing wrap"},
-    {cmd_lcd_test_cc, "lcdcc", "Testing custom character"},
-    {cmd_lcd_test_move, "lcdtm", "Run LCD move test"},
     {cmd_lcd_backlight_on, "lcdblon", "LCD backlight off"},
     {cmd_lcd_backlight_off, "lcdbloff", "LCD backlight off"},
     LEF_CLI_LABEL("I2C"),
@@ -784,8 +607,9 @@ static void hw_init(void) {
     TIMER_OCA(3, 120);
 
     lcd_init(lcd_gpio_callback, HD44780_MODE_ON);
+    load_custom_bar_chars();
     lcd_clear();
-    lcd_puts_P("   LEF Mega Test");
+    lcd_puts_P(" LEF Mega Test");
 
     sei();
 }
@@ -803,16 +627,16 @@ static bool main_event_handler(LEF_Event* event) {
             LEF_Led_set(&led2, LED_BLINK);
             LEF_Led_set(&led3, LED_FAST_BLINK);
             LEF_Led_set(&led4, LED_BLIP);
-            lcd_gotoxy(0,3);
+            lcd_gotoxy(0,1);
             lcd_puts_P("Button 1 pressed");
             break;
         case EVENT_Button2:  // Handle button press event
             printf_P(PSTR("Button 2 event: func = %d\n"), event->func);
-            lcd_gotoxy(0,3);
+            lcd_gotoxy(0,1);
             lcd_puts_P("Button 2 pressed");
             break;
         case EVENT_Button3:  // Handle button press event
-            lcd_gotoxy(0,3);
+            lcd_gotoxy(0,1);
             lcd_puts_P("Button 3 pressed");
             if (event->func == 1) {
                 ls++;
@@ -863,14 +687,23 @@ static bool main_event_handler(LEF_Event* event) {
             LEF_Led_set(&led4, (val > 800));
 
             lcd_gotoxy(0, 0);
-            for (uint16_t i = 0; i < 16; i++) {
-                if (1023 / 16 * i < val)
-                    lcd_putc('#');
-                else
-                    lcd_putc(' ');
+            uint8_t bars = val/17; 
+            for (uint16_t i = 0; i < 12; i++) {
+                if (bars >= 5) {
+                    lcd_putc(0);
+                    bars -= 5;
+                    continue;
+                } 
+                if (bars > 0) {
+                    lcd_putc(5 - (bars % 5));
+                    bars = 0;
+                    continue;
+                }
+                lcd_putc(' ');
             }
-            lcd_gotoxy(0, 1);
-            sprintf_P(buf, PSTR("Pot value %4d"), val);
+            
+            lcd_gotoxy(12, 0);
+            sprintf_P(buf, PSTR("%4d"), val);
             lcd_puts(buf);
             break;
 

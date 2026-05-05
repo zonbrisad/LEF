@@ -66,7 +66,7 @@ target_link_libraries(lef-pico
 #    pico_sha256
 #    hardware_gpio
 #    hardware_pio
-#    hardware_adc
+    hardware_adc
 #    hardware_i2c
 #    hardware_uart
 #    hardware_spi    
@@ -86,8 +86,8 @@ target_link_libraries(lef-pico
 )
 
 # These MUST come AFTER pico_sdk_init()
-pico_enable_stdio_usb(lef-pico 1)
-pico_enable_stdio_uart(lef-pico 0)
+pico_enable_stdio_usb(lef-pico 0)
+pico_enable_stdio_uart(lef-pico 1)
 
 pico_add_extra_outputs(lef-pico)
 
